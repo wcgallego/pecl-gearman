@@ -1,0 +1,4 @@
+Sat Mar 28 16:44:11 PDT 2009
+1. Create generic add_task_*/client_do function so there is not so much 
+   code duplication.
+2. Clean up test_[client|worker].php scripts. Check every return val etc.
