@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<package packagerversion="1.4.11" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
+http://pear.php.net/dtd/tasks-1.0.xsd
+http://pear.php.net/dtd/package-2.0
+http://pear.php.net/dtd/package-2.0.xsd">
+ <name>gearman</name>
+ <channel>pecl.php.net</channel>
+ <summary>PHP wrapper to libgearm</summary>
+ <description>
+  This extension uses libgearman library to provide API for communicating with gearmand, and writing clients and workers.
+ </description>
+ <lead>
+  <name>James M. Luedke</name>
+  <user>jluedke</user>
+  <email>contact@jluedke.com</email>
+  <active>yes</active>
+ </lead>
+ <developer>
+  <name>Eric Day</name>
+  <user></user>
+  <email>eday@oddments.org</email>
+  <active>yes</active>
+ </developer>
+ <date>2009-05-13</date>
+ <version>
+  <release>0.3.1</release>
+  <api>0.3.1</api>
+ </version>
+ <stability>
+  <release>beta</release>
+  <api>beta</api>
+ </stability>
+ <license uri="http://www.php.net/license">PHP</license>
+ <notes>
+- Initial PECL import
+- Reworked client/worker/task/job objects.
+- Added $obj->return_code() to all objects
+- Fixed compile issues with PHP 5.1 and 5.3
+ </notes>
+ <contents>
+  <dir name="/">
+   <file role='doc' name='EXPERIMENTAL'/>
+   <file role='doc' name='README'/>
+   <file role='doc' name='CREDITS'/>
+   <file role='doc' name='LICENSE'/>
+   <file role='doc' name='ChangeLog'/>
+   <file role='doc' name='test_client.php'/>
+   <file role='doc' name='test_worker.php'/>
+   <file role='src' name='config.m4'/>
+   <file role='src' name='php_gearman.c'/>
+   <file role='src' name='php_gearman.c'/>
+   <file role='test' name='gearman_001.phpt'/>
+   <dir name="examples">
+    <file role='doc' name='image_thumbnail_client_bg.php'/>
+    <file role='doc' name='image_thumbnail_client.php'/>
+    <file role='doc' name='image_thumbnail_client_task.php'/>
+    <file role='doc' name='image_thumbnail_worker.php'/>
+    <file role='doc' name='reverse_client_bg.php'/>
+    <file role='doc' name='reverse_client.php'/>
+    <file role='doc' name='reverse_client_task.php'/>
+    <file role='doc' name='reverse_worker.php'/>
+   </dir> <!-- examples" -->
+  </dir> <!-- / -->
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>5.1.0</min>
+    <max>6.0.0</max>
+    <exclude>6.0.0</exclude>
+   </php>
+   <pearinstaller>
+    <min>1.4.0b1</min>
+   </pearinstaller>
+  </required>
+ </dependencies>
+ <providesextension>gearman</providesextension>
+ <extsrcrelease>
+ </extsrcrelease>
+ <changelog>
+  <release>
+   <stability><release>beta</release><api>beta</api></stability>
+   <version><release>0.3.1</release><api>0.3.1</api></version>
+   <date>2009-05-13</date>
+   <notes>
+- Initial PECL import
+- Reworked client/worker/task/job objects.
+- Added $obj->return_code() to all objects
+- Fixed compile issues with PHP 5.1 and 5.3
+   </notes>
+  </release>
+ </changelog>
+</package>

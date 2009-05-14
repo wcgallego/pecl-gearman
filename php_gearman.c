@@ -21,7 +21,7 @@
 #include <libgearman/gearman.h>
 
 /* module version */
-#define PHP_GEARMAN_VERSION "0.3"
+#define PHP_GEARMAN_VERSION "0.3.1"
 
 /* XXX Compatibility Macros
  * If there is a better way to do this someone please let me know.
