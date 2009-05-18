@@ -21,7 +21,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
   <email>eday@oddments.org</email>
   <active>yes</active>
  </developer>
- <date>2009-05-13</date>
+ <date>2009-05-14</date>
  <version>
   <release>0.3.1</release>
   <api>0.3.1</api>
@@ -81,7 +81,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
   <release>
    <stability><release>beta</release><api>beta</api></stability>
    <version><release>0.3.1</release><api>0.3.1</api></version>
-   <date>2009-05-13</date>
+   <date>2009-05-14</date>
    <notes>
 - Initial PECL import
 - Reworked client/worker/task/job objects.
