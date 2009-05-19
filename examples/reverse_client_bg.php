@@ -11,32 +11,18 @@
  */
 
 /* create our object */
-$gmclient= new gearman_client();
+$gmclient= new GearmanClient();
 
 /* add the default server */
-$gmclient->add_server();
+$gmclient->addServer();
 
 /* run reverse client */
-$job_handle = $gmclient->do_background("reverse", "this is a test");
+$job_handle = $gmclient->doBackground("reverse", "this is a test");
 
-if ($gmclient->return_code() != GEARMAN_SUCCESS)
+if ($gmclient->returnCode() != GEARMAN_SUCCESS)
 {
   echo "bad return code\n";
   exit;
 }
-
-echo "JOB HANDLE: $job_handle\n";
-while (1)
-{
-  list($is_known, $is_running, $numerator, $denominator)= $gmclient->job_status($job_handle);
-  if (! $is_known)
-  {
-      echo "NOT KNOWN!\n";
-      break;
-  }
-  sleep(1);
-
-  echo "Known= $is_known Running= $is_running - $numerator/$denominator\n";
-}
-
+exit;
 ?>

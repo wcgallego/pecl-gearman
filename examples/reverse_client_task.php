@@ -1,14 +1,14 @@
 <?php
-$gmc= new gearman_client();
-$gmc->add_server();
+$gmc= new GearmanClient();
+$gmc->addServer();
 
-$gmc->set_created_fn("reverse_created");
-$gmc->set_status_fn("reverse_status");
-$gmc->set_complete_fn("reverse_complete");
-$gmc->set_fail_fn("reverse_fail");
-$task= $gmc->add_task("reverse", "this is a test", NULL);
+$gmc->setCreatedCallback("reverse_created");
+$gmc->setStatusCallback("reverse_status");
+$gmc->setCompleteCallback("reverse_complete");
+$gmc->setFailCallback("reverse_fail");
+$task= $gmc->addTask("reverse", "this is a test", NULL);
 
-if (! $gmc->run_tasks())
+if (! $gmc->runTasks())
 {
     echo "ERROR " . $gmc->error() . "\n";
     exit;
@@ -17,21 +17,22 @@ echo "DONE\n";
 
 function reverse_created($task)
 {
-    echo "CREATED: " . $task->job_handle() . "\n";
+    echo "CREATED: " . $task->jobHandle() . "\n";
+}
 
 function reverse_status($task)
 {
-    echo "STATUS: " . $task->job_handle() . " - " . $task->task_numerator() . 
-         "/" . $task->task_denominator() . "\n";
+    echo "STATUS: " . $task->jobHandle() . " - " . $task->taskNumerator() . 
+         "/" . $task->taskDenominator() . "\n";
 }
 
 function reverse_complete($task)
 {
-    echo "COMPLETE: " . $task->job_handle() . "\n";
+    echo "COMPLETE: " . $task->jobHandle() . "\n";
 }
 
 function reverse_fail($task)
 {
-    echo "FAILED: " . $task->job_handle() . "\n";
+    echo "FAILED: " . $task->jobHandle() . "\n";
 }
 ?>

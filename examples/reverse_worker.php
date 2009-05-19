@@ -13,21 +13,21 @@
 echo "Starting\n";
 
 # Create our worker object.
-$gmworker= new gearman_worker();
+$gmworker= new GearmanWorker();
 
 # Add default server (localhost).
-$gmworker->add_server();
+$gmworker->addServer();
 
 # Register function "reverse" with the server. Change the worker function to
 # "reverse_fn_fast" for a faster worker with no output.
-$gmworker->add_function("reverse", "reverse_fn");
+$gmworker->addFunction("reverse", "reverse_fn");
 
 print "Waiting for job...\n";
 while($gmworker->work())
 {
-  if ($gmworker->return_code() != GEARMAN_SUCCESS)
+  if ($gmworker->returnCode() != GEARMAN_SUCCESS)
   {
-    echo "return_code: " . $gmworker->return_code() . "\n";
+    echo "return_code: " . $gmworker->returnCode() . "\n";
     break;
   }
 }
@@ -37,7 +37,7 @@ function reverse_fn($job)
   echo "Received job: " . $job->handle() . "\n";
 
   $workload= $job->workload();
-  $workload_size= $job->workload_size();
+  $workload_size= $job->workloadSize();
 
   echo "Workload: $workload ($workload_size)\n";
 

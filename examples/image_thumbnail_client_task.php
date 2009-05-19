@@ -11,15 +11,15 @@
  */
 
 /* create our object */
-$gmc= new gearman_client();
+$gmc= new GearmanClient();
 
 /* add the default server */
-$gmc->add_server();
+$gmc->addServer();
 
 /* set a few callbacks */
-$gmc->set_created_fn("thumb_created");
-$gmc->set_complete_fn("thumb_complete");
-$gmc->set_fail_fn("thumb_fail");
+$gmc->setCreatedCallback("thumb_created");
+$gmc->setCompleteCallback("thumb_complete");
+$gmc->setFailCallback("thumb_fail");
 
 for ($x= 0; $x<20; $x++)
 {
@@ -35,14 +35,14 @@ foreach ($data as $img)
     /* NOTE: if you want to asynchronously queue jobs use
     ** $task= $gmc->add_task_background("shrink_image", serialize($img));
     ** however keep in mind that your complete callback will not get called */
-    if (! $gmc->add_task("shrink_image", serialize($img)))
+    if (! $gmc->addTask("shrink_image", serialize($img)))
     {
         echo "ERROR RET: " . $gmc->error() . "\n";
         exit;
     }
 }
 
-if (! $gmc->run_tasks())
+if (! $gmc->runTasks())
 {
     echo "ERROR RET:" . $gmc->error() . "\n";
     exit;
@@ -52,18 +52,18 @@ exit;
 
 function thumb_created($task)
 {
-    echo "CREATED -> job: " . $task->job_handle() . "\n";
+    echo "CREATED -> job: " . $task->jobHandle() . "\n";
 }
 
 function thumb_complete($task)
 {
-    echo "COMPLETE -> job: " . $task->job_handle() . 
+    echo "COMPLETE -> job: " . $task->jobHandle() . 
          " new_file: " . $task->data() . "\n";
 }
 
 function thumb_fail($task)
 {
-    echo "FAIL job: " . $task->job_handle() . "\n";
+    echo "FAIL job: " . $task->jobHandle() . "\n";
 }
 
 ?>

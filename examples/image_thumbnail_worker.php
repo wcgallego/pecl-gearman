@@ -12,22 +12,22 @@
 
 echo "Starting Thumbnail creator\n";
 
-$gmw= new gearman_worker();
-$gmw->add_server();
+$gmw= new GearmanWorker();
+$gmw->addServer();
 
 # optional config paramsj
 $args;
 
-$gmw->add_function("shrink_image", "resize_image", $args);
+$gmw->addFunction("shrink_image", "resize_image", $args);
 
 while($gmw->work())
 {
-    switch ($gmw->return_code())
+    switch ($gmw->returnCode())
     {
         case GEARMAN_SUCCESS:
             break;
         default:
-            echo "ERROR RET: " . $gmc->return_code() . "\n";
+            echo "ERROR RET: " . $gmc->returnCode() . "\n";
             exit;
     }
 }

@@ -10,10 +10,10 @@
  */
 
 /* create our object */
-$gmc= new gearman_client();
+$gmc= new GearmanClient();
 
 /* add the default server */
-$gmc->add_server();
+$gmc->addServer();
 
 $data['src']= $_SERVER['argv'][1];
 $data['dest']= "small_" . $_SERVER['argv'][1];
@@ -24,7 +24,7 @@ $data['y']= NULL;
 do
 {
     $value = $gmc->do("shrink_image", serialize($data));
-    switch ($gmc->return_code())
+    switch ($gmc->returnCode())
     {
         case GEARMAN_WORK_DATA:
             echo "DATA: $value\n";
@@ -36,14 +36,14 @@ do
             echo "FAILED\n";
             break;
         case GEARMAN_WORK_STATUS:
-            list($numerator, $denominator)= $gmc->do_status();
+            list($numerator, $denominator)= $gmc->doStatus();
             echo "Status: $numerator/$denominator\n";
             break;
         default:
             echo "ERR: " . $gmc->error() . "\n";
     }
 }
-while($gmc->return_code() != GEARMAN_SUCCESS);
+while($gmc->returnCode() != GEARMAN_SUCCESS);
 
 echo "DONE: $value\n";
 

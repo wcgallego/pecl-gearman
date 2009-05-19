@@ -11,10 +11,10 @@
  */
 
 /* create our object */
-$gmc= new gearman_client();
+$gmc= new GearmanClient();
 
 /* add the default server */
-$gmc->add_server();
+$gmc->addServer();
 
 for ($x=0; $x<20; $x++)
 {
@@ -27,8 +27,8 @@ for ($x=0; $x<20; $x++)
 /* fire off each job */
 foreach ($data as $img)
 {
-    $job_handle[]= $gmc->do_background("shrink_image", serialize($img));
-    if ($gmc->return_code() != GEARMAN_SUCCESS)
+    $job_handle[]= $gmc->doBackground("shrink_image", serialize($img));
+    if ($gmc->returnCode() != GEARMAN_SUCCESS)
     {
         echo "ERROR RET: " . $gmc->error() . "\n";
         exit;

@@ -13,10 +13,10 @@
 echo "Starting\n";
 
 # Create our client object.
-$gmclient= new gearman_client();
+$gmclient= new GearmanClient();
 
 # Add default server (localhost).
-$gmclient->add_server();
+$gmclient->addServer();
 
 echo "Sending job\n";
 
@@ -25,13 +25,13 @@ do
 {
   $result= $gmclient->do("reverse", "Hello!");
   # Check for various return packets and errors.
-  switch($gmclient->return_code())
+  switch($gmclient->returnCode())
   {
     case GEARMAN_WORK_DATA:
       echo "Data: $result\n";
       break;
     case GEARMAN_WORK_STATUS:
-      list($numerator, $denominator)= $gmclient->do_status();
+      list($numerator, $denominator)= $gmclient->doStatus();
       echo "Status: $numerator/$denominator complete\n";
       break;
     case GEARMAN_WORK_FAIL:
@@ -40,11 +40,11 @@ do
     case GEARMAN_SUCCESS:
       break;
     default:
-      echo "RET: " . $gmclient->return_code() . "\n";
+      echo "RET: " . $gmclient->reutrnCode() . "\n";
       break;
   }
 }
-while($gmclient->return_code() != GEARMAN_SUCCESS);
+while($gmclient->returnCode() != GEARMAN_SUCCESS);
 echo "Success: $result\n";
 
 ?>

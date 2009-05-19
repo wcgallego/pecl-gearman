@@ -71,7 +71,7 @@ echo "gearman_client_add_server() pass\n";
 
 
 $value = gearman_client_do($client, "test_worker", "gearman_client_do");
-if ($client->return_code() != GEARMAN_SUCCESS)
+if ($client->returnCode() != GEARMAN_SUCCESS)
 {
     echo "gearman_client_do() FAILED\n";
     exit(0);
@@ -81,7 +81,7 @@ else
 
 
 $job_handle = gearman_client_do_background($client, "test_worker", "gearman_client_do_background");
-if ($client->return_code() != GEARMAN_SUCCESS)
+if ($client->returnCode() != GEARMAN_SUCCESS)
 {
     echo "gearman_client_do_background() FAILED\n";
     exit(0);
@@ -90,7 +90,7 @@ else
     echo "gearman_client_do_background() pass -> $job_handle\n";
 
 $value = gearman_client_do_high($client, "test_worker", "gearman_client_do_high");
-if ($client->return_code() != GEARMAN_SUCCESS)
+if ($client->returnCode() != GEARMAN_SUCCESS)
 {
     echo "gearman_client_do_high() FAILED\n";
     exit(0);
@@ -99,7 +99,7 @@ else
     echo "gearman_client_do_high() pass -> $value\n";
 
 $value = gearman_client_do_low($client, "test_worker", "gearman_client_do_low");
-if ($client->return_code() != GEARMAN_SUCCESS)
+if ($client->returnCode() != GEARMAN_SUCCESS)
 {
     echo "gearman_client_do_low() FAILED\n";
     exit(0);
@@ -108,7 +108,7 @@ else
     echo "gearman_client_do_low() pass -> $value\n";
 
 $value = gearman_client_do_high_background($client, "test_worker", "gearman_client_do_high_background");
-if ($client->return_code() != GEARMAN_SUCCESS)
+if ($client->returnCode() != GEARMAN_SUCCESS)
 {
     echo "gearman_client_do_high_background() FAILED\n";
     exit(0);
@@ -117,7 +117,7 @@ else
     echo "gearman_client_do_high_background() pass -> $value\n";
 
 $value = gearman_client_do_low_background($client, "test_worker", "gearman_client_do_low_background");
-if ($client->return_code() != GEARMAN_SUCCESS)
+if ($client->returnCode() != GEARMAN_SUCCESS)
 {
     echo "gearman_client_do_low_background() FAILED\n";
     exit(0);
@@ -126,14 +126,14 @@ else
     echo "gearman_client_do_low_background() pass -> $value\n";
 
 $job_handle = gearman_client_do_background($client, "test_gearman_job_status", "test_gearman_job_status");
-if ($client->return_code() != GEARMAN_SUCCESS)
+if ($client->returnCode() != GEARMAN_SUCCESS)
 {
     echo "gearman_client_do_background() FAILED -> while checking status\n";
     exit(0);
 }
 sleep(1);
 list($is_known, $is_running, $numerator, $denominator) = gearman_client_job_status($client, $job_handle);
-    if ($client->return_code() != GEARMAN_SUCCESS || ! $is_known || ! $is_running || ! $numerator || ! $denominator)
+    if ($client->returnCode() != GEARMAN_SUCCESS || ! $is_known || ! $is_running || ! $numerator || ! $denominator)
     {
         echo "gearman_client_job_status() FAILED\n";
     }
