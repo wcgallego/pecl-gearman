@@ -21,7 +21,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
   <email>eday@oddments.org</email>
   <active>yes</active>
  </developer>
- <date>2009-05-14</date>
+ <date>2009-05-18</date>
  <version>
   <release>0.3.1</release>
   <api>0.3.1</api>
@@ -34,8 +34,10 @@ http://pear.php.net/dtd/package-2.0.xsd">
  <notes>
 - Initial PECL import
 - Reworked client/worker/task/job objects.
-- Added $obj->return_code() to all objects
+- made all class/methods conform to php coding standards
+- Added $obj->returnCode() to all objects
 - Fixed compile issues with PHP 5.1 and 5.3
+- Added in ARG_INFO macros to make reflection work
  </notes>
  <contents>
   <dir name="/">
@@ -81,7 +83,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
   <release>
    <stability><release>beta</release><api>beta</api></stability>
    <version><release>0.3.1</release><api>0.3.1</api></version>
-   <date>2009-05-14</date>
+   <date>2009-05-18</date>
    <notes>
 - Initial PECL import
 - Reworked client/worker/task/job objects.
