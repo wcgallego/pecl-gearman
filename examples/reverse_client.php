@@ -40,8 +40,8 @@ do
     case GEARMAN_SUCCESS:
       break;
     default:
-      echo "RET: " . $gmclient->reutrnCode() . "\n";
-      break;
+      echo "RET: " . $gmclient->returnCode() . "\n";
+      exit;
   }
 }
 while($gmclient->returnCode() != GEARMAN_SUCCESS);

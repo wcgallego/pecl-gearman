@@ -5,8 +5,10 @@ applications.
 
 For more information about Gearman, see:
 
-http://www.gearman.org/
 
+Requirements
+    * libgearman v0.6
+http://www.gearman.org/
 The Gearman PHP Extension requires the Gearman C server and library package
 to be installed. You can download the latest from:
 
@@ -58,5 +60,5 @@ scripts about the status and then a final result.
 
 
 Have fun!
--James
-contact@jluedke.com
+
+-James <contact@jluedke.com>
