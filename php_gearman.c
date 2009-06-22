@@ -4656,14 +4656,6 @@ PHP_MSHUTDOWN_FUNCTION(gearman) {
 	return SUCCESS;
 }
 
-PHP_RINIT_FUNCTION(gearman) {
-	return SUCCESS;
-}
-
-PHP_RSHUTDOWN_FUNCTION(gearman) {
-	return SUCCESS;
-}
-
 PHP_MINFO_FUNCTION(gearman) {
 	char port_str[6];
 
@@ -4686,8 +4678,8 @@ zend_module_entry gearman_module_entry = {
 	gearman_functions,
 	PHP_MINIT(gearman),
 	PHP_MSHUTDOWN(gearman),
-	PHP_RINIT(gearman),
-	PHP_RSHUTDOWN(gearman),
+	NULL,
+	NULL,
 	PHP_MINFO(gearman),
 #if ZEND_MODULE_API_NO >= 20010901
 	"0.1",
