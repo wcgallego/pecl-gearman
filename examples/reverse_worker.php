@@ -45,8 +45,10 @@ function reverse_fn($job)
   for ($x= 0; $x < $workload_size; $x++)
   {
     echo "Sending status: $x/$workload_size complete\n";
+    /*
     $job->status($x, $workload_size);
     sleep(1);
+    */
   }
 
   $result= strrev($workload);

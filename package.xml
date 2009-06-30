@@ -5,26 +5,20 @@ http://pear.php.net/dtd/package-2.0
 http://pear.php.net/dtd/package-2.0.xsd">
  <name>gearman</name>
  <channel>pecl.php.net</channel>
- <summary>PHP wrapper to libgearm</summary>
+ <summary>PHP wrapper to libgearman</summary>
  <description>
   This extension uses libgearman library to provide API for communicating with gearmand, and writing clients and workers.
  </description>
  <lead>
   <name>James M. Luedke</name>
   <user>jluedke</user>
-  <email>contact@jluedke.com</email>
+  <email>contact@jamesluedke.com</email>
   <active>yes</active>
  </lead>
- <developer>
-  <name>Eric Day</name>
-  <user></user>
-  <email>eday@oddments.org</email>
-  <active>yes</active>
- </developer>
- <date>2009-05-20</date>
+ <date>2009-06-30</date>
  <version>
-  <release>0.3</release>
-  <api>0.3</api>
+  <release>0.4.0</release>
+  <api>0.4.0</api>
  </version>
  <stability>
   <release>beta</release>
@@ -32,13 +26,12 @@ http://pear.php.net/dtd/package-2.0.xsd">
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-- Initial PECL import
-- Reworked client/worker/task/job objects.
-- made all class/methods conform to php coding standards
-- Added $obj->returnCode() to all objects
-- Fixed compile issues with PHP 5.1 and 5.3
-- Added in ARG_INFO macros to make reflection work
-- Updated constants to 
+- Fixed memory leak in $task object
+- Regened constants off of libgearman v0.7
+- Removed gearman_task_take_data
+- Added exception to task job object when created without a geaman obj arg
+- Fixed a bunch of places where it was possible to use objects before verifying them
+- Other small bug fixes
  </notes>
  <contents>
   <dir name="/">
@@ -81,6 +74,19 @@ http://pear.php.net/dtd/package-2.0.xsd">
  <extsrcrelease>
  </extsrcrelease>
  <changelog>
+  <release>
+   <stability><release>beta</release><api>beta</api></stability>
+   <version><release>0.4.0</release><api>0.4.0</api></version>
+   <date>2009-06-30</date>
+   <notes>
+- Fixed memory leak in $task object
+- Regened constants off of libgearman v0.7
+- Removed gearman_task_take_data
+- Added exception to task job object when created without a geaman obj arg
+- Fixed a bunch of places where it was possible to use objects before verifying them
+- Other small bug fixes
+   </notes>
+  </release>
   <release>
    <stability><release>beta</release><api>beta</api></stability>
    <version><release>0.3</release><api>0.3</api></version>

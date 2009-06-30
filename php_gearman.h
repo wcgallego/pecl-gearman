@@ -12,6 +12,9 @@
 #ifndef __PHP_GEARMAN_H
 #define __PHP_GEARMAN_H
 
+/* module version */
+#define PHP_GEARMAN_VERSION "0.4.0"
+
 #ifdef ZTS
 #include "TSRM.h"
 #define GEARMAN_G(v) TSRMG(gearman_globals_id, zend_gearman_globals *, v)

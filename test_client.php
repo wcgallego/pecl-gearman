@@ -185,6 +185,8 @@ gearman_client_add_task($client, "test_tasks", "test_tasks", "test_tasks");
 $res = gearman_client_run_tasks($client);
 gearman_client_clear_fn($client);
 
+# You can turn off auto task destruction by unsetting this flag on a gearman client.
+gearman_client_set_options($client, GEARMAN_CLIENT_FREE_TASKS, 0);
 $task = gearman_client_add_task_background($client, "test_tasks_background", "test_tasks_background", "test_tasks_background");
 gearman_client_set_status_fn($client, "test_gearman_task_status");
 $res = gearman_client_run_tasks($client);

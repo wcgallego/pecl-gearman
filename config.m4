@@ -7,6 +7,8 @@ dnl
 dnl Use and distribution licensed under the PHP license.  See
 dnl the LICENSE file in this directory for full text.
 
+CFLAGS="$CFLAGS -Wall"
+
 PHP_ARG_WITH(gearman, whether to enable gearman support,
 [[  --with-gearman[=PATH]   Include gearman support]])
 
