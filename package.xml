@@ -68,6 +68,9 @@ http://pear.php.net/dtd/package-2.0.xsd">
    <pearinstaller>
     <min>1.4.0b1</min>
    </pearinstaller>
+   <libgearman>
+    <min>0.7</min>
+   </gearman>
   </required>
  </dependencies>
  <providesextension>gearman</providesextension>
