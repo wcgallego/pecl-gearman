@@ -70,7 +70,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
    </pearinstaller>
    <libgearman>
     <min>0.7</min>
-   </gearman>
+   </libgearman>
   </required>
  </dependencies>
  <providesextension>gearman</providesextension>

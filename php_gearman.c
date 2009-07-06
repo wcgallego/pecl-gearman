@@ -1351,7 +1351,7 @@ PHP_FUNCTION(gearman_task_send_data) {
 	data_len= gearman_task_send_data(obj->task, data, data_len, &obj->ret);
 	if (obj->ret != GEARMAN_SUCCESS)
 	{
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
+		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
 						 gearman_client_error(obj->client));
 		RETURN_FALSE;
 	}
@@ -1381,7 +1381,7 @@ PHP_FUNCTION(gearman_task_recv_data) {
 	data_len= gearman_task_recv_data(obj->task, data_buffer, data_buffer_size, 
 									 &obj->ret);
 	if (obj->ret != GEARMAN_SUCCESS) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
+		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
 						 gearman_client_error(obj->client));
 		RETURN_FALSE;
 	}
@@ -1462,7 +1462,7 @@ PHP_FUNCTION(gearman_job_data) {
 
 	obj->ret= gearman_job_data(obj->job, data, data_len);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
+		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
 						 gearman_error(obj->job->gearman));
 		RETURN_FALSE;
 	}
@@ -1485,7 +1485,7 @@ PHP_FUNCTION(gearman_job_warning) {
 	obj->ret= gearman_job_warning(obj->job, (void *) warning, 
 								 (size_t) warning_len);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
+		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
 						 gearman_error(obj->job->gearman));
 		RETURN_FALSE;
 	}
@@ -1508,7 +1508,7 @@ PHP_FUNCTION(gearman_job_status) {
 	obj->ret= gearman_job_status(obj->job, (uint32_t)numerator, 
 								(uint32_t)denominator);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
+		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
 					 	 gearman_error(obj->job->gearman));
 		RETURN_FALSE;
 	}
@@ -1530,7 +1530,7 @@ PHP_FUNCTION(gearman_job_complete) {
 
 	obj->ret= gearman_job_complete(obj->job, result, result_len);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
+		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
 						 gearman_error(obj->job->gearman));
 		RETURN_FALSE;
 	}
@@ -1552,7 +1552,7 @@ PHP_FUNCTION(gearman_job_exception) {
 
 	obj->ret= gearman_job_exception(obj->job, exception, exception_len);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
+		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
 						 gearman_error(obj->job->gearman));
 		RETURN_FALSE;
 	}
@@ -1571,7 +1571,7 @@ PHP_FUNCTION(gearman_job_fail) {
 
 	obj->ret= gearman_job_fail(obj->job);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
+		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
 						 gearman_error(obj->job->gearman));
 		RETURN_FALSE;
 	}
@@ -1803,7 +1803,7 @@ PHP_FUNCTION(gearman_client_add_server) {
 
 	obj->ret= gearman_client_add_server(&(obj->client), host, port);
 	if (obj->ret != GEARMAN_SUCCESS) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_client_error(&(obj->client)));
 		RETURN_FALSE;
 	}
@@ -1840,7 +1840,7 @@ PHP_FUNCTION(gearman_client_do) {
 									  workload, (size_t)workload_len,
 									  &result_size, &(obj)->ret);
 	if (! PHP_GEARMAN_CLIENT_RET_OK(obj->ret)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_client_error(&(obj->client)));
 		RETURN_EMPTY_STRING();
 	}
@@ -1877,7 +1877,7 @@ PHP_FUNCTION(gearman_client_do_high) {
 										   (size_t)workload_len,
 										   &result_size, &(obj)->ret);
 	if (! PHP_GEARMAN_CLIENT_RET_OK(obj->ret)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_client_error(&(obj->client)));
 		RETURN_EMPTY_STRING();
 	}
@@ -1914,7 +1914,7 @@ PHP_FUNCTION(gearman_client_do_low) {
 										  (size_t)workload_len,
 										  &result_size, &obj->ret);
 	if (! PHP_GEARMAN_CLIENT_RET_OK(obj->ret)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_client_error(&(obj->client)));
 		RETURN_EMPTY_STRING();
 	}
@@ -1983,7 +1983,7 @@ PHP_FUNCTION(gearman_client_do_background) {
 									(char *)unique, (void *)workload, 
 									(size_t)workload_len, job_handle);
 	if (! PHP_GEARMAN_CLIENT_RET_OK(obj->ret)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_client_error(&(obj->client)));
 		efree(job_handle);
 		RETURN_EMPTY_STRING();
@@ -2022,7 +2022,7 @@ PHP_FUNCTION(gearman_client_do_high_background) {
 									(char *)unique, (void *)workload, 
 									(size_t)workload_len, job_handle);
 	if (! PHP_GEARMAN_CLIENT_RET_OK(obj->ret)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_client_error(&(obj->client)));
 		efree(job_handle);
 		RETURN_EMPTY_STRING();
@@ -2060,7 +2060,7 @@ PHP_FUNCTION(gearman_client_do_low_background) {
 									(char *)unique, (void *)workload, 
 									(size_t)workload_len, job_handle);
 	if (! PHP_GEARMAN_CLIENT_RET_OK(obj->ret)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_client_error(&(obj->client)));
 		efree(job_handle);
 		RETURN_EMPTY_STRING();
@@ -2094,7 +2094,7 @@ PHP_FUNCTION(gearman_client_job_status) {
 										&is_known, &is_running,
 										&numerator, &denominator);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_client_error(&(obj->client)));
 	}
 
@@ -2120,7 +2120,7 @@ PHP_FUNCTION(gearman_client_echo) {
 	obj->ret= gearman_client_echo(&(obj->client), workload, 
 								 (size_t)workload_len);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_client_error(&(obj->client)));
 		RETURN_FALSE;
 	}
@@ -2176,7 +2176,7 @@ PHP_FUNCTION(gearman_client_add_task) {
 										(size_t)Z_STRLEN_P(zworkload), 
 										&obj->ret);
 	if (obj->ret != GEARMAN_SUCCESS) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_client_error(&(obj->client)));
 		RETURN_FALSE;
 	}
@@ -2229,7 +2229,7 @@ PHP_FUNCTION(gearman_client_add_task_high) {
 											(size_t)Z_STRLEN_P(zworkload), 
 											&obj->ret);
 	if (obj->ret != GEARMAN_SUCCESS) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_client_error(&(obj->client)));
 		RETURN_FALSE;
 	}
@@ -2282,7 +2282,7 @@ PHP_FUNCTION(gearman_client_add_task_low) {
 											(size_t)Z_STRLEN_P(zworkload), 
 											&obj->ret);
 	if (obj->ret != GEARMAN_SUCCESS) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_client_error(&(obj->client)));
 		RETURN_FALSE;
 	}
@@ -2335,7 +2335,7 @@ PHP_FUNCTION(gearman_client_add_task_background) {
 												(size_t)Z_STRLEN_P(zworkload),
 												&obj->ret);
 	if (obj->ret != GEARMAN_SUCCESS) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_client_error(&(obj->client)));
 		RETURN_FALSE;
 	}
@@ -2389,7 +2389,7 @@ PHP_FUNCTION(gearman_client_add_task_high_background) {
 										(size_t)Z_STRLEN_P(zworkload),
 										&obj->ret);
 	if (obj->ret != GEARMAN_SUCCESS) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_client_error(&(obj->client)));
 		RETURN_FALSE;
 	}
@@ -2444,7 +2444,7 @@ PHP_FUNCTION(gearman_client_add_task_low_background) {
 											  (size_t)Z_STRLEN_P(zworkload),
 											  &obj->ret);
 	if (obj->ret != GEARMAN_SUCCESS) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_client_error(&(obj->client)));
 		RETURN_FALSE;
 	}
@@ -2489,7 +2489,7 @@ PHP_FUNCTION(gearman_client_add_task_status) {
 	task->task= gearman_client_add_task_status(&(obj->client), task->task, 
 									(void *)task, job_handle, &obj->ret);
 	if (obj->ret != GEARMAN_SUCCESS) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_client_error(&(obj->client)));
 		RETURN_FALSE;
 	}
@@ -2964,7 +2964,7 @@ PHP_FUNCTION(gearman_client_run_tasks) {
 	obj->ret= gearman_client_run_tasks(&(obj->client));
 
 	if (! PHP_GEARMAN_CLIENT_RET_OK(obj->ret)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_client_error(&(obj->client)));
 		RETURN_FALSE;
 	}
@@ -3103,7 +3103,7 @@ PHP_FUNCTION(gearman_worker_add_server) {
 
 	obj->ret= gearman_worker_add_server(&(obj->worker), host, port);
 	if (obj->ret != GEARMAN_SUCCESS) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_worker_error(&(obj->worker)));
 		RETURN_FALSE;
 	}
@@ -3126,7 +3126,7 @@ PHP_FUNCTION(gearman_worker_register) {
 
 	obj->ret= gearman_worker_register(&(obj->worker), function_name, timeout);
 	if (obj->ret != GEARMAN_SUCCESS) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_worker_error(&(obj->worker)));
 		RETURN_FALSE;
 	}
@@ -3148,7 +3148,7 @@ PHP_FUNCTION(gearman_worker_unregister) {
 
 	obj->ret= gearman_worker_unregister(&(obj->worker), function_name);
 	if (obj->ret != GEARMAN_SUCCESS) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_worker_error(&(obj->worker)));
 		RETURN_FALSE;
 	}
@@ -3167,7 +3167,7 @@ PHP_FUNCTION(gearman_worker_unregister_all) {
 
 	obj->ret= gearman_worker_unregister_all(&(obj->worker));
 	if (obj->ret != GEARMAN_SUCCESS) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_worker_error(&(obj->worker)));
 		RETURN_FALSE;
 	}
@@ -3193,7 +3193,7 @@ PHP_FUNCTION(gearman_worker_grab_job) {
 
 	job->job= gearman_worker_grab_job(&(obj->worker), NULL, &obj->ret);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_worker_error(&(obj->worker)));
 		zval_dtor(return_value);
 		RETURN_FALSE;
@@ -3329,7 +3329,7 @@ PHP_FUNCTION(gearman_worker_add_function) {
 										 _php_worker_function_callback,
 										 (void *)worker_cb);
 	if (obj->ret != GEARMAN_SUCCESS) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_worker_error(&(obj->worker)));
 		RETURN_FALSE;
 	}
@@ -3349,7 +3349,7 @@ PHP_FUNCTION(gearman_worker_work) {
 	obj->ret= gearman_worker_work(&(obj->worker));
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT &&
 		obj->ret != GEARMAN_WORK_FAIL) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_worker_error(&(obj->worker)));
 		RETURN_FALSE;
 	}
@@ -3376,7 +3376,7 @@ PHP_FUNCTION(gearman_worker_echo) {
 	obj->ret= gearman_worker_echo(&(obj->worker), workload, 
 								 (size_t)workload_len);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_worker_error(&(obj->worker)));
 		RETURN_FALSE;
 	}
