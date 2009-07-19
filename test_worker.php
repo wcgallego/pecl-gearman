@@ -20,12 +20,22 @@ if (! is_object($worker))
 else
     echo "gearman_worker_create() pass\n";
 
+/*
 if(! gearman_worker_add_server($worker))
 {
     echo "gearman_worker_add_server() FAILED\n";
     exit(0);
 }
 echo "gearman_worker_add_server() pass\n";
+*/
+
+if(! gearman_worker_add_servers($worker, "127.0.0.1:4730"))
+{
+    echo "gearman_worker_add_servers() FAILED\n";
+    exit(0);
+}
+echo "gearman_worker_add_servers() pass\n";
+
 
 /*
 $worker_new = gearman_worker_clone($worker);

@@ -88,9 +88,11 @@ ZEND_END_ARG_INFO()
 
 /* TODO: so looks like I may have implemented this incorrectly for
  * now no oo interface exist. I will need to come back to this later */
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_task_fn_arg, 0, 0, 1)
 	ZEND_ARG_INFO(0, task_object)
 ZEND_END_ARG_INFO()
+*/
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_task_function, 0, 0, 1)
 	ZEND_ARG_INFO(0, task_object)
@@ -356,6 +358,15 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_add_server, 0, 0, 2)
 	ZEND_ARG_INFO(0, host)
 	ZEND_ARG_INFO(0, port)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_add_servers, 0, 0, 2)
+	ZEND_ARG_INFO(0, client_object)
+	ZEND_ARG_INFO(0, servers)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_add_servers, 0, 0, 1)
+	ZEND_ARG_INFO(0, servers)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_do, 0, 0, 3)
@@ -734,6 +745,15 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_add_server, 0, 0, 0)
 	ZEND_ARG_INFO(0, host)
 	ZEND_ARG_INFO(0, port)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_add_servers, 0, 0, 2)
+	ZEND_ARG_INFO(0, worker_object)
+	ZEND_ARG_INFO(0, servers)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_add_servers, 0, 0, 1)
+	ZEND_ARG_INFO(0, servers)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_register, 0, 0, 2)
@@ -1190,6 +1210,7 @@ PHP_FUNCTION(gearman_task_free) {
 }
 /* }}} */
 
+#if jluedke_0
 /* {{{ proto string gearman_task_fn_arg(object task) 
    Set callback function argument for a task. */
 PHP_FUNCTION(gearman_task_fn_arg) {
@@ -1201,6 +1222,7 @@ PHP_FUNCTION(gearman_task_fn_arg) {
 				   (long) obj->zdata->value.str.len, 1);
 }
 /* }}} */
+#endif
 
 /* {{{ proto string gearman_task_function(object task)
    Returns function name associated with a task. */
@@ -1804,6 +1826,28 @@ PHP_FUNCTION(gearman_client_add_server) {
 	obj->ret= gearman_client_add_server(&(obj->client), host, port);
 	if (obj->ret != GEARMAN_SUCCESS) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
+						 gearman_client_error(&(obj->client)));
+		RETURN_FALSE;
+	}
+
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool gearman_client_add_servers(object client [, string servers])
+   Add a list of job servers to a client. This goes into a list of servers that can be used to run tasks. No socket I/O happens here, it is just added to a list. */
+PHP_FUNCTION(gearman_client_add_servers) {
+	zval *zobj;
+	gearman_client_obj *obj;
+	char *servers= NULL;
+	int servers_len= 0;
+
+	GEARMAN_ZPMP(RETURN_NULL(), "|sl", &zobj, gearman_client_ce, 
+				 &servers, &servers_len)
+
+	obj->ret= gearman_client_add_servers(&(obj->client), servers);
+	if (obj->ret != GEARMAN_SUCCESS) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING,
 						 gearman_client_error(&(obj->client)));
 		RETURN_FALSE;
 	}
@@ -2503,7 +2547,8 @@ static gearman_return_t _php_task_cb_fn(gearman_task_obj *task,
 	gearman_return_t ret;
 	/* cb vars */
 	zval *ztask;
-	zval **argv[1];
+	// zval **argv[1];
+	zval **argv[2];
 	zval *zret_ptr= NULL;
 	bool null_ztask= false;
 	gearman_task_obj *new_obj;
@@ -2532,8 +2577,14 @@ static gearman_return_t _php_task_cb_fn(gearman_task_obj *task,
 		null_ztask= true;
 	}
 
-	argv[0]= &ztask;
-	fci.param_count= 1;
+    argv[0]= &ztask;
+    if (task->zdata == NULL) {
+            fci.param_count= 1;
+    } else {
+            argv[1]= &(task->zdata);
+            fci.param_count= 2;
+    }
+
 	fci.size= sizeof(fci);
 	fci.function_table= EG(function_table);
 	fci.function_name= zcall;
@@ -3104,6 +3155,28 @@ PHP_FUNCTION(gearman_worker_add_server) {
 	obj->ret= gearman_worker_add_server(&(obj->worker), host, port);
 	if (obj->ret != GEARMAN_SUCCESS) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
+						 gearman_worker_error(&(obj->worker)));
+		RETURN_FALSE;
+	}
+
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool gearman_worker_add_servers(object worker [, string servers])
+   Add a list of job servers to a worker. This goes into a list of servers that can be used to run tasks. No socket I/O happens here, it is just added to a list. */
+PHP_FUNCTION(gearman_worker_add_servers) {
+	zval *zobj;
+	gearman_worker_obj *obj;
+	char *servers= NULL;
+	int servers_len= 0;
+
+	GEARMAN_ZPMP(RETURN_NULL(), "|sl", &zobj, gearman_worker_ce, 
+				 &servers, &servers_len)
+
+	obj->ret= gearman_worker_add_servers(&(obj->worker), servers);
+	if (obj->ret != GEARMAN_SUCCESS) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING,
 						 gearman_worker_error(&(obj->worker)));
 		RETURN_FALSE;
 	}
@@ -3768,7 +3841,7 @@ zend_function_entry gearman_functions[] = {
 	PHP_FE(gearman_task_return_code, arginfo_gearman_task_return_code)
 	PHP_FE(gearman_task_create, arginfo_gearman_task_create)
 	PHP_FE(gearman_task_free, arginfo_gearman_task_free)
-	PHP_FE(gearman_task_fn_arg, arginfo_gearman_task_fn_arg)
+	/* PHP_FE(gearman_task_fn_arg, arginfo_gearman_task_fn_arg) */
 	PHP_FE(gearman_task_function, arginfo_gearman_task_function)
 	PHP_FE(gearman_task_uuid, arginfo_gearman_task_uuid)
 	PHP_FE(gearman_task_job_handle, arginfo_gearman_task_job_handle)
@@ -3806,6 +3879,7 @@ zend_function_entry gearman_functions[] = {
 	PHP_FE(gearman_client_errno, arginfo_gearman_client_errno)
 	PHP_FE(gearman_client_set_options, arginfo_gearman_client_set_options)
 	PHP_FE(gearman_client_add_server, arginfo_gearman_client_add_server)
+	PHP_FE(gearman_client_add_servers, arginfo_gearman_client_add_servers)
 	PHP_FE(gearman_client_do, arginfo_gearman_client_do)
 	PHP_FE(gearman_client_do_high, arginfo_gearman_client_do_high)
 	PHP_FE(gearman_client_do_low, arginfo_gearman_client_do_low)
@@ -3845,6 +3919,7 @@ zend_function_entry gearman_functions[] = {
 	PHP_FE(gearman_worker_errno, arginfo_gearman_worker_errno)
 	PHP_FE(gearman_worker_set_options, arginfo_gearman_worker_set_options)
 	PHP_FE(gearman_worker_add_server, arginfo_gearman_worker_add_server)
+	PHP_FE(gearman_worker_add_servers, arginfo_gearman_worker_add_servers)
 	PHP_FE(gearman_worker_register, arginfo_gearman_worker_register)
 	PHP_FE(gearman_worker_unregister, arginfo_gearman_worker_unregister)
 	PHP_FE(gearman_worker_unregister_all, arginfo_gearman_worker_unregister_all)
@@ -3887,6 +3962,7 @@ zend_function_entry gearman_client_methods[]= {
 	__PHP_ME_MAPPING(getErrno, gearman_client_errno, arginfo_oo_gearman_client_errno, 0)
 	__PHP_ME_MAPPING(setOptions, gearman_client_set_options, arginfo_oo_gearman_client_set_options, 0)
 	__PHP_ME_MAPPING(addServer, gearman_client_add_server, arginfo_oo_gearman_client_add_server, 0)
+	__PHP_ME_MAPPING(addServers, gearman_client_add_servers, arginfo_oo_gearman_client_add_servers, 0)
 	__PHP_ME_MAPPING(do, gearman_client_do, arginfo_oo_gearman_client_do, 0)
 	__PHP_ME_MAPPING(doHigh, gearman_client_do_high, arginfo_oo_gearman_client_do_high, 0)
 	__PHP_ME_MAPPING(doLow, gearman_client_do_low, arginfo_oo_gearman_client_do_low, 0)
@@ -3927,6 +4003,7 @@ zend_function_entry gearman_worker_methods[]= {
 	__PHP_ME_MAPPING(getErrno, gearman_worker_errno, arginfo_oo_gearman_worker_errno, 0)
 	__PHP_ME_MAPPING(setOptions, gearman_worker_set_options, arginfo_oo_gearman_worker_set_options, 0)
 	__PHP_ME_MAPPING(addServer, gearman_worker_add_server, arginfo_oo_gearman_worker_add_server, 0)
+	__PHP_ME_MAPPING(addServers, gearman_worker_add_servers, arginfo_oo_gearman_worker_add_servers, 0)
 	__PHP_ME_MAPPING(addFunction, gearman_worker_add_function, arginfo_oo_gearman_worker_add_function, 0)
 	__PHP_ME_MAPPING(work, gearman_worker_work, arginfo_oo_gearman_worker_work, 0)
 	{NULL, NULL, NULL}

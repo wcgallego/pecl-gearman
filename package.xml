@@ -15,10 +15,10 @@ http://pear.php.net/dtd/package-2.0.xsd">
   <email>contact@jamesluedke.com</email>
   <active>yes</active>
  </lead>
- <date>2009-06-30</date>
+ <date>2009-07-18</date>
  <version>
-  <release>0.4.0</release>
-  <api>0.4.0</api>
+  <release>0.5.0</release>
+  <api>0.5.0</api>
  </version>
  <stability>
   <release>beta</release>
@@ -26,12 +26,8 @@ http://pear.php.net/dtd/package-2.0.xsd">
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-- Fixed memory leak in $task object
-- Regened constants off of libgearman v0.7
-- Removed gearman_task_take_data
-- Added exception to task job object when created without a geaman obj arg
-- Fixed a bunch of places where it was possible to use objects before verifying them
-- Other small bug fixes
+- Fixed a bug in the task callbacks, the addtional data arg will now work as expected.
+- Added gearman_client_add_servers. This was adde in a recent version of libgearman.
  </notes>
  <contents>
   <dir name="/">
@@ -68,15 +64,21 @@ http://pear.php.net/dtd/package-2.0.xsd">
    <pearinstaller>
     <min>1.4.0b1</min>
    </pearinstaller>
-   <libgearman>
-    <min>0.7</min>
-   </libgearman>
   </required>
  </dependencies>
  <providesextension>gearman</providesextension>
  <extsrcrelease>
  </extsrcrelease>
  <changelog>
+  <release>
+   <stability><release>beta</release><api>beta</api></stability>
+   <version><release>0.5.0</release><api>0.5.0</api></version>
+   <date>2009-07-18</date>
+   <notes>
+- Fixed a bug in the task callbacks, the addtional data arg will now work as expected.
+- Added gearman_client_add_servers. This was adde in a recent version of libgearman.
+   </notes>
+  </release>
   <release>
    <stability><release>beta</release><api>beta</api></stability>
    <version><release>0.4.0</release><api>0.4.0</api></version>

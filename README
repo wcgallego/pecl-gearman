@@ -7,7 +7,7 @@ For more information about Gearman, see:
 
 
 Requirements
-    * libgearman v0.6
+    * libgearman v0.8 or greater
 http://www.gearman.org/
 The Gearman PHP Extension requires the Gearman C server and library package
 to be installed. You can download the latest from:

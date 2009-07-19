@@ -62,13 +62,21 @@ if (! gearman_client_set_options($client, GEARMAN_CLIENT_UNBUFFERED_RESULT, 1))
 gearman_client_set_options($client, GEARMAN_CLIENT_UNBUFFERED_RESULT, 0);
 echo "gearman_client_set_options() pass\n";
 
+/*
 if (! gearman_client_add_server($client))
 {
     echo "gearman_client_add_server() FAILED\n";
     exit(0);
 }
 echo "gearman_client_add_server() pass\n";
+*/
 
+if (! gearman_client_add_servers($client, "127.0.0.1:4730"))
+{
+    echo "gearman_client_add_servers() FAILED\n";
+    exit(0);
+}
+echo "gearman_client_add_servers() pass\n";
 
 $value = gearman_client_do($client, "test_worker", "gearman_client_do");
 if ($client->returnCode() != GEARMAN_SUCCESS)
