@@ -42,6 +42,14 @@
 #	define __PHP_ME_MAPPING(__name, __func, __arg, __flags) PHP_ME_MAPPING(__name, __func, __arg, __flags)
 #endif
 
+/* XXX php 5.3 changed the api for zend_is_callable */
+#if (PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 3)
+#   define GEARMAN_IS_CALLABLE(callable, check_flags, callable_name) zend_is_callable(callable, check_flags, callable_name)
+#else
+#   define GEARMAN_IS_CALLABLE(callable, check_flags, callable_name) zend_is_callable(callable, check_flags, callable_name TSRMLS_CC)
+#endif
+
+
 /* {{{ arginfo */
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_version, 0, 0, 0)
 ZEND_END_ARG_INFO()
@@ -2708,7 +2716,7 @@ PHP_FUNCTION(gearman_client_set_workload_fn) {
 				 &zworkload_fn)
 
 	/* check that the function is callable */
-	if (! zend_is_callable(zworkload_fn, 0, &callable TSRMLS_CC)) {
+	if (! GEARMAN_IS_CALLABLE(zworkload_fn, 0, &callable)) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
 						"function %s is not callable", callable);
 		efree(callable);
@@ -2738,7 +2746,7 @@ PHP_FUNCTION(gearman_client_set_created_fn) {
 				 &zcreated_fn)
 
 	/* check that the function is callable */
-	if (! zend_is_callable(zcreated_fn, 0, &callable TSRMLS_CC)) {
+	if (! GEARMAN_IS_CALLABLE(zcreated_fn, 0, &callable)) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
 						 "function %s is not callable", callable);
 		efree(callable);
@@ -2768,7 +2776,7 @@ PHP_FUNCTION(gearman_client_set_data_fn) {
 				 &zdata_fn)
 
 	/* check that the function is callable */
-	if (! zend_is_callable(zdata_fn, 0, &callable TSRMLS_CC)) {
+	if (! GEARMAN_IS_CALLABLE(zdata_fn, 0, &callable)) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
 						 "function %s is not callable", callable);
 		efree(callable);
@@ -2799,7 +2807,7 @@ PHP_FUNCTION(gearman_client_set_warning_fn) {
 				 &zwarning_fn)
 
 	/* check that the function is callable */
-	if (! zend_is_callable(zwarning_fn, 0, &callable TSRMLS_CC)) {
+	if (! GEARMAN_IS_CALLABLE(zwarning_fn, 0, &callable)) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
 						 "function %s is not callable", callable);
 		efree(callable);
@@ -2830,7 +2838,7 @@ PHP_FUNCTION(gearman_client_set_status_fn) {
 				 &zstatus_fn)
 
 	/* check that the function is callable */
-	if (! zend_is_callable(zstatus_fn, 0, &callable TSRMLS_CC)) {
+	if (! GEARMAN_IS_CALLABLE(zstatus_fn, 0, &callable)) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
 						 "function %s is not callable", callable);
 		efree(callable);
@@ -2861,7 +2869,7 @@ PHP_FUNCTION(gearman_client_set_complete_fn) {
 				 &zcomplete_fn)
 
 	/* check that the function is callable */
-	if (! zend_is_callable(zcomplete_fn, 0, &callable TSRMLS_CC)) {
+	if (! GEARMAN_IS_CALLABLE(zcomplete_fn, 0, &callable)) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
 						 "function %s is not callable", callable);
 		efree(callable);
@@ -2892,7 +2900,7 @@ PHP_FUNCTION(gearman_client_set_exception_fn) {
 				 &zexception_fn)
 
 	/* check that the function is callable */
-	if (! zend_is_callable(zexception_fn, 0, &callable TSRMLS_CC)) {
+	if (! GEARMAN_IS_CALLABLE(zexception_fn, 0, &callable)) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
 						 "function %s is not callable", callable);
 		efree(callable);
@@ -2923,7 +2931,7 @@ PHP_FUNCTION(gearman_client_set_fail_fn) {
 				 &zfail_fn)
 
 	/* check that the function is callable */
-	if (! zend_is_callable(zfail_fn, 0, &callable TSRMLS_CC)) {
+	if (! GEARMAN_IS_CALLABLE(zfail_fn, 0, &callable)) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
 						 "function %s is not callable", callable);
 		efree(callable);
@@ -3374,7 +3382,7 @@ PHP_FUNCTION(gearman_worker_add_function) {
 				 &zname, &zcall, &zdata, &timeout)
 
 	/* check that the function can be called */
-	if (!zend_is_callable(zcall, 0, &callable TSRMLS_CC)) {
+	if (!GEARMAN_IS_CALLABLE(zcall, 0, &callable)) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
 						 "function %s is not callable", callable);
 		efree(callable);
