@@ -1019,6 +1019,8 @@ void _php_free(void *ptr, void *arg) {
 
 void _php_task_free(gearman_task_st *task, void *fn_arg) {
 	gearman_task_obj *obj= (gearman_task_obj *)fn_arg;
+    TSRMLS_FETCH();
+
 	if (obj->flags & GEARMAN_TASK_OBJ_DEAD) {
 		GEARMAN_ZVAL_DONE(obj->zdata)
 		GEARMAN_ZVAL_DONE(obj->zworkload)
@@ -2554,6 +2556,7 @@ static gearman_return_t _php_task_cb_fn(gearman_task_obj *task,
 	gearman_task_obj *new_obj;
 	zend_fcall_info fci;
 	zend_fcall_info_cache fcic= empty_fcall_info_cache;
+    TSRMLS_FETCH();
 
 	MAKE_STD_ZVAL(ztask)
 	if (task->flags & GEARMAN_TASK_OBJ_DEAD) {
@@ -2705,7 +2708,7 @@ PHP_FUNCTION(gearman_client_set_workload_fn) {
 				 &zworkload_fn)
 
 	/* check that the function is callable */
-	if (! zend_is_callable(zworkload_fn, 0, &callable)) {
+	if (! zend_is_callable(zworkload_fn, 0, &callable TSRMLS_CC)) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
 						"function %s is not callable", callable);
 		efree(callable);
@@ -2735,7 +2738,7 @@ PHP_FUNCTION(gearman_client_set_created_fn) {
 				 &zcreated_fn)
 
 	/* check that the function is callable */
-	if (! zend_is_callable(zcreated_fn, 0, &callable)) {
+	if (! zend_is_callable(zcreated_fn, 0, &callable TSRMLS_CC)) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
 						 "function %s is not callable", callable);
 		efree(callable);
@@ -2765,7 +2768,7 @@ PHP_FUNCTION(gearman_client_set_data_fn) {
 				 &zdata_fn)
 
 	/* check that the function is callable */
-	if (! zend_is_callable(zdata_fn, 0, &callable)) {
+	if (! zend_is_callable(zdata_fn, 0, &callable TSRMLS_CC)) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
 						 "function %s is not callable", callable);
 		efree(callable);
@@ -2796,7 +2799,7 @@ PHP_FUNCTION(gearman_client_set_warning_fn) {
 				 &zwarning_fn)
 
 	/* check that the function is callable */
-	if (! zend_is_callable(zwarning_fn, 0, &callable)) {
+	if (! zend_is_callable(zwarning_fn, 0, &callable TSRMLS_CC)) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
 						 "function %s is not callable", callable);
 		efree(callable);
@@ -2827,7 +2830,7 @@ PHP_FUNCTION(gearman_client_set_status_fn) {
 				 &zstatus_fn)
 
 	/* check that the function is callable */
-	if (! zend_is_callable(zstatus_fn, 0, &callable)) {
+	if (! zend_is_callable(zstatus_fn, 0, &callable TSRMLS_CC)) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
 						 "function %s is not callable", callable);
 		efree(callable);
@@ -2858,7 +2861,7 @@ PHP_FUNCTION(gearman_client_set_complete_fn) {
 				 &zcomplete_fn)
 
 	/* check that the function is callable */
-	if (! zend_is_callable(zcomplete_fn, 0, &callable)) {
+	if (! zend_is_callable(zcomplete_fn, 0, &callable TSRMLS_CC)) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
 						 "function %s is not callable", callable);
 		efree(callable);
@@ -2889,7 +2892,7 @@ PHP_FUNCTION(gearman_client_set_exception_fn) {
 				 &zexception_fn)
 
 	/* check that the function is callable */
-	if (! zend_is_callable(zexception_fn, 0, &callable)) {
+	if (! zend_is_callable(zexception_fn, 0, &callable TSRMLS_CC)) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
 						 "function %s is not callable", callable);
 		efree(callable);
@@ -2920,7 +2923,7 @@ PHP_FUNCTION(gearman_client_set_fail_fn) {
 				 &zfail_fn)
 
 	/* check that the function is callable */
-	if (! zend_is_callable(zfail_fn, 0, &callable)) {
+	if (! zend_is_callable(zfail_fn, 0, &callable TSRMLS_CC)) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
 						 "function %s is not callable", callable);
 		efree(callable);
@@ -3290,6 +3293,7 @@ static void *_php_worker_function_callback(gearman_job_st *job, void *fn_arg,
 	zval *zret_ptr= NULL;
 	zend_fcall_info fci;
 	zend_fcall_info_cache fcic= empty_fcall_info_cache;
+    TSRMLS_FETCH();
 
 	/* first create our job object that will be passed to the callback */
 	MAKE_STD_ZVAL(zjob);
@@ -3370,7 +3374,7 @@ PHP_FUNCTION(gearman_worker_add_function) {
 				 &zname, &zcall, &zdata, &timeout)
 
 	/* check that the function can be called */
-	if (!zend_is_callable(zcall, 0, &callable)) {
+	if (!zend_is_callable(zcall, 0, &callable TSRMLS_CC)) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
 						 "function %s is not callable", callable);
 		efree(callable);
