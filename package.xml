@@ -15,7 +15,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
   <email>contact@jamesluedke.com</email>
   <active>yes</active>
  </lead>
- <date>2009-07-18</date>
+ <date>2009-07-22</date>
  <version>
   <release>0.5.0</release>
   <api>0.5.0</api>
@@ -28,6 +28,8 @@ http://pear.php.net/dtd/package-2.0.xsd">
  <notes>
 - Fixed a bug in the task callbacks, the addtional data arg will now work as expected.
 - Added gearman_client_add_servers. This was adde in a recent version of libgearman.
+- Updates to zts for php 5.3
+- Replaced errno with getErrno
  </notes>
  <contents>
   <dir name="/">
@@ -73,10 +75,12 @@ http://pear.php.net/dtd/package-2.0.xsd">
   <release>
    <stability><release>beta</release><api>beta</api></stability>
    <version><release>0.5.0</release><api>0.5.0</api></version>
-   <date>2009-07-18</date>
+   <date>2009-07-22</date>
    <notes>
 - Fixed a bug in the task callbacks, the addtional data arg will now work as expected.
 - Added gearman_client_add_servers. This was adde in a recent version of libgearman.
+- Updates to zts for php 5.3
+- Replaced errno with getErrno
    </notes>
   </release>
   <release>

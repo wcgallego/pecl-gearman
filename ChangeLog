@@ -2,6 +2,8 @@ Version 0.5.0
 -------------
 - Fixed a bug in the task callbacks, the addtional data arg will now work as expected.
 - Added gearman_client_add_servers. This was adde in a recent version of libgearman.
+- Updates to zts for php 5.3
+- Replaced errno with getErrno
 
 Version 0.4.0
 -------------
