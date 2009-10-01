@@ -15,10 +15,10 @@ http://pear.php.net/dtd/package-2.0.xsd">
   <email>contact@jamesluedke.com</email>
   <active>yes</active>
  </lead>
- <date>2009-07-22</date>
+ <date>2009-10-01</date>
  <version>
-  <release>0.5.0</release>
-  <api>0.5.0</api>
+  <release>0.6.0</release>
+  <api>0.6.0</api>
  </version>
  <stability>
   <release>beta</release>
@@ -26,10 +26,12 @@ http://pear.php.net/dtd/package-2.0.xsd">
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-- Fixed a bug in the task callbacks, the addtional data arg will now work as expected.
-- Added gearman_client_add_servers. This was adde in a recent version of libgearman.
-- Updates to zts for php 5.3
-- Replaced errno with getErrno
+- Fixed build issue with 5.1.x
+- Merged eday changes
+- Added wait functions, uncommented other worker functions.
+- Added timeout functions.
+- Updated function list from C library and removed free methods (should use unset).
+- Added stubs for new functions, fixed tests, fixed some of the existing functions from changes.
  </notes>
  <contents>
   <dir name="/">
@@ -74,8 +76,21 @@ http://pear.php.net/dtd/package-2.0.xsd">
  <changelog>
   <release>
    <stability><release>beta</release><api>beta</api></stability>
+   <version><release>0.6.0</release><api>0.6.0</api></version>
+   <date>2009-10-01</date>
+   <notes>
+- Fixed build issue with 5.1.x
+- Merged eday changes
+- Added wait functions, uncommented other worker functions.
+- Added timeout functions.
+- Updated function list from C library and removed free methods (should use unset).
+- Added stubs for new functions, fixed tests, fixed some of the existing functions from changes.
+   </notes>
+  </release>
+  <release>
+   <stability><release>beta</release><api>beta</api></stability>
    <version><release>0.5.0</release><api>0.5.0</api></version>
-   <date>2009-07-22</date>
+   <date>2009-07-27</date>
    <notes>
 - Fixed a bug in the task callbacks, the addtional data arg will now work as expected.
 - Added gearman_client_add_servers. This was adde in a recent version of libgearman.

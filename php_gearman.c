@@ -34,12 +34,12 @@
 # define Z_DELREF_P ZVAL_DELREF
 #endif
 
+/* XXX another hack to get around 5.1 builds */
 #ifndef READY_TO_DESTROY
 # define READY_TO_DESTROY(zv) \
 	((zv)->refcount == 1 && \
 	 (Z_TYPE_P(zv) != IS_OBJECT || \
      (EG(objects_store).object_buckets[Z_OBJ_HANDLE_P(zv)].bucket.obj.refcount) == 1))
-
 #endif
 
 
