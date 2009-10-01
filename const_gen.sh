@@ -34,9 +34,9 @@ awk 'BEGIN { p= 1; } \
 
 grep ' GEARMAN' $header | \
   sed 's/.*\(GEARMAN[A-Z0-9_]*\).*/\1/' | \
-  sed 's/\(.*\)/  REGISTER_LONG_CONSTANT("\1",\
-                         \1,\
-                         CONST_CS | CONST_PERSISTENT);/' | \
+  sed 's/\(.*\)/	REGISTER_LONG_CONSTANT("\1",\
+		\1,\
+		CONST_CS | CONST_PERSISTENT);/' | \
   sed 's/LONG\(.*GEARMAN_DEFAULT_TCP_HOST\)/STRING\1/' | \
   sed 's/LONG\(.*GEARMAN_DEFAULT_UDS\)/STRING\1/' | \
   sed 's/LONG\(.*GEARMAN_DEFAULT_USER\)/STRING\1/' >> php_gearman.c.new

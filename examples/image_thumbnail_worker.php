@@ -41,14 +41,14 @@ function resize_image($job, $args)
     $wrk= $job->workload();
     $data= unserialize($wrk);
     if (! $data['src'] || ! $data['dest'] || ! $data['x']) 
-    { $job->fail(); print_r($data); return; }
+    { $job->sendFail(); print_r($data); return; }
     echo $job->handle() . " - creating: $data[dest] x:$data[x] y:$data[y]\n";
     $im= new Imagick();
     $im->readimage($data['src']);
     $im->thumbnailImage($data['x'], $data['y']);
     $im->writeImage($data['dest']);
     $im->destroy();
-    $job->status(1, 1);
+    $job->sendStatus(1, 1);
 
     return $data['dest'];
 }

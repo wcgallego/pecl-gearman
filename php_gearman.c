@@ -34,6 +34,15 @@
 # define Z_DELREF_P ZVAL_DELREF
 #endif
 
+#ifndef READY_TO_DESTROY
+# define READY_TO_DESTROY(zv) \
+	((zv)->refcount == 1 && \
+	 (Z_TYPE_P(zv) != IS_OBJECT || \
+     (EG(objects_store).object_buckets[Z_OBJ_HANDLE_P(zv)].bucket.obj.refcount) == 1))
+
+#endif
+
+
 /* XXX I hate to do this but they changed PHP_ME_MAPPING between versions.
  * in order to make the module compile on versions < 5.2 this is required */
 #if (PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 2)
@@ -53,13 +62,16 @@
 /* {{{ arginfo */
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_version, 0, 0, 0)
 ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_bugreport, 0, 0, 0)
+ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_verbose_name, 0, 0, 1)
+	ZEND_ARG_INFO(0, verbose)
+ZEND_END_ARG_INFO()
 
 #if jluedke_0
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_create)
 ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_clone)
-ZEND_END_ARG_INFO()
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_free)
 ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_error)
 ZEND_END_ARG_INFO()
@@ -80,40 +92,26 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_task_return_code, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_task_create, 0, 0, 1)
-	ZEND_ARG_INFO(0, gearman_object)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_task_create, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_task_free, 0, 0, 1)
-	ZEND_ARG_INFO(0, task_object)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_task_free, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
 /* TODO: so looks like I may have implemented this incorrectly for
  * now no oo interface exist. I will need to come back to this later */
 /*
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_task_fn_arg, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_task_context, 0, 0, 1)
 	ZEND_ARG_INFO(0, task_object)
 ZEND_END_ARG_INFO()
 */
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_task_function, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_task_function_name, 0, 0, 1)
 	ZEND_ARG_INFO(0, task_object)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_task_function, 0, 0, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_task_function_name, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_task_uuid, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_task_unique, 0, 0, 1)
 	ZEND_ARG_INFO(0, task_object)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_task_uuid, 0, 0, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_task_unique, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_task_job_handle, 0, 0, 1)
@@ -165,12 +163,12 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_task_data_size, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_task_send_data, 0, 0, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_task_send_workload, 0, 0, 2)
 	ZEND_ARG_INFO(0, task_object)
 	ZEND_ARG_INFO(0, data)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_task_send_data, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_task_send_workload, 0, 0, 1)
 	ZEND_ARG_INFO(0, data)
 ZEND_END_ARG_INFO()
 
@@ -194,69 +192,58 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_job_return_code, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_job_create, 0, 0, 1)
-	ZEND_ARG_INFO(0, gearman_object)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_job_free, 0, 0, 1)
-	ZEND_ARG_INFO(0, job_object)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_job_free, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_job_data, 0, 0, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_job_send_data, 0, 0, 2)
 	ZEND_ARG_INFO(0, job_object)
 	ZEND_ARG_INFO(0, data)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_job_data, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_job_send_data, 0, 0, 1)
 	ZEND_ARG_INFO(0, data)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_job_warning, 0, 0, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_job_send_warning, 0, 0, 2)
 	ZEND_ARG_INFO(0, job_object)
 	ZEND_ARG_INFO(0, warning)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_job_warning, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_job_send_warning, 0, 0, 1)
 	ZEND_ARG_INFO(0, warning)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_job_status, 0, 0, 3)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_job_send_status, 0, 0, 3)
 	ZEND_ARG_INFO(0, job_object)
 	ZEND_ARG_INFO(0, numerator)
 	ZEND_ARG_INFO(0, denominator)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_job_status, 0, 0, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_job_send_status, 0, 0, 2)
 	ZEND_ARG_INFO(0, numerator)
 	ZEND_ARG_INFO(0, denominator)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_job_complete, 0, 0, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_job_send_complete, 0, 0, 2)
 	ZEND_ARG_INFO(0, job_object)
 	ZEND_ARG_INFO(0, result)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_job_complete, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_job_send_complete, 0, 0, 1)
 	ZEND_ARG_INFO(0, result)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_job_exception, 0, 0, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_job_send_exception, 0, 0, 2)
 	ZEND_ARG_INFO(0, job_object)
 	ZEND_ARG_INFO(0, exception)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_job_exception, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_job_send_exception, 0, 0, 1)
 	ZEND_ARG_INFO(0, exception)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_job_fail, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_job_send_fail, 0, 0, 1)
 	ZEND_ARG_INFO(0, job_object)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_job_fail, 0, 0, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_job_send_fail, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_job_handle, 0, 0, 1)
@@ -325,13 +312,6 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_clone, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_free, 0, 0, 1)
-	ZEND_ARG_INFO(0, client_object)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_free, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_error, 0, 0, 1)
 	ZEND_ARG_INFO(0, client_object)
 ZEND_END_ARG_INFO()
@@ -346,15 +326,54 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_errno, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_set_options, 0, 0, 3)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_options, 0, 0, 1)
 	ZEND_ARG_INFO(0, client_object)
-	ZEND_ARG_INFO(0, options)
-	ZEND_ARG_INFO(0, data)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_set_options, 0, 0, 2)
-	ZEND_ARG_INFO(0, options)
-	ZEND_ARG_INFO(0, data)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_options, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_set_options, 0, 0, 2)
+	ZEND_ARG_INFO(0, client_object)
+	ZEND_ARG_INFO(0, option)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_set_options, 0, 0, 1)
+	ZEND_ARG_INFO(0, option)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_add_options, 0, 0, 2)
+	ZEND_ARG_INFO(0, client_object)
+	ZEND_ARG_INFO(0, option)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_add_options, 0, 0, 1)
+	ZEND_ARG_INFO(0, option)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_remove_options, 0, 0, 2)
+	ZEND_ARG_INFO(0, client_object)
+	ZEND_ARG_INFO(0, option)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_remove_options, 0, 0, 1)
+	ZEND_ARG_INFO(0, option)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_timeout, 0, 0, 1)
+	ZEND_ARG_INFO(0, client_object)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_timeout, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_set_timeout, 0, 0, 2)
+	ZEND_ARG_INFO(0, client_object)
+	ZEND_ARG_INFO(0, timeout)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_set_timeout, 0, 0, 1)
+	ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_add_server, 0, 0, 3)
@@ -375,6 +394,13 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_add_servers, 0, 0, 1)
 	ZEND_ARG_INFO(0, servers)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_wait, 0, 0, 1)
+	ZEND_ARG_INFO(0, client_object)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_wait, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_do, 0, 0, 3)
@@ -668,19 +694,19 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_clear_fn, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_data, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_context, 0, 0, 1)
 	ZEND_ARG_INFO(0, client_object)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_data, 0, 0, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_context, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_set_data, 0, 0, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_set_context, 0, 0, 2)
 	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, data)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_set_data, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_set_context, 0, 0, 1)
 	ZEND_ARG_INFO(0, data)
 ZEND_END_ARG_INFO()
 
@@ -712,13 +738,6 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_clone, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_free, 0, 0, 1)
-	ZEND_ARG_INFO(0, worker_object)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_free, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_error, 0, 0, 1)
 	ZEND_ARG_INFO(0, worker_object)
 ZEND_END_ARG_INFO()
@@ -733,15 +752,54 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_errno, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_set_options, 0, 0, 3)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_options, 0, 0, 1)
 	ZEND_ARG_INFO(0, worker_object)
-	ZEND_ARG_INFO(0, option)
-	ZEND_ARG_INFO(0, data)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_set_options, 0, 0, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_options, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_set_options, 0, 0, 2)
+	ZEND_ARG_INFO(0, worker_object)
 	ZEND_ARG_INFO(0, option)
-	ZEND_ARG_INFO(0, data)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_set_options, 0, 0, 1)
+	ZEND_ARG_INFO(0, option)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_add_options, 0, 0, 2)
+	ZEND_ARG_INFO(0, worker_object)
+	ZEND_ARG_INFO(0, option)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_add_options, 0, 0, 1)
+	ZEND_ARG_INFO(0, option)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_remove_options, 0, 0, 2)
+	ZEND_ARG_INFO(0, worker_object)
+	ZEND_ARG_INFO(0, option)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_remove_options, 0, 0, 1)
+	ZEND_ARG_INFO(0, option)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_timeout, 0, 0, 1)
+	ZEND_ARG_INFO(0, worker_object)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_timeout, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_set_timeout, 0, 0, 2)
+	ZEND_ARG_INFO(0, worker_object)
+	ZEND_ARG_INFO(0, timeout)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_set_timeout, 0, 0, 1)
+	ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_add_server, 0, 0, 1)
@@ -762,6 +820,13 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_add_servers, 0, 0, 1)
 	ZEND_ARG_INFO(0, servers)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_wait, 0, 0, 1)
+	ZEND_ARG_INFO(0, worker_object)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_wait, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_register, 0, 0, 2)
@@ -829,28 +894,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_echo, 0, 0, 1)
 	ZEND_ARG_INFO(0, workload)
 ZEND_END_ARG_INFO()
 
-
-/*
- * German Gearmand arginfo
- */
-
-#if jluedke_0
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearmand_create)
-ZEND_END_ARG_INFO()
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearmand_free)
-ZEND_END_ARG_INFO()
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearmand_set_backlog)
-ZEND_END_ARG_INFO()
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearmand_set_verbose)
-ZEND_END_ARG_INFO()
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearmand_error)
-ZEND_END_ARG_INFO()
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearmand_errno)
-ZEND_END_ARG_INFO()
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearmand_run)
-ZEND_END_ARG_INFO()
-#endif 
-
 /* }}} end arginfo */
 
 /*
@@ -917,7 +960,6 @@ typedef struct {
 	gearman_return_t ret;
 	gearman_job_obj_flags_t flags;
 	gearman_job_st *job;
-	zval *gearman;
 	zval *worker;
 	zval *zworkload;
 } gearman_job_obj;
@@ -933,7 +975,6 @@ typedef struct {
 	zend_object_value value;
 	gearman_task_obj_flags_t flags;
 	gearman_task_st *task;
-	zval *zgearman;
 	zval *zclient;
 	gearman_client_st *client;
 	zval *zdata;
@@ -945,8 +986,16 @@ typedef struct {
  * Object variables
  */
 
+#if jluedke_0
 zend_class_entry *gearman_ce;
 static zend_object_handlers gearman_obj_handlers;
+
+zend_class_entry *gearman_con_ce;
+static zend_object_handlers gearman_con_obj_handlers;
+
+zend_class_entry *gearman_packet_ce;
+static zend_object_handlers gearman_packet_obj_handlers;
+#endif
 
 zend_class_entry *gearman_client_ce;
 static zend_object_handlers gearman_client_obj_handlers;
@@ -1025,8 +1074,8 @@ void _php_free(void *ptr, void *arg) {
 	efree(ptr);
 }
 
-void _php_task_free(gearman_task_st *task, void *fn_arg) {
-	gearman_task_obj *obj= (gearman_task_obj *)fn_arg;
+void _php_task_free(gearman_task_st *task, void *context) {
+	gearman_task_obj *obj= (gearman_task_obj *)context;
     TSRMLS_FETCH();
 
 	if (obj->flags & GEARMAN_TASK_OBJ_DEAD) {
@@ -1046,6 +1095,27 @@ void _php_task_free(gearman_task_st *task, void *fn_arg) {
    Returns libgearman version */
 PHP_FUNCTION(gearman_version) {
 	RETURN_STRING((char *)gearman_version(), 1);
+}
+/* }}} */
+
+/* {{{ proto string gearman_bugreport()
+   Returns bug report URL string */
+PHP_FUNCTION(gearman_bugreport) {
+	RETURN_STRING((char *)gearman_bugreport(), 1);
+}
+/* }}} */
+
+/* {{{ proto string gearman_verbose_name(constant verbose)
+   Returns string with the name of the given verbose level */
+PHP_FUNCTION(gearman_verbose_name) {
+	long verbose;
+
+  	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l",
+		&verbose) == FAILURE) {
+		RETURN_NULL();
+	}
+
+	RETURN_STRING((char *)gearman_verbose_name(verbose), 1);
 }
 /* }}} */
 
@@ -1080,25 +1150,6 @@ PHP_FUNCTION(gearman_clone) {
 	}
 
 	ZEND_REGISTER_RESOURCE(return_value, gearman, le_gearman_st);
-	*/
-}
-/* }}} */
-
-PHP_FUNCTION(gearman_free) {
-	/* TODO
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r",
-	                          &zgearman) == FAILURE)
-	{
-	  RETURN_FALSE;
-	}
-
-	ZEND_FETCH_RESOURCE(gearman, gearman_st *, &zgearman, -1, "gearman_st",
-	                    le_gearman_st);
-
-	gearman_free(gearman);
-	zend_list_delete(Z_LVAL_P(zgearman));
-
-	RETURN_TRUE;
 	*/
 }
 /* }}} */
@@ -1177,53 +1228,11 @@ PHP_FUNCTION(gearman_task_return_code)
 }
 /* }}} */
 
-/* {{{ proto object gearman_task_create()
-   Returns a task object */
-PHP_FUNCTION(gearman_task_create) {
-	zval *zobj;
-	gearman_obj *obj;
-	gearman_task_obj *task;
-
-	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_ce)
-
-	Z_TYPE_P(return_value)= IS_OBJECT;
-	object_init_ex(return_value, gearman_task_ce);
-	task= zend_object_store_get_object(return_value TSRMLS_CC);
-	task->zgearman= zobj;
-	Z_ADDREF_P(zobj);
-
-	task->task= gearman_task_create(&(obj->gearman), task->task);
-	if (task->task == NULL)
-	{
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
-						 "Memory allocation failure.");
-		zval_dtor(return_value);
-		RETURN_FALSE;
-	}
-
-	task->flags|= GEARMAN_TASK_OBJ_CREATED;
-}
-/* }}} */
-
-/* {{{ proto void gearman_task_free(object task)
-   Frees a task object */
-PHP_FUNCTION(gearman_task_free) {
-	zval *zobj;
-	gearman_task_obj *obj;
-
-	GEARMAN_ZPP(RETURN_NULL(), "", &zobj, gearman_task_ce)
-
-	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
-		gearman_task_free(obj->task);
-		obj->flags&= ~GEARMAN_TASK_OBJ_CREATED;
-	}
-}
-/* }}} */
 
 #if jluedke_0
-/* {{{ proto string gearman_task_fn_arg(object task) 
+/* {{{ proto string gearman_task_context(object task) 
    Set callback function argument for a task. */
-PHP_FUNCTION(gearman_task_fn_arg) {
+PHP_FUNCTION(gearman_task_context) {
 	zval *zobj;
 	gearman_task_obj *obj;
 
@@ -1234,27 +1243,27 @@ PHP_FUNCTION(gearman_task_fn_arg) {
 /* }}} */
 #endif
 
-/* {{{ proto string gearman_task_function(object task)
+/* {{{ proto string gearman_task_function_name(object task)
    Returns function name associated with a task. */
-PHP_FUNCTION(gearman_task_function) {
+PHP_FUNCTION(gearman_task_function_name) {
 	zval *zobj;
 	gearman_task_obj *obj;
 	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_task_ce)
 	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
-		RETURN_STRING((char *)gearman_task_function(obj->task), 1);
+		RETURN_STRING((char *)gearman_task_function_name(obj->task), 1);
 	}
 	RETURN_FALSE;
 }
 /* }}} */
 
-/* {{{ proto string gearman_task_uuid(object task)
+/* {{{ proto string gearman_task_unique(object task)
    Returns unique identifier for a task. */
-PHP_FUNCTION(gearman_task_uuid) {
+PHP_FUNCTION(gearman_task_unique) {
 	zval *zobj;
 	gearman_task_obj *obj;
 	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_task_ce)
 	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
-		RETURN_STRING((char *)gearman_task_uuid(obj->task), 1);
+		RETURN_STRING((char *)gearman_task_unique(obj->task), 1);
 	}
 	RETURN_FALSE;
 }
@@ -1364,9 +1373,9 @@ PHP_FUNCTION(gearman_task_data_size) {
 /* }}} */
 
 
-/* {{{ proto int gearman_task_send_data(object task, string data)
+/* {{{ proto int gearman_task_send_workload(object task, string data)
    NOT-TESTED Send packet data for a task. */
-PHP_FUNCTION(gearman_task_send_data) {
+PHP_FUNCTION(gearman_task_send_workload) {
 	zval *zobj;
 	gearman_task_obj *obj;
 	const uint8_t *data;
@@ -1380,7 +1389,7 @@ PHP_FUNCTION(gearman_task_send_data) {
 	}
 
 	/* XXX verify that i am doing this correctly */
-	data_len= gearman_task_send_data(obj->task, data, data_len, &obj->ret);
+	data_len= gearman_task_send_workload(obj->task, data, data_len, &obj->ret);
 	if (obj->ret != GEARMAN_SUCCESS)
 	{
 		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
@@ -1440,51 +1449,9 @@ PHP_FUNCTION(gearman_job_return_code)
 }
 /* }}} */
 
-/* {{{ proto void gearman_job_create(object gearman)
-   NOT-SUPPORTED Initialize a job structure. */
-PHP_FUNCTION(gearman_job_create) {
-	zval *zobj;
-	gearman_obj *obj;
-	gearman_job_obj *job;
-
-	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_ce)
-
-	Z_TYPE_P(return_value)= IS_OBJECT;
-	object_init_ex(return_value, gearman_job_ce);
-	job= zend_object_store_get_object(return_value TSRMLS_CC);
-	job->gearman= zobj;
-	Z_ADDREF_P(zobj);
-
-	job->job= gearman_job_create(&(obj->gearman), NULL);
-	if (job->job == NULL) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
-						 "Memory allocation failure.");
-		zval_dtor(return_value);
-		RETURN_FALSE;
-	}
-
-	job->flags|= GEARMAN_JOB_OBJ_CREATED;
-}
-/* }}} */
-
-/* {{{ proto void gearman_job_free(object job)
-   Free a job object */
-PHP_FUNCTION(gearman_job_free) {
-	zval *zobj;
-	gearman_job_obj *obj;
-
-	GEARMAN_ZPP(RETURN_NULL(), "O", &zobj, gearman_job_ce)
-
-	if (obj->flags & GEARMAN_JOB_OBJ_CREATED) {
-		gearman_job_free(obj->job);
-		obj->flags&= ~GEARMAN_JOB_OBJ_CREATED;
-	}
-}
-/* }}} */
-
-/* {{{ proto bool gearman_job_data(object job, string data)
+/* {{{ proto bool gearman_job_send_data(object job, string data)
    Send data for a running job. */
-PHP_FUNCTION(gearman_job_data) {
+PHP_FUNCTION(gearman_job_send_data) {
 	zval *zobj;
 	gearman_job_obj *obj;
 	char *data;
@@ -1492,10 +1459,10 @@ PHP_FUNCTION(gearman_job_data) {
 
 	GEARMAN_ZPMP(RETURN_NULL(), "s", &zobj, gearman_job_ce, &data, &data_len)
 
-	obj->ret= gearman_job_data(obj->job, data, data_len);
+	obj->ret= gearman_job_send_data(obj->job, data, data_len);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
-						 gearman_error(obj->job->gearman));
+			gearman_worker_error(obj->job->worker));
 		RETURN_FALSE;
 	}
 
@@ -1503,9 +1470,9 @@ PHP_FUNCTION(gearman_job_data) {
 }
 /* }}} */
 
-/* {{{ proto bool gearman_job_warning(object job, string warning)
+/* {{{ proto bool gearman_job_send_warning(object job, string warning)
    Send warning for a running job. */
-PHP_FUNCTION(gearman_job_warning) {
+PHP_FUNCTION(gearman_job_send_warning) {
 	zval *zobj;
 	gearman_job_obj *obj;
 	char *warning= NULL;
@@ -1514,11 +1481,11 @@ PHP_FUNCTION(gearman_job_warning) {
 	GEARMAN_ZPMP(RETURN_NULL(), "s", &zobj, gearman_job_ce, 
 				 &warning, &warning_len)
 
-	obj->ret= gearman_job_warning(obj->job, (void *) warning, 
+	obj->ret= gearman_job_send_warning(obj->job, (void *) warning, 
 								 (size_t) warning_len);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
-						 gearman_error(obj->job->gearman));
+			gearman_worker_error(obj->job->worker));
 		RETURN_FALSE;
 	}
 
@@ -1526,9 +1493,9 @@ PHP_FUNCTION(gearman_job_warning) {
 }
 /* }}} */
 
-/* {{{ proto bool gearman_job_status(object job, int numerator, int denominator)
+/* {{{ proto bool gearman_job_send_status(object job, int numerator, int denominator)
    Send status information for a running job. */
-PHP_FUNCTION(gearman_job_status) {
+PHP_FUNCTION(gearman_job_send_status) {
 	zval *zobj;
 	gearman_job_obj *obj;
 	long numerator;
@@ -1537,11 +1504,11 @@ PHP_FUNCTION(gearman_job_status) {
 	GEARMAN_ZPMP(RETURN_NULL(), "ll", &zobj, gearman_job_ce, &numerator,
 				 &denominator)
 
-	obj->ret= gearman_job_status(obj->job, (uint32_t)numerator, 
+	obj->ret= gearman_job_send_status(obj->job, (uint32_t)numerator, 
 								(uint32_t)denominator);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
-					 	 gearman_error(obj->job->gearman));
+			gearman_worker_error(obj->job->worker));
 		RETURN_FALSE;
 	}
 
@@ -1549,9 +1516,9 @@ PHP_FUNCTION(gearman_job_status) {
 }
 /* }}} */
 
-/* {{{ proto bool gearman_job_complete(object job, string result)
+/* {{{ proto bool gearman_job_send_complete(object job, string result)
    Send result and complete status for a job. */
-PHP_FUNCTION(gearman_job_complete) {
+PHP_FUNCTION(gearman_job_send_complete) {
 	zval *zobj;
 	gearman_job_obj *obj;
 	char *result;
@@ -1560,10 +1527,10 @@ PHP_FUNCTION(gearman_job_complete) {
 	GEARMAN_ZPMP(RETURN_NULL(), "s", &zobj, gearman_job_ce, 
 				 &result, &result_len)
 
-	obj->ret= gearman_job_complete(obj->job, result, result_len);
+	obj->ret= gearman_job_send_complete(obj->job, result, result_len);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
-						 gearman_error(obj->job->gearman));
+			gearman_worker_error(obj->job->worker));
 		RETURN_FALSE;
 	}
 
@@ -1571,9 +1538,9 @@ PHP_FUNCTION(gearman_job_complete) {
 }
 /* }}} */
 
-/* {{{ proto bool gearman_job_exception(object job, string exception)
+/* {{{ proto bool gearman_job_send_exception(object job, string exception)
    Send exception for a running job. */
-PHP_FUNCTION(gearman_job_exception) {
+PHP_FUNCTION(gearman_job_send_exception) {
 	zval *zobj;
 	gearman_job_obj *obj;
 	char *exception;
@@ -1582,10 +1549,10 @@ PHP_FUNCTION(gearman_job_exception) {
 	GEARMAN_ZPMP(RETURN_NULL(), "s", &zobj, gearman_job_ce, 
 				 &exception, &exception_len)
 
-	obj->ret= gearman_job_exception(obj->job, exception, exception_len);
+	obj->ret= gearman_job_send_exception(obj->job, exception, exception_len);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
-						 gearman_error(obj->job->gearman));
+			gearman_worker_error(obj->job->worker));
 		RETURN_FALSE;
 	}
 
@@ -1593,18 +1560,18 @@ PHP_FUNCTION(gearman_job_exception) {
 }
 /* }}} */
 
-/* {{{ proto bool gearman_job_fail(object job)
+/* {{{ proto bool gearman_job_send_fail(object job)
    Send fail status for a job. */
-PHP_FUNCTION(gearman_job_fail) {
+PHP_FUNCTION(gearman_job_send_fail) {
 	zval *zobj;
 	gearman_job_obj *obj;
 
 	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_job_ce)
 
-	obj->ret= gearman_job_fail(obj->job);
+	obj->ret= gearman_job_send_fail(obj->job);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
-						 gearman_error(obj->job->gearman));
+			gearman_worker_error(obj->job->worker));
 		RETURN_FALSE;
 	}
 
@@ -1732,12 +1699,12 @@ PHP_FUNCTION(gearman_client_create) {
 	}
 
 	client->flags|= GEARMAN_CLIENT_OBJ_CREATED;
-	gearman_client_set_options(&(client->client), 
-		GEARMAN_CLIENT_FREE_TASKS, 1);
-	gearman_client_set_workload_malloc(&(client->client), _php_malloc, NULL);
-	gearman_client_set_workload_free(&(client->client), _php_free, NULL);
-	gearman_client_set_task_fn_arg_free(&(client->client), _php_task_free);
-	gearman_client_set_data(&(client->client), client);
+	gearman_client_add_options(&(client->client), 
+		GEARMAN_CLIENT_FREE_TASKS);
+	gearman_client_set_workload_malloc_fn(&(client->client), _php_malloc, NULL);
+	gearman_client_set_workload_free_fn(&(client->client), _php_free, NULL);
+	gearman_client_set_task_context_free_fn(&(client->client), _php_task_free);
+	gearman_client_set_context(&(client->client), client);
 }
 /* }}} */
 
@@ -1765,22 +1732,6 @@ PHP_FUNCTION(gearman_client_clone) {
 }
 /* }}} */
 
-/* {{{ proto void gearman_client_free(object client)
-   Free resources used by a client object */
-PHP_FUNCTION(gearman_client_free) {
-	zval *zobj;
-	gearman_client_obj *obj;
-
-	GEARMAN_ZPP(RETURN_NULL(), "", &zobj, gearman_client_ce)
-	obj= zend_object_store_get_object(zobj TSRMLS_CC);
-
-	if (obj->flags & GEARMAN_CLIENT_OBJ_CREATED) {
-		gearman_client_free(&(obj->client));
-		obj->flags&= ~GEARMAN_CLIENT_OBJ_CREATED;
-	}
-}
-/* }}} */
-
 /* {{{ proto string gearman_client_error(object client)
    Return an error string for the last error encountered. */
 PHP_FUNCTION(gearman_client_error) {
@@ -1805,18 +1756,82 @@ PHP_FUNCTION(gearman_client_errno) {
 }
 /* }}} */
 
-/* {{{ proto void gearman_client_set_options(object client, int option, int data)
-   Set options for a client object */
+/* {{{ proto int gearman_client_options(object client)
+   Get options for a client structure. */
+PHP_FUNCTION(gearman_client_options) {
+	zval *zobj;
+	gearman_client_obj *obj;
+
+	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_client_ce)
+
+	RETURN_LONG(gearman_client_options(&(obj->client)))
+}
+/* }}} */
+
+/* {{{ proto void gearman_client_set_options(object client, constant option)
+   Set options for a client structure. */
 PHP_FUNCTION(gearman_client_set_options) {
 	zval *zobj;
 	gearman_client_obj *obj;
 	long options;
-	long data;
 
-	GEARMAN_ZPMP(RETURN_NULL(), "ll", &zobj, gearman_client_ce, 
-				 &options, &data)
+	GEARMAN_ZPMP(RETURN_NULL(), "l", &zobj, gearman_client_ce, &options)
 
-	gearman_client_set_options(&(obj->client), options, data);
+	gearman_client_set_options(&(obj->client), options);
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto void gearman_client_add_options(object client, constant option)
+   Set options for a client structure. */
+PHP_FUNCTION(gearman_client_add_options) {
+	zval *zobj;
+	gearman_client_obj *obj;
+	long options;
+
+	GEARMAN_ZPMP(RETURN_NULL(), "l", &zobj, gearman_client_ce, &options)
+
+	gearman_client_add_options(&(obj->client), options);
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto void gearman_client_remove_options(object client, constant option)
+   Set options for a client structure. */
+PHP_FUNCTION(gearman_client_remove_options) {
+	zval *zobj;
+	gearman_client_obj *obj;
+	long options;
+
+	GEARMAN_ZPMP(RETURN_NULL(), "l", &zobj, gearman_client_ce, &options)
+
+	gearman_client_remove_options(&(obj->client), options);
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto int gearman_client_timeout(object client)
+   Get timeout for a client structure. */
+PHP_FUNCTION(gearman_client_timeout) {
+	zval *zobj;
+	gearman_client_obj *obj;
+
+	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_client_ce)
+
+	RETURN_LONG(gearman_client_timeout(&(obj->client)))
+}
+/* }}} */
+
+/* {{{ proto void gearman_client_set_timeout(object client, constant timeout)
+   Set timeout for a client structure. */
+PHP_FUNCTION(gearman_client_set_timeout) {
+	zval *zobj;
+	gearman_client_obj *obj;
+	long timeout;
+
+	GEARMAN_ZPMP(RETURN_NULL(), "l", &zobj, gearman_client_ce, &timeout)
+
+	gearman_client_set_timeout(&(obj->client), timeout);
 	RETURN_TRUE;
 }
 /* }}} */
@@ -1857,7 +1872,7 @@ PHP_FUNCTION(gearman_client_add_servers) {
 
 	obj->ret= gearman_client_add_servers(&(obj->client), servers);
 	if (obj->ret != GEARMAN_SUCCESS) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_client_error(&(obj->client)));
 		RETURN_FALSE;
 	}
@@ -1865,6 +1880,25 @@ PHP_FUNCTION(gearman_client_add_servers) {
 	RETURN_TRUE;
 }
 /* }}} */
+
+/* {{{ proto bool gearman_client_wait(object client)
+   Wait for I/O activity on all connections in a client. */
+PHP_FUNCTION(gearman_client_wait) {
+	zval *zobj;
+	gearman_client_obj *obj;
+
+	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_client_ce)
+
+	obj->ret= gearman_client_wait(&(obj->client));
+
+	if (! PHP_GEARMAN_CLIENT_RET_OK(obj->ret)) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
+			gearman_client_error(&(obj->client)));
+		RETURN_FALSE;
+	}
+
+	RETURN_TRUE;
+}
 
 /* TODO
 void *_php_client_do()
@@ -2208,7 +2242,7 @@ PHP_FUNCTION(gearman_client_add_task) {
 	task= zend_object_store_get_object(return_value TSRMLS_CC);
 
 	if (zdata) {
-		/* add zdata tothe task object and pass the task object via fn_arg
+		/* add zdata tothe task object and pass the task object via context
 		 * task->client= zobj; */
 		task->zdata= zdata;
 		Z_ADDREF_P(zdata);
@@ -2262,7 +2296,7 @@ PHP_FUNCTION(gearman_client_add_task_high) {
 	task= zend_object_store_get_object(return_value TSRMLS_CC);
 
 	if (zdata) {
-		/* add zdata tothe task object and pass the task object via fn_arg
+		/* add zdata tothe task object and pass the task object via context
 		 * task->client= zobj; */
 		task->zdata= zdata;
 		Z_ADDREF_P(zdata);
@@ -2315,7 +2349,7 @@ PHP_FUNCTION(gearman_client_add_task_low) {
 	task= zend_object_store_get_object(return_value TSRMLS_CC);
 
 	if (zdata) {
-		/* add zdata tothe task object and pass the task object via fn_arg
+		/* add zdata tothe task object and pass the task object via context
 		 * task->client= zobj; */
 		task->zdata= zdata;
 		Z_ADDREF_P(zdata);
@@ -2368,7 +2402,7 @@ PHP_FUNCTION(gearman_client_add_task_background) {
 	task= zend_object_store_get_object(return_value TSRMLS_CC);
 
 	if (zdata) {
-		/* add zdata tothe task object and pass the task object via fn_arg
+		/* add zdata tothe task object and pass the task object via context
 		 * task->client= zobj; */
 		task->zdata= zdata;
 		Z_ADDREF_P(zdata);
@@ -2421,7 +2455,7 @@ PHP_FUNCTION(gearman_client_add_task_high_background) {
 	task= zend_object_store_get_object(return_value TSRMLS_CC);
 
 	if (zdata) {
-		/* add zdata tothe task object and pass the task object via fn_arg
+		/* add zdata tothe task object and pass the task object via context
 		 * task->client= zobj; */
 		task->zdata= zdata;
 		Z_ADDREF_P(zdata);
@@ -2475,7 +2509,7 @@ PHP_FUNCTION(gearman_client_add_task_low_background) {
 	task= zend_object_store_get_object(return_value TSRMLS_CC);
 
 	if (zdata) {
-		/* add zdata tothe task object and pass the task object via fn_arg
+		/* add zdata tothe task object and pass the task object via context
 		 * task->client= zobj; */
 		task->zdata= zdata;
 		Z_ADDREF_P(zdata);
@@ -2508,7 +2542,7 @@ PHP_FUNCTION(gearman_client_add_task_low_background) {
 
 /* this function is used to request status information from the gearmand
  * server. it will then call you pre_defined status callback, passing
- * zdata/fn_arg to it */
+ * zdata/context to it */
 /* {{{ proto object gearman_client_add_task_status(object client, string job_handle [, zval data])
    Add task to get the status for a backgound task in parallel. */
 PHP_FUNCTION(gearman_client_add_task_status) {
@@ -2528,7 +2562,7 @@ PHP_FUNCTION(gearman_client_add_task_status) {
 	object_init_ex(return_value, gearman_task_ce);
 	task= zend_object_store_get_object(return_value TSRMLS_CC);
 
-	/* add zdata tothe task object and pass the task object via fn_arg
+	/* add zdata tothe task object and pass the task object via context
 	 * task->client= zobj; */
 	if (zdata) {
 		task->zdata= zdata;
@@ -2579,7 +2613,7 @@ static gearman_return_t _php_task_cb_fn(gearman_task_obj *task,
 		new_obj->client= task->client;
 		new_obj->task= task->task;
 		new_obj->flags|= GEARMAN_TASK_OBJ_CREATED;
-		gearman_task_set_fn_arg(new_obj->task, new_obj);
+		gearman_task_set_context(new_obj->task, new_obj);
 		efree(task);
 		task= new_obj;
 	} else {
@@ -2643,64 +2677,64 @@ static gearman_return_t _php_task_cb_fn(gearman_task_obj *task,
 static gearman_return_t _php_task_workload_fn(gearman_task_st *task) {
 	gearman_task_obj *task_obj;
 	gearman_client_obj *client_obj;
-	task_obj= (gearman_task_obj *)gearman_task_fn_arg(task);
-	client_obj= (gearman_client_obj *)gearman_client_data(task_obj->client);
+	task_obj= (gearman_task_obj *)gearman_task_context(task);
+	client_obj= (gearman_client_obj *)gearman_client_context(task_obj->client);
 	return _php_task_cb_fn(task_obj, client_obj, client_obj->zworkload_fn);
 }
 
 static gearman_return_t _php_task_created_fn(gearman_task_st *task) {
 	gearman_task_obj *task_obj;
 	gearman_client_obj *client_obj;
-	task_obj= (gearman_task_obj *)gearman_task_fn_arg(task);
-	client_obj= (gearman_client_obj *)gearman_client_data(task_obj->client);
+	task_obj= (gearman_task_obj *)gearman_task_context(task);
+	client_obj= (gearman_client_obj *)gearman_client_context(task_obj->client);
 	return _php_task_cb_fn(task_obj, client_obj, client_obj->zcreated_fn);
 }
 
 static gearman_return_t _php_task_data_fn(gearman_task_st *task) {
 	gearman_task_obj *task_obj;
 	gearman_client_obj *client_obj;
-	task_obj= (gearman_task_obj *)gearman_task_fn_arg(task);
-	client_obj= (gearman_client_obj *)gearman_client_data(task_obj->client);
+	task_obj= (gearman_task_obj *)gearman_task_context(task);
+	client_obj= (gearman_client_obj *)gearman_client_context(task_obj->client);
 	return _php_task_cb_fn(task_obj, client_obj, client_obj->zdata_fn);
 }
 
 static gearman_return_t _php_task_warning_fn(gearman_task_st *task) {
 	gearman_task_obj *task_obj;
 	gearman_client_obj *client_obj;
-	task_obj= (gearman_task_obj *)gearman_task_fn_arg(task);
-	client_obj= (gearman_client_obj *)gearman_client_data(task_obj->client);
+	task_obj= (gearman_task_obj *)gearman_task_context(task);
+	client_obj= (gearman_client_obj *)gearman_client_context(task_obj->client);
 	return _php_task_cb_fn(task_obj, client_obj, client_obj->zwarning_fn);
 }
 
 static gearman_return_t _php_task_status_fn(gearman_task_st *task) {
 	gearman_task_obj *task_obj;
 	gearman_client_obj *client_obj;
-	task_obj= (gearman_task_obj *)gearman_task_fn_arg(task);
-	client_obj= (gearman_client_obj *)gearman_client_data(task_obj->client);
+	task_obj= (gearman_task_obj *)gearman_task_context(task);
+	client_obj= (gearman_client_obj *)gearman_client_context(task_obj->client);
 	return _php_task_cb_fn(task_obj, client_obj, client_obj->zstatus_fn);
 }
 
 static gearman_return_t _php_task_complete_fn(gearman_task_st *task) {
 	gearman_task_obj *task_obj;
 	gearman_client_obj *client_obj;
-	task_obj= (gearman_task_obj *)gearman_task_fn_arg(task);
-	client_obj= (gearman_client_obj *)gearman_client_data(task_obj->client);
+	task_obj= (gearman_task_obj *)gearman_task_context(task);
+	client_obj= (gearman_client_obj *)gearman_client_context(task_obj->client);
 	return _php_task_cb_fn(task_obj, client_obj, client_obj->zcomplete_fn);
 }
 
 static gearman_return_t _php_task_exception_fn(gearman_task_st *task) {
 	gearman_task_obj *task_obj;
 	gearman_client_obj *client_obj;
-	task_obj= (gearman_task_obj *)gearman_task_fn_arg(task);
-	client_obj= (gearman_client_obj *)gearman_client_data(task_obj->client);
+	task_obj= (gearman_task_obj *)gearman_task_context(task);
+	client_obj= (gearman_client_obj *)gearman_client_context(task_obj->client);
 	return _php_task_cb_fn(task_obj, client_obj, client_obj->zexception_fn);
 }
 
 static gearman_return_t _php_task_fail_fn(gearman_task_st *task) {
 	gearman_task_obj *task_obj;
 	gearman_client_obj *client_obj;
-	task_obj= (gearman_task_obj *)gearman_task_fn_arg(task);
-	client_obj= (gearman_client_obj *)gearman_client_data(task_obj->client);
+	task_obj= (gearman_task_obj *)gearman_task_context(task);
+	client_obj= (gearman_client_obj *)gearman_client_context(task_obj->client);
 	return _php_task_cb_fn(task_obj, client_obj, client_obj->zfail_fn);
 }
 
@@ -2981,25 +3015,24 @@ PHP_FUNCTION(gearman_client_clear_fn) {
 }
 /* }}} */
 
-/* {{{ proto string gearman_client_data(object client)
+/* {{{ proto string gearman_client_context(object client)
    Get the application data */
-PHP_FUNCTION(gearman_client_data) {
+PHP_FUNCTION(gearman_client_context) {
 	zval *zobj;
 	gearman_client_obj *obj;
 	const uint8_t *data;
 
 	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_client_ce)
 
-	/* XXX is there no client_data_size? */
-	data= gearman_client_data(&(obj->client));
+	data= gearman_client_context(&(obj->client));
 	
 	RETURN_STRINGL((char *)data, (long) sizeof(data), 1);
 }
 /* }}} */
 
-/* {{{ proto bool gearman_client_set_data(object client, string data)
+/* {{{ proto bool gearman_client_set_context(object client, string data)
    Set the application data */
-PHP_FUNCTION(gearman_client_set_data) {
+PHP_FUNCTION(gearman_client_set_context) {
 	zval *zobj;
 	gearman_client_obj *obj;
 
@@ -3009,7 +3042,7 @@ PHP_FUNCTION(gearman_client_set_data) {
 	GEARMAN_ZPMP(RETURN_NULL(), "s", &zobj, gearman_client_ce, 
 				 &data, &data_len)
 
-	gearman_client_set_data(&(obj->client), (void *)data);
+	gearman_client_set_context(&(obj->client), (void *)data);
 	RETURN_TRUE;
 }
 /* }}} */
@@ -3066,8 +3099,8 @@ PHP_FUNCTION(gearman_worker_create) {
 	}
 
 	worker->flags|= GEARMAN_WORKER_OBJ_CREATED;
-	gearman_worker_set_workload_malloc(&(worker->worker), _php_malloc, NULL);
-	gearman_worker_set_workload_free(&(worker->worker), _php_free, NULL);
+	gearman_worker_set_workload_malloc_fn(&(worker->worker), _php_malloc, NULL);
+	gearman_worker_set_workload_free_fn(&(worker->worker), _php_free, NULL);
 }
 /* }}} */
 
@@ -3095,22 +3128,6 @@ PHP_FUNCTION(gearman_worker_clone) {
 }
 /* }}} */
 
-/* {{{ proto void gearman_worker_free(object worker)
-   Free resources used by a worker structure. */
-PHP_FUNCTION(gearman_worker_free) {
-	zval *zobj;
-	gearman_worker_obj *obj;
-
-	GEARMAN_ZPP(RETURN_NULL(), "", &zobj, gearman_worker_ce)
-	obj= zend_object_store_get_object(zobj TSRMLS_CC);
-
-	if (obj->flags & GEARMAN_WORKER_OBJ_CREATED) {
-		gearman_worker_free(&(obj->worker));
-		obj->flags&= ~GEARMAN_WORKER_OBJ_CREATED;
-	}
-}
-/* }}} */
-
 /* {{{ proto string gearman_worker_error(object worker)
    Return an error string for the last error encountered. */
 PHP_FUNCTION(gearman_worker_error) {
@@ -3135,18 +3152,82 @@ PHP_FUNCTION(gearman_worker_errno) {
 }
 /* }}} */
 
-/* {{{ proto void gearman_worker_set_options(object worker, constant option, int value)
+/* {{{ proto int gearman_worker_options(object worker)
+   Get options for a worker structure. */
+PHP_FUNCTION(gearman_worker_options) {
+	zval *zobj;
+	gearman_worker_obj *obj;
+
+	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_worker_ce)
+
+	RETURN_LONG(gearman_worker_options(&(obj->worker)))
+}
+/* }}} */
+
+/* {{{ proto void gearman_worker_set_options(object worker, constant option)
    Set options for a worker structure. */
 PHP_FUNCTION(gearman_worker_set_options) {
 	zval *zobj;
 	gearman_worker_obj *obj;
 	long options;
-	long data;
 
-	GEARMAN_ZPMP(RETURN_NULL(), "ll", &zobj, gearman_worker_ce, 
-				 &options, &data)
+	GEARMAN_ZPMP(RETURN_NULL(), "l", &zobj, gearman_worker_ce, &options)
 
-	gearman_worker_set_options(&(obj->worker), options, data);
+	gearman_worker_set_options(&(obj->worker), options);
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto void gearman_worker_add_options(object worker, constant option)
+   Set options for a worker structure. */
+PHP_FUNCTION(gearman_worker_add_options) {
+	zval *zobj;
+	gearman_worker_obj *obj;
+	long options;
+
+	GEARMAN_ZPMP(RETURN_NULL(), "l", &zobj, gearman_worker_ce, &options)
+
+	gearman_worker_add_options(&(obj->worker), options);
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto void gearman_worker_remove_options(object worker, constant option)
+   Set options for a worker structure. */
+PHP_FUNCTION(gearman_worker_remove_options) {
+	zval *zobj;
+	gearman_worker_obj *obj;
+	long options;
+
+	GEARMAN_ZPMP(RETURN_NULL(), "l", &zobj, gearman_worker_ce, &options)
+
+	gearman_worker_remove_options(&(obj->worker), options);
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto int gearman_worker_timeout(object worker)
+   Get timeout for a worker structure. */
+PHP_FUNCTION(gearman_worker_timeout) {
+	zval *zobj;
+	gearman_worker_obj *obj;
+
+	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_worker_ce)
+
+	RETURN_LONG(gearman_worker_timeout(&(obj->worker)))
+}
+/* }}} */
+
+/* {{{ proto void gearman_worker_set_timeout(object worker, constant timeout)
+   Set timeout for a worker structure. */
+PHP_FUNCTION(gearman_worker_set_timeout) {
+	zval *zobj;
+	gearman_worker_obj *obj;
+	long timeout;
+
+	GEARMAN_ZPMP(RETURN_NULL(), "l", &zobj, gearman_worker_ce, &timeout)
+
+	gearman_worker_set_timeout(&(obj->worker), timeout);
 	RETURN_TRUE;
 }
 /* }}} */
@@ -3187,7 +3268,7 @@ PHP_FUNCTION(gearman_worker_add_servers) {
 
 	obj->ret= gearman_worker_add_servers(&(obj->worker), servers);
 	if (obj->ret != GEARMAN_SUCCESS) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_worker_error(&(obj->worker)));
 		RETURN_FALSE;
 	}
@@ -3195,6 +3276,25 @@ PHP_FUNCTION(gearman_worker_add_servers) {
 	RETURN_TRUE;
 }
 /* }}} */
+
+/* {{{ proto bool gearman_worker_wait(object worker)
+   Wait for I/O activity on all connections in a worker. */
+PHP_FUNCTION(gearman_worker_wait) {
+	zval *zobj;
+	gearman_worker_obj *obj;
+
+	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_worker_ce)
+
+	obj->ret= gearman_worker_wait(&(obj->worker));
+
+	if (! PHP_GEARMAN_CLIENT_RET_OK(obj->ret)) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
+			gearman_worker_error(&(obj->worker)));
+		RETURN_FALSE;
+	}
+
+	RETURN_TRUE;
+}
 
 /* {{{ proto bool gearman_worker_register(object worker, string function [, int timeout ])
    Register function with job servers with an optional timeout. The timeout specifies how many seconds the server will wait before marking a job as failed. If timeout is zero, there is no timeout. */
@@ -3288,12 +3388,12 @@ PHP_FUNCTION(gearman_worker_grab_job) {
 
 /* *job is passed in via gearman, need to convert that into a zval that
  * is accessable in the user_defined php callback function */
-static void *_php_worker_function_callback(gearman_job_st *job, void *fn_arg,
+static void *_php_worker_function_callback(gearman_job_st *job, void *context,
 										   size_t *result_size,
 										   gearman_return_t *ret_ptr) {
 	zval *zjob;
 	gearman_job_obj *jobj;
-	gearman_worker_cb *worker_cb= (gearman_worker_cb *)fn_arg;
+	gearman_worker_cb *worker_cb= (gearman_worker_cb *)context;
 	char *result;
 
 	/* cb vars */
@@ -3470,61 +3570,6 @@ PHP_FUNCTION(gearman_worker_echo) {
 }
 
 /*
- * Functions from gearmand.h
- */
-
-#if jluedke_0 /* XXX low level */
-/* {{{ proto void gearmand_create()
- */
-PHP_FUNCTION(gearmand_create)
-{
-}
-/* }}} */
-
-/* {{{ proto void gearmand_free()
- */
-PHP_FUNCTION(gearmand_free)
-{
-}
-/* }}} */
-
-/* {{{ proto void gearmand_set_backlog()
- */
-PHP_FUNCTION(gearmand_set_backlog)
-{
-}
-/* }}} */
-
-/* {{{ proto void gearmand_set_verbose()
- */
-PHP_FUNCTION(gearmand_set_verbose)
-{
-}
-/* }}} */
-
-/* {{{ proto void gearmand_error()
- */
-PHP_FUNCTION(gearmand_error)
-{
-}
-/* }}} */
-
-/* {{{ proto void gearmand_errno()
- */
-PHP_FUNCTION(gearmand_errno)
-{
-}
-/* }}} */
-
-/* {{{ proto void gearmand_run()
- */
-PHP_FUNCTION(gearmand_run)
-{
-}
-/* }}} */
-#endif
-
-/*
  * Methods for gearman_client
  */
 
@@ -3538,12 +3583,11 @@ PHP_METHOD(gearman_client, __construct) {
 	}
 
 	obj->flags|= GEARMAN_CLIENT_OBJ_CREATED;
-	gearman_client_set_options(&(obj->client), 
-		GEARMAN_CLIENT_FREE_TASKS, 1);
-	gearman_client_set_workload_malloc(&(obj->client), _php_malloc, NULL);
-	gearman_client_set_workload_free(&(obj->client), _php_free, NULL);
-	gearman_client_set_task_fn_arg_free(&(obj->client), _php_task_free);
-	gearman_client_set_data(&(obj->client), obj);
+	gearman_client_add_options(&(obj->client), GEARMAN_CLIENT_FREE_TASKS);
+	gearman_client_set_workload_malloc_fn(&(obj->client), _php_malloc, NULL);
+	gearman_client_set_workload_free_fn(&(obj->client), _php_free, NULL);
+	gearman_client_set_task_context_free_fn(&(obj->client), _php_task_free);
+	gearman_client_set_context(&(obj->client), obj);
 }
 
 static void gearman_client_obj_free(void *object TSRMLS_DC) {
@@ -3615,8 +3659,8 @@ PHP_METHOD(gearman_worker, __construct) {
 	}
 
 	worker->flags|= GEARMAN_WORKER_OBJ_CREATED;
-	gearman_worker_set_workload_malloc(&(worker->worker), _php_malloc, NULL);
-	gearman_worker_set_workload_free(&(worker->worker), _php_free, NULL);
+	gearman_worker_set_workload_malloc_fn(&(worker->worker), _php_malloc, NULL);
+	gearman_worker_set_workload_free_fn(&(worker->worker), _php_free, NULL);
 }
 
 static void gearman_worker_obj_free(void *object TSRMLS_DC) {
@@ -3678,25 +3722,6 @@ gearman_worker_obj_new(zend_class_entry *class_type TSRMLS_DC) {
  * Methods Job object
  */
 
-PHP_METHOD(gearman_job, __construct) {
-	zval *zobj;
-	gearman_job_obj *obj;
-	zval *zgearman;
-	gearman_obj *gearman;
-
-	GEARMAN_ZPMP(GEARMAN_EXCEPTION("A valid geaman object is required", 0), 
-								   "O", &zobj, gearman_job_ce, 
-				 &zgearman, gearman_ce)
-	gearman= zend_object_store_get_object(zgearman TSRMLS_CC);
-
-	obj->job= gearman_job_create(&(gearman->gearman), NULL);
-	if (obj->job == NULL) {
-		GEARMAN_EXCEPTION("Memory allocation failure", 0);
-	}
-
-	obj->flags|= GEARMAN_JOB_OBJ_CREATED;
-}
-
 static void gearman_job_obj_free(void *object TSRMLS_DC) {
 	gearman_job_obj *job= (gearman_job_obj *)object;
 
@@ -3704,14 +3729,13 @@ static void gearman_job_obj_free(void *object TSRMLS_DC) {
 		gearman_job_free(job->job);
 	}
 
-	GEARMAN_ZVAL_DONE(job->gearman)
 	GEARMAN_ZVAL_DONE(job->worker)
 
 	/*
 	if (job->zworkload != NULL)
 	{
-	  Z_TYPE_P(job->zworkload)= IS_NULL;
-	  GEARMAN_ZVAL_DONE(job->zworkload);
+		Z_TYPE_P(job->zworkload)= IS_NULL;
+		GEARMAN_ZVAL_DONE(job->zworkload);
 	}
 	*/
 	zend_object_std_dtor(&(job->std) TSRMLS_CC);
@@ -3757,26 +3781,6 @@ gearman_job_obj_new(zend_class_entry *class_type TSRMLS_DC) {
  * Methods Task object
  */
 
-PHP_METHOD(gearman_task, __construct) {
-	zval *zobj;
-	zval *zgearman;
-	gearman_task_obj *obj;
-	gearman_obj *gearman;
-
-	GEARMAN_ZPMP(GEARMAN_EXCEPTION("A gearman object is required", 0), 
-								   "O", &zobj, gearman_task_ce, &zgearman, 
-								   gearman_ce)
-	gearman= zend_object_store_get_object(zgearman TSRMLS_CC);
-	obj->zgearman= zgearman;
-	Z_ADDREF_P(zgearman);
-
-	obj->task= gearman_task_create(&(gearman->gearman), obj->task);
-	if (obj->task == NULL) {
-		GEARMAN_EXCEPTION("Memory allocation failure", 0);
-	}
-	obj->flags|= GEARMAN_TASK_OBJ_CREATED;
-}
-
 static void gearman_task_obj_free(void *object TSRMLS_DC) {
 	gearman_task_obj *task= (gearman_task_obj *)object;
 
@@ -3784,7 +3788,6 @@ static void gearman_task_obj_free(void *object TSRMLS_DC) {
 	 * task object can still use them internally */
 	/* XXX if (! (task->flags & GEARMAN_TASK_OBJ_DEAD)) */
 	{
-		GEARMAN_ZVAL_DONE(task->zgearman)
 		GEARMAN_ZVAL_DONE(task->zclient)
 	}
 	zend_object_std_dtor(&(task->std) TSRMLS_CC);
@@ -3835,63 +3838,97 @@ gearman_task_obj_new(zend_class_entry *class_type TSRMLS_DC) {
 /* Function list. */
 zend_function_entry gearman_functions[] = {
 	/* Functions from gearman.h */
-	PHP_FE(gearman_version, NULL)
 #if jluedke_0
-	PHP_FE(gearman_create, NULL)
-	PHP_FE(gearman_clone, NULL)
-	PHP_FE(gearman_free, NULL)
-	PHP_FE(gearman_error, NULL)
-	PHP_FE(gearman_errno, NULL)
-	PHP_FE(gearman_set_options, NULL)
+        PHP_FE(gearman_return_code, arginfo_gearman_return_code)
+#endif
+	PHP_FE(gearman_version, arginfo_gearman_version)
+	PHP_FE(gearman_bugreport, arginfo_gearman_bugreport)
+	PHP_FE(gearman_verbose_name, arginfo_gearman_verbose_name)
+#if jluedke_0
+	PHP_FE(gearman_create, arginfo_gearman_create)
+	PHP_FE(gearman_clone, arginfo_gearman_clone)
+	PHP_FE(gearman_error, arginfo_gearman_error)
+	PHP_FE(gearman_errno, arginfo_gearman_errno)
+	PHP_FE(gearman_options, arginfo_gearman_options)
+	PHP_FE(gearman_set_options, arginfo_gearman_set_options)
+	PHP_FE(gearman_add_options, arginfo_gearman_add_options)
+	PHP_FE(gearman_remove_options, arginfo_gearman_remove_options)
+	PHP_FE(gearman_timeout, arginfo_gearman_timeout)
+	PHP_FE(gearman_set_timeout, arginfo_gearman_set_timeout)
+	PHP_FE(gearman_set_log_fn, arginfo_gearman_set_log_fn)
+	PHP_FE(gearman_set_event_watch_fn, arginfo_gearman_set_event_watch_fn)
+
+	PHP_FE(gearman_con_create, arginfo_gearman_con_create)
+	PHP_FE(gearman_con_add, arginfo_gearman_con_add)
+	PHP_FE(gearman_con_clone, arginfo_gearman_con_clone)
+	PHP_FE(gearman_con_free_all, arginfo_gearman_con_free_all)
+	PHP_FE(gearman_con_flush_all, arginfo_gearman_con_flush_all)
+	PHP_FE(gearman_con_send_all, arginfo_gearman_con_send_all)
+	PHP_FE(gearman_con_wait, arginfo_gearman_con_wait)
+	PHP_FE(gearman_con_ready, arginfo_gearman_con_ready)
+	PHP_FE(gearman_con_echo, arginfo_gearman_con_echo)
+
+	PHP_FE(gearman_packet_create, arginfo_gearman_packet_create)
+	PHP_FE(gearman_packet_add, arginfo_gearman_packet_add)
+	PHP_FE(gearman_packet_free_all, arginfo_gearman_packet_free_all)
 #endif
 
-	/* Functions from con.h */
+	/* Functions from conn.h */
+#if jluedke_0
+	PHP_FE(gearman_con_set_host, arginfo_gearman_con_set_host)
+	PHP_FE(gearman_con_set_port, arginfo_gearman_con_set_port)
+	PHP_FE(gearman_con_options, arginfo_gearman_con_options)
+	PHP_FE(gearman_con_add_options, arginfo_gearman_con_add_options)
+	PHP_FE(gearman_con_remove_options, arginfo_gearman_con_remove_options)
+	PHP_FE(gearman_con_set_fd, arginfo_gearman_con_set_fd)
+	PHP_FE(gearman_con_context, arginfo_gearman_con_context)
+	PHP_FE(gearman_con_set_context, arginfo_gearman_con_set_context)
+	PHP_FE(gearman_con_connect, arginfo_gearman_con_connect)
+	PHP_FE(gearman_con_close, arginfo_gearman_con_close)
+	PHP_FE(gearman_con_reset_addrinfo, arginfo_gearman_con_reset_addrinfo)
+	PHP_FE(gearman_con_send, arginfo_gearman_con_send)
+	PHP_FE(gearman_con_send_data, arginfo_gearman_con_send_data)
+	PHP_FE(gearman_con_flush, arginfo_gearman_con_flush)
+	PHP_FE(gearman_con_recv, arginfo_gearman_con_recv)
+	PHP_FE(gearman_con_recv_data, arginfo_gearman_con_recv_data)
+	PHP_FE(gearman_con_read, arginfo_gearman_con_read)
+	PHP_FE(gearman_con_set_events, arginfo_gearman_con_set_events)
+	PHP_FE(gearman_con_set_revents, arginfo_gearman_con_set_revents)
+#endif
 
 	/* Functions from packet.h */
-
-	/* Functions from task.h */
-	PHP_FE(gearman_task_return_code, arginfo_gearman_task_return_code)
-	PHP_FE(gearman_task_create, arginfo_gearman_task_create)
-	PHP_FE(gearman_task_free, arginfo_gearman_task_free)
-	/* PHP_FE(gearman_task_fn_arg, arginfo_gearman_task_fn_arg) */
-	PHP_FE(gearman_task_function, arginfo_gearman_task_function)
-	PHP_FE(gearman_task_uuid, arginfo_gearman_task_uuid)
-	PHP_FE(gearman_task_job_handle, arginfo_gearman_task_job_handle)
-	PHP_FE(gearman_task_is_known, arginfo_gearman_task_is_known)
-	PHP_FE(gearman_task_is_running, arginfo_gearman_task_is_running)
-	PHP_FE(gearman_task_numerator, arginfo_gearman_task_numerator)
-	PHP_FE(gearman_task_denominator, arginfo_gearman_task_denominator)
-	PHP_FE(gearman_task_data, arginfo_gearman_task_data)
-	PHP_FE(gearman_task_data_size, arginfo_gearman_task_data_size)
-	PHP_FE(gearman_task_send_data, arginfo_gearman_task_send_data)
-	PHP_FE(gearman_task_recv_data, arginfo_gearman_task_recv_data)
-
-	/* Functions from job.h */
-	PHP_FE(gearman_job_return_code, arginfo_gearman_job_return_code)
-	PHP_FE(gearman_job_create, arginfo_gearman_job_create)
-	PHP_FE(gearman_job_free, arginfo_gearman_job_free)
-	PHP_FE(gearman_job_data, arginfo_gearman_job_data)
-	PHP_FE(gearman_job_warning, arginfo_gearman_job_warning)
-	PHP_FE(gearman_job_status, arginfo_gearman_job_status)
-	PHP_FE(gearman_job_complete, arginfo_gearman_job_complete)
-	PHP_FE(gearman_job_exception, arginfo_gearman_job_exception)
-	PHP_FE(gearman_job_fail, arginfo_gearman_job_fail)
-	PHP_FE(gearman_job_handle, arginfo_gearman_job_handle)
-	PHP_FE(gearman_job_unique, arginfo_gearman_job_unique)
-	PHP_FE(gearman_job_function_name, arginfo_gearman_job_function_name)
-	PHP_FE(gearman_job_workload, arginfo_gearman_job_workload)
-	PHP_FE(gearman_job_workload_size, arginfo_gearman_job_workload_size)
+#if jluedke_0
+	PHP_FE(gearman_packet_add_arg, arginfo_gearman_packet_add_arg)
+	PHP_FE(gearman_packet_pack_header, arginfo_gearman_packet_pack_header)
+	PHP_FE(gearman_packet_unpack_header, arginfo_gearman_packet_unpack_header)
+	PHP_FE(gearman_packet_pack, arginfo_gearman_packet_pack)
+	PHP_FE(gearman_packet_unpack, arginfo_gearman_packet_unpack)
+#endif
 
 	/* Functions from client.h */
 	PHP_FE(gearman_client_return_code, arginfo_gearman_client_return_code)
 	PHP_FE(gearman_client_create, arginfo_gearman_client_create)
 	PHP_FE(gearman_client_clone, arginfo_gearman_client_clone)
-	PHP_FE(gearman_client_free, arginfo_gearman_client_free)
 	PHP_FE(gearman_client_error, arginfo_gearman_client_error)
 	PHP_FE(gearman_client_errno, arginfo_gearman_client_errno)
+	PHP_FE(gearman_client_options, arginfo_gearman_client_options)
 	PHP_FE(gearman_client_set_options, arginfo_gearman_client_set_options)
+	PHP_FE(gearman_client_add_options, arginfo_gearman_client_add_options)
+	PHP_FE(gearman_client_remove_options, arginfo_gearman_client_remove_options)
+	PHP_FE(gearman_client_timeout, arginfo_gearman_client_timeout)
+	PHP_FE(gearman_client_set_timeout, arginfo_gearman_client_set_timeout)
+	PHP_FE(gearman_client_context, arginfo_gearman_client_context)
+	PHP_FE(gearman_client_set_context, arginfo_gearman_client_set_context)
+#if jluedke_0
+	PHP_FE(gearman_client_set_log_fn, arginfo_gearman_client_set_log_fn)
+	PHP_FE(gearman_client_set_event_watch_fn, arginfo_gearman_client_set_event_watch_fn)
+#endif
 	PHP_FE(gearman_client_add_server, arginfo_gearman_client_add_server)
 	PHP_FE(gearman_client_add_servers, arginfo_gearman_client_add_servers)
+#if jluedke_0
+	PHP_FE(gearman_client_remove_servers, arginfo_gearman_client_remove_servers)
+#endif
+	PHP_FE(gearman_client_wait, arginfo_gearman_client_wait)
 	PHP_FE(gearman_client_do, arginfo_gearman_client_do)
 	PHP_FE(gearman_client_do_high, arginfo_gearman_client_do_high)
 	PHP_FE(gearman_client_do_low, arginfo_gearman_client_do_low)
@@ -3902,6 +3939,10 @@ zend_function_entry gearman_functions[] = {
 	PHP_FE(gearman_client_do_low_background, arginfo_gearman_client_do_low_background)
 	PHP_FE(gearman_client_job_status, arginfo_gearman_client_job_status)
 	PHP_FE(gearman_client_echo, arginfo_gearman_client_echo)
+#if jluedke_0
+	PHP_FE(gearman_client_task_free_all, arginfo_gearman_client_task_free_all)
+	PHP_FE(gearman_client_set_task_context_free_fn, arginfo_gearman_client_set_task_context_free_fn)
+#endif
 	PHP_FE(gearman_client_add_task, arginfo_gearman_client_add_task)
 	PHP_FE(gearman_client_add_task_high, arginfo_gearman_client_add_task_high)
 	PHP_FE(gearman_client_add_task_low, arginfo_gearman_client_add_task_low)
@@ -3918,53 +3959,116 @@ zend_function_entry gearman_functions[] = {
 	PHP_FE(gearman_client_set_exception_fn, arginfo_gearman_client_set_exception_fn)
 	PHP_FE(gearman_client_set_fail_fn, arginfo_gearman_client_set_fail_fn)
 	PHP_FE(gearman_client_clear_fn, arginfo_gearman_client_clear_fn)
-	PHP_FE(gearman_client_data, arginfo_gearman_client_data)
-	PHP_FE(gearman_client_set_data, arginfo_gearman_client_set_data)
 	PHP_FE(gearman_client_run_tasks, arginfo_gearman_client_run_tasks)
+
+	/* Functions from task.h */
+	PHP_FE(gearman_task_return_code, arginfo_gearman_task_return_code)
+#if jluedke_0
+	PHP_FE(gearman_task_context, arginfo_gearman_task_context)
+	PHP_FE(gearman_task_set_context, arginfo_gearman_task_set_context)
+#endif
+	PHP_FE(gearman_task_function_name, arginfo_gearman_task_function_name)
+	PHP_FE(gearman_task_unique, arginfo_gearman_task_unique)
+	PHP_FE(gearman_task_job_handle, arginfo_gearman_task_job_handle)
+	PHP_FE(gearman_task_is_known, arginfo_gearman_task_is_known)
+	PHP_FE(gearman_task_is_running, arginfo_gearman_task_is_running)
+	PHP_FE(gearman_task_numerator, arginfo_gearman_task_numerator)
+	PHP_FE(gearman_task_denominator, arginfo_gearman_task_denominator)
+	PHP_FE(gearman_task_send_workload, arginfo_gearman_task_send_workload)
+	PHP_FE(gearman_task_data, arginfo_gearman_task_data)
+	PHP_FE(gearman_task_data_size, arginfo_gearman_task_data_size)
+	PHP_FE(gearman_task_recv_data, arginfo_gearman_task_recv_data)
 
 	/* Functions from worker.h */
 	PHP_FE(gearman_worker_return_code, arginfo_gearman_worker_return_code)
 	PHP_FE(gearman_worker_create, arginfo_gearman_worker_create)
 	PHP_FE(gearman_worker_clone, arginfo_gearman_worker_clone)
-	PHP_FE(gearman_worker_free, arginfo_gearman_worker_free)
 	PHP_FE(gearman_worker_error, arginfo_gearman_worker_error)
 	PHP_FE(gearman_worker_errno, arginfo_gearman_worker_errno)
+	PHP_FE(gearman_worker_options, arginfo_gearman_worker_options)
 	PHP_FE(gearman_worker_set_options, arginfo_gearman_worker_set_options)
+	PHP_FE(gearman_worker_add_options, arginfo_gearman_worker_add_options)
+	PHP_FE(gearman_worker_remove_options, arginfo_gearman_worker_remove_options)
+	PHP_FE(gearman_worker_timeout, arginfo_gearman_worker_timeout)
+	PHP_FE(gearman_worker_set_timeout, arginfo_gearman_worker_set_timeout)
+#if jluedke_0
+	PHP_FE(gearman_worker_context, arginfo_gearman_worker_context)
+	PHP_FE(gearman_worker_set_context, arginfo_gearman_worker_set_context)
+	PHP_FE(gearman_worker_set_log_fn, arginfo_gearman_worker_set_log_fn)
+	PHP_FE(gearman_worker_set_event_watch_fn, arginfo_gearman_worker_set_event_watch_fn)
+#endif
 	PHP_FE(gearman_worker_add_server, arginfo_gearman_worker_add_server)
 	PHP_FE(gearman_worker_add_servers, arginfo_gearman_worker_add_servers)
+#if jluedke_0
+	PHP_FE(gearman_worker_remove_servers, arginfo_gearman_worker_remove_servers)
+#endif
+	PHP_FE(gearman_worker_wait, arginfo_gearman_worker_wait)
 	PHP_FE(gearman_worker_register, arginfo_gearman_worker_register)
 	PHP_FE(gearman_worker_unregister, arginfo_gearman_worker_unregister)
 	PHP_FE(gearman_worker_unregister_all, arginfo_gearman_worker_unregister_all)
+#if jluedke_0
 	PHP_FE(gearman_worker_grab_job, arginfo_gearman_worker_grab_job)
+	PHP_FE(gearman_worker_job_free_all, arginfo_gearman_worker_job_free_all)
+#endif
 	PHP_FE(gearman_worker_add_function, arginfo_gearman_worker_add_function)
 	PHP_FE(gearman_worker_work, arginfo_gearman_worker_work)
 	PHP_FE(gearman_worker_echo, arginfo_gearman_worker_echo)
 
-	/* Functions from gearmand.h */
-#if jluedke_0
-	PHP_FE(gearmand_create, arginfo_gearmand_create)
-	PHP_FE(gearmand_free, arginfo_gearmand_free)
-	PHP_FE(gearmand_set_backlog, arginfo_gearmand_set_backlog)
-	PHP_FE(gearmand_set_verbose, arginfo_gearmand_set_verbose)
-	PHP_FE(gearmand_error, arginfo_gearmand_error)
-	PHP_FE(gearmand_errno, arginfo_gearmand_errno)
-	PHP_FE(gearmand_run, arginfo_gearmand_run)
-#endif
+	/* Functions from job.h */
+	PHP_FE(gearman_job_return_code, arginfo_gearman_job_return_code)
+	PHP_FE(gearman_job_send_data, arginfo_gearman_job_send_data)
+	PHP_FE(gearman_job_send_warning, arginfo_gearman_job_send_warning)
+	PHP_FE(gearman_job_send_status, arginfo_gearman_job_send_status)
+	PHP_FE(gearman_job_send_complete, arginfo_gearman_job_send_complete)
+	PHP_FE(gearman_job_send_exception, arginfo_gearman_job_send_exception)
+	PHP_FE(gearman_job_send_fail, arginfo_gearman_job_send_fail)
+	PHP_FE(gearman_job_handle, arginfo_gearman_job_handle)
+	PHP_FE(gearman_job_function_name, arginfo_gearman_job_function_name)
+	PHP_FE(gearman_job_unique, arginfo_gearman_job_unique)
+	PHP_FE(gearman_job_workload, arginfo_gearman_job_workload)
+	PHP_FE(gearman_job_workload_size, arginfo_gearman_job_workload_size)
 
 	{NULL, NULL, NULL} /* Must be the last line in gearman_functions[] */
 };
 
 zend_function_entry gearman_methods[]= {
-/* Still need to finish this
+#if jluedke_0
 	PHP_ME(gearman, __construct, NULL, ZEND_ACC_CTOR | ZEND_ACC_PUBLIC)
-	__PHP_ME_MAPPING(clone, gearman_clone, NULL, 0)
-	__PHP_ME_MAPPING(error, gearman_error, NULL, 0)
-	__PHP_ME_MAPPING(errno, gearman_errno, NULL, 0)
-	__PHP_ME_MAPPING(set_options, gearman_set_options, NULL, 0)
-	__PHP_ME_MAPPING(job_create, gearman_job_create, NULL, 0)
-*/
+	__PHP_ME_MAPPING(returnCode, gearman_return_code, arginfo_oo_gearman_return_code, 0)
+	__PHP_ME_MAPPING(clone, gearman_clone, arginfo_oo_gearman_clone, 0)
+	__PHP_ME_MAPPING(error, gearman_error, arginfo_oo_gearman_error, 0)
+	__PHP_ME_MAPPING(getErrno, gearman_errno, arginfo_oo_gearman_errno, 0)
+	__PHP_ME_MAPPING(options, gearman_options, arginfo_oo_gearman_options, 0)
+	__PHP_ME_MAPPING(setOptions, gearman_set_options, arginfo_oo_gearman_set_options, 0)
+	__PHP_ME_MAPPING(addOptions, gearman_add_options, arginfo_oo_gearman_add_options, 0)
+	__PHP_ME_MAPPING(removeOptions, gearman_remove_options, arginfo_oo_gearman_remove_options, 0)
+	__PHP_ME_MAPPING(timeout, gearman_timeout, arginfo_oo_gearman_timeout, 0)
+	__PHP_ME_MAPPING(setTimeout, gearman_set_timeout, arginfo_oo_gearman_set_timeout, 0)
+	__PHP_ME_MAPPING(setLogCallback, gearman_set_log_callback, arginfo_oo_gearman_set_log_callback, 0)
+	__PHP_ME_MAPPING(setEventWatchCallback, gearman_set_event_watch_callback, arginfo_oo_gearman_set_event_watch_callback, 0)
+
+	__PHP_ME_MAPPING(conCreate, gearman_con_create, arginfo_oo_gearman_con_create, 0)
+	__PHP_ME_MAPPING(conAdd, gearman_con_add, arginfo_oo_gearman_con_add, 0)
+	__PHP_ME_MAPPING(conClone, gearman_con_clone, arginfo_oo_gearman_con_clone, 0)
+	__PHP_ME_MAPPING(conFreeAll, gearman_con_free_all, arginfo_oo_gearman_con_free_all, 0)
+	__PHP_ME_MAPPING(conFlushAll, gearman_con_flush_all, arginfo_oo_gearman_con_flush_all, 0)
+	__PHP_ME_MAPPING(conSendAll, gearman_con_send_all, arginfo_oo_gearman_con_send_all, 0)
+	__PHP_ME_MAPPING(conWait, gearman_con_wait, arginfo_oo_gearman_con_wait, 0)
+	__PHP_ME_MAPPING(conReady, gearman_con_ready, arginfo_oo_gearman_con_ready, 0)
+	__PHP_ME_MAPPING(conEcho, gearman_con_echo, arginfo_oo_gearman_con_echo, 0)
+
+	__PHP_ME_MAPPING(packetCreate, gearman_packet_create, arginfo_oo_gearman_packet_create, 0)
+	__PHP_ME_MAPPING(packetAdd, gearman_packet_add, arginfo_oo_gearman_packet_add, 0)
+	__PHP_ME_MAPPING(packetFreeAll, gearman_packet_free_all, arginfo_oo_gearman_packet_free_all, 0)
+#endif
+
 	{NULL, NULL, NULL}
 };
+
+#if jluedke_0
+zend_function_entry gearman_con_methods[];
+zend_function_entry gearman_packet_methods[];
+#endif
 
 zend_function_entry gearman_client_methods[]= {
 	PHP_ME(gearman_client, __construct, NULL, ZEND_ACC_CTOR | ZEND_ACC_PUBLIC)
@@ -3972,9 +4076,24 @@ zend_function_entry gearman_client_methods[]= {
 	__PHP_ME_MAPPING(clone, gearman_client_clone, arginfo_oo_gearman_client_clone, 0)
 	__PHP_ME_MAPPING(error, gearman_client_error, arginfo_oo_gearman_client_error, 0)
 	__PHP_ME_MAPPING(getErrno, gearman_client_errno, arginfo_oo_gearman_client_errno, 0)
+	__PHP_ME_MAPPING(options, gearman_client_options, arginfo_oo_gearman_client_options, 0)
 	__PHP_ME_MAPPING(setOptions, gearman_client_set_options, arginfo_oo_gearman_client_set_options, 0)
+	__PHP_ME_MAPPING(addOptions, gearman_client_add_options, arginfo_oo_gearman_client_add_options, 0)
+	__PHP_ME_MAPPING(removeOptions, gearman_client_remove_options, arginfo_oo_gearman_client_remove_options, 0)
+	__PHP_ME_MAPPING(timeout, gearman_client_timeout, arginfo_oo_gearman_client_timeout, 0)
+	__PHP_ME_MAPPING(setTimeout, gearman_client_set_timeout, arginfo_oo_gearman_client_set_timeout, 0)
+	__PHP_ME_MAPPING(context, gearman_client_context, arginfo_oo_gearman_client_context, 0)
+	__PHP_ME_MAPPING(setContext, gearman_client_set_context, arginfo_oo_gearman_client_set_context, 0)
+#if jluedke_0
+	__PHP_ME_MAPPING(setLogCallback, gearman_client_set_log_callback, arginfo_oo_gearman_client_set_log_callback, 0)
+	__PHP_ME_MAPPING(setEventWatchCallback, gearman_client_set_event_watch_callback, arginfo_oo_gearman_client_set_event_watch_callback, 0)
+#endif
 	__PHP_ME_MAPPING(addServer, gearman_client_add_server, arginfo_oo_gearman_client_add_server, 0)
 	__PHP_ME_MAPPING(addServers, gearman_client_add_servers, arginfo_oo_gearman_client_add_servers, 0)
+#if jluedke_0
+	__PHP_ME_MAPPING(removeServers, gearman_client_remove_servers, arginfo_oo_gearman_client_remove_servers, 0)
+#endif
+	__PHP_ME_MAPPING(wait, gearman_client_wait, arginfo_oo_gearman_client_wait, 0)
 	__PHP_ME_MAPPING(do, gearman_client_do, arginfo_oo_gearman_client_do, 0)
 	__PHP_ME_MAPPING(doHigh, gearman_client_do_high, arginfo_oo_gearman_client_do_high, 0)
 	__PHP_ME_MAPPING(doLow, gearman_client_do_low, arginfo_oo_gearman_client_do_low, 0)
@@ -3985,6 +4104,10 @@ zend_function_entry gearman_client_methods[]= {
 	__PHP_ME_MAPPING(doLowBackground, gearman_client_do_low_background, arginfo_oo_gearman_client_do_low_background, 0)
 	__PHP_ME_MAPPING(jobStatus, gearman_client_job_status, arginfo_oo_gearman_client_job_status, 0)
 	__PHP_ME_MAPPING(echo, gearman_client_echo, arginfo_oo_gearman_client_echo, 0)
+#if jluedke_0
+	__PHP_ME_MAPPING(taskFreeAll, gearman_client_task_free_all, arginfo_oo_gearman_client_task_free_all, 0)
+	__PHP_ME_MAPPING(setTaskContextFreeCallback, gearman_client_set_context_free_fn, arginfo_oo_gearman_client_set_context_free_fn, 0)
+#endif
 	__PHP_ME_MAPPING(addTask, gearman_client_add_task, arginfo_oo_gearman_client_add_task, 0)
 	__PHP_ME_MAPPING(addTaskHigh, gearman_client_add_task_high, arginfo_oo_gearman_client_add_task_high, 0)
 	__PHP_ME_MAPPING(addTaskLow, gearman_client_add_task_low, arginfo_oo_gearman_client_add_task_low, 0)
@@ -3994,16 +4117,36 @@ zend_function_entry gearman_client_methods[]= {
 	__PHP_ME_MAPPING(addTaskStatus, gearman_client_add_task_status, arginfo_oo_gearman_client_add_task_status, 0)
 	__PHP_ME_MAPPING(setWorkloadCallback, gearman_client_set_workload_fn, arginfo_oo_gearman_client_set_workload_fn, 0)
 	__PHP_ME_MAPPING(setCreatedCallback, gearman_client_set_created_fn, arginfo_oo_gearman_client_set_created_fn, 0)
-	__PHP_ME_MAPPING(setClientCallback, gearman_client_set_data_fn, arginfo_oo_gearman_client_set_data_fn, 0)
+	__PHP_ME_MAPPING(setDataCallback, gearman_client_set_data_fn, arginfo_oo_gearman_client_set_data_fn, 0)
 	__PHP_ME_MAPPING(setWarningCallback, gearman_client_set_warning_fn, arginfo_oo_gearman_client_set_warning_fn, 0)
 	__PHP_ME_MAPPING(setStatusCallback, gearman_client_set_status_fn, arginfo_oo_gearman_client_set_status_fn, 0)
 	__PHP_ME_MAPPING(setCompleteCallback, gearman_client_set_complete_fn, arginfo_oo_gearman_client_set_complete_fn, 0)
 	__PHP_ME_MAPPING(setExceptionCallback, gearman_client_set_exception_fn, arginfo_oo_gearman_client_set_exception_fn, 0)
 	__PHP_ME_MAPPING(setFailCallback, gearman_client_set_fail_fn, arginfo_oo_gearman_client_set_fail_fn, 0)
 	__PHP_ME_MAPPING(clearCallbacks, gearman_client_clear_fn, arginfo_oo_gearman_client_clear_fn, 0)
-	__PHP_ME_MAPPING(data, gearman_client_data, arginfo_oo_gearman_client_data, 0)
-	__PHP_ME_MAPPING(setData, gearman_client_set_data, arginfo_oo_gearman_client_set_data, 0)
 	__PHP_ME_MAPPING(runTasks, gearman_client_run_tasks, arginfo_oo_gearman_client_run_tasks, 0)
+
+	{NULL, NULL, NULL}
+};
+
+zend_function_entry gearman_task_methods[]= {
+	__PHP_ME_MAPPING(returnCode, gearman_task_return_code, arginfo_oo_gearman_task_return_code, 0)
+#if jluedke_0
+	__PHP_ME_MAPPING(context, gearman_task_context, arginfo_oo_gearman_task_context, 0)
+	__PHP_ME_MAPPING(setContext, gearman_task_set_context, arginfo_oo_gearman_task_set_context, 0)
+#endif
+	__PHP_ME_MAPPING(functionName, gearman_task_function_name, arginfo_oo_gearman_task_function_name, 0)
+	__PHP_ME_MAPPING(unique, gearman_task_unique, arginfo_oo_gearman_task_unique, 0)
+	__PHP_ME_MAPPING(jobHandle, gearman_task_job_handle, arginfo_oo_gearman_task_job_handle, 0)
+	__PHP_ME_MAPPING(isKnown, gearman_task_is_known, arginfo_oo_gearman_task_is_known, 0)
+	__PHP_ME_MAPPING(isRunning, gearman_task_is_running, arginfo_oo_gearman_task_is_running, 0)
+	__PHP_ME_MAPPING(taskNumerator, gearman_task_numerator, arginfo_oo_gearman_task_numerator, 0)
+	__PHP_ME_MAPPING(taskDenominator, gearman_task_denominator, arginfo_oo_gearman_task_denominator, 0)
+	__PHP_ME_MAPPING(sendWorkload, gearman_task_send_workload, arginfo_oo_gearman_task_send_workload, 0)
+	__PHP_ME_MAPPING(data, gearman_task_data, arginfo_oo_gearman_task_data, 0)
+	__PHP_ME_MAPPING(dataSize, gearman_task_data_size, arginfo_oo_gearman_task_data_size, 0)
+	__PHP_ME_MAPPING(recvData, gearman_task_recv_data, arginfo_oo_gearman_task_recv_data, 0)
+
 	{NULL, NULL, NULL}
 };
 
@@ -4013,49 +4156,53 @@ zend_function_entry gearman_worker_methods[]= {
 	__PHP_ME_MAPPING(clone, gearman_worker_clone, arginfo_oo_gearman_worker_clone, 0)
 	__PHP_ME_MAPPING(error, gearman_worker_error, arginfo_oo_gearman_worker_error, 0)
 	__PHP_ME_MAPPING(getErrno, gearman_worker_errno, arginfo_oo_gearman_worker_errno, 0)
+	__PHP_ME_MAPPING(options, gearman_worker_options, arginfo_oo_gearman_worker_options, 0)
 	__PHP_ME_MAPPING(setOptions, gearman_worker_set_options, arginfo_oo_gearman_worker_set_options, 0)
+	__PHP_ME_MAPPING(addOptions, gearman_worker_add_options, arginfo_oo_gearman_worker_add_options, 0)
+	__PHP_ME_MAPPING(removeOptions, gearman_worker_remove_options, arginfo_oo_gearman_worker_remove_options, 0)
+	__PHP_ME_MAPPING(timeout, gearman_worker_timeout, arginfo_oo_gearman_worker_timeout, 0)
+	__PHP_ME_MAPPING(setTimeout, gearman_worker_set_timeout, arginfo_oo_gearman_worker_set_timeout, 0)
+#if jluedke_0
+	__PHP_ME_MAPPING(context, gearman_worker_context, arginfo_oo_gearman_worker_context, 0)
+	__PHP_ME_MAPPING(setContext, gearman_worker_set_context, arginfo_oo_gearman_worker_set_context, 0)
+	__PHP_ME_MAPPING(setLogCallback, gearman_worker_set_log_callback, arginfo_oo_gearman_worker_set_log_callback, 0)
+	__PHP_ME_MAPPING(setEventWatchCallback, gearman_worker_set_event_watch_callback, arginfo_oo_gearman_worker_set_event_watch_callback, 0)
+#endif
 	__PHP_ME_MAPPING(addServer, gearman_worker_add_server, arginfo_oo_gearman_worker_add_server, 0)
 	__PHP_ME_MAPPING(addServers, gearman_worker_add_servers, arginfo_oo_gearman_worker_add_servers, 0)
+#if jluedke_0
+	__PHP_ME_MAPPING(removeServers, gearman_worker_remove_servers, arginfo_oo_gearman_worker_remove_servers, 0)
+#endif
+	__PHP_ME_MAPPING(wait, gearman_worker_wait, arginfo_oo_gearman_worker_wait, 0)
+	__PHP_ME_MAPPING(register, gearman_worker_register, arginfo_oo_gearman_worker_register, 0)
+	__PHP_ME_MAPPING(unregister, gearman_worker_unregister, arginfo_oo_gearman_worker_unregister, 0)
+	__PHP_ME_MAPPING(unregisterAll, gearman_worker_unregister_all, arginfo_oo_gearman_worker_unregister_all, 0)
+#if jluedke_0
+	__PHP_ME_MAPPING(grabJob, gearman_worker_grab_job, arginfo_oo_gearman_worker_grab_job, 0)
+	__PHP_ME_MAPPING(jobFreeAll, gearman_worker_job_free_all, arginfo_oo_gearman_worker_job_free_all, 0)
+#endif
 	__PHP_ME_MAPPING(addFunction, gearman_worker_add_function, arginfo_oo_gearman_worker_add_function, 0)
 	__PHP_ME_MAPPING(work, gearman_worker_work, arginfo_oo_gearman_worker_work, 0)
+	__PHP_ME_MAPPING(echo, gearman_worker_echo, arginfo_oo_gearman_worker_echo, 0)
+
 	{NULL, NULL, NULL}
 };
 
 zend_function_entry gearman_job_methods[]= {
-	PHP_ME(gearman_job, __construct, NULL, ZEND_ACC_CTOR | ZEND_ACC_PUBLIC)
 	__PHP_ME_MAPPING(returnCode, gearman_job_return_code, arginfo_oo_gearman_job_return_code, 0)
+	__PHP_ME_MAPPING(setReturn, gearman_job_set_return, arginfo_oo_gearman_job_set_return, 0)
+	__PHP_ME_MAPPING(sendData, gearman_job_send_data, arginfo_oo_gearman_job_send_data, 0)
+	__PHP_ME_MAPPING(sendWarning, gearman_job_send_warning, arginfo_oo_gearman_job_send_warning, 0)
+	__PHP_ME_MAPPING(sendStatus, gearman_job_send_status, arginfo_oo_gearman_job_send_status, 0)
+	__PHP_ME_MAPPING(sendComplete, gearman_job_send_complete, arginfo_oo_gearman_job_send_complete, 0)
+	__PHP_ME_MAPPING(sendException, gearman_job_send_exception, arginfo_oo_gearman_job_send_exception, 0)
+	__PHP_ME_MAPPING(sendFail, gearman_job_send_fail, arginfo_oo_gearman_job_send_fail, 0)
+	__PHP_ME_MAPPING(handle, gearman_job_handle, arginfo_oo_gearman_job_handle, 0)
+	__PHP_ME_MAPPING(functionName, gearman_job_function_name, arginfo_oo_gearman_job_function_name, 0)
+	__PHP_ME_MAPPING(unique, gearman_job_unique, arginfo_oo_gearman_job_unique, 0)
 	__PHP_ME_MAPPING(workload, gearman_job_workload, arginfo_oo_gearman_job_workload, 0)
 	__PHP_ME_MAPPING(workloadSize, gearman_job_workload_size, arginfo_oo_gearman_job_workload_size, 0)
-	__PHP_ME_MAPPING(warning, gearman_job_warning, arginfo_oo_gearman_job_warning, 0)
-	__PHP_ME_MAPPING(status, gearman_job_status, arginfo_oo_gearman_job_status, 0)
-	__PHP_ME_MAPPING(handle, gearman_job_handle, arginfo_oo_gearman_job_handle, 0)
-	__PHP_ME_MAPPING(unique, gearman_job_unique, arginfo_oo_gearman_job_unique, 0)
-	__PHP_ME_MAPPING(data, gearman_job_data, arginfo_oo_gearman_job_data, 0)
-	__PHP_ME_MAPPING(complete, gearman_job_complete, arginfo_oo_gearman_job_complete, 0)
-	__PHP_ME_MAPPING(exception, gearman_job_exception, arginfo_oo_gearman_job_exception, 0)
-	__PHP_ME_MAPPING(fail, gearman_job_fail, arginfo_oo_gearman_job_fail, 0)
-	__PHP_ME_MAPPING(functionName, gearman_job_function_name, arginfo_oo_gearman_job_function_name, 0)
-	__PHP_ME_MAPPING(setReturn, gearman_job_set_return, arginfo_oo_gearman_job_set_return, 0)
-	{NULL, NULL, NULL}
-};
 
-zend_function_entry gearman_task_methods[]= {
-	PHP_ME(gearman_task, __construct, NULL, ZEND_ACC_CTOR | ZEND_ACC_PUBLIC)
-	__PHP_ME_MAPPING(returnCode, gearman_task_return_code, arginfo_oo_gearman_task_return_code, 0)
-	__PHP_ME_MAPPING(create, gearman_task_create, arginfo_oo_gearman_task_create, 0)
-	__PHP_ME_MAPPING(free, gearman_task_free, arginfo_oo_gearman_task_free, 0)
-	/* __PHP_ME_MAPPING(fn_arg, gearman_task_fn_arg, arginfo_oo_gearman_task_fn_arg, 0) */
-	__PHP_ME_MAPPING(function, gearman_task_function, arginfo_oo_gearman_task_function, 0)
-	__PHP_ME_MAPPING(uuid, gearman_task_uuid, arginfo_oo_gearman_task_uuid, 0)
-	__PHP_ME_MAPPING(jobHandle, gearman_task_job_handle, arginfo_oo_gearman_task_job_handle, 0)
-	__PHP_ME_MAPPING(isKnown, gearman_task_is_known, arginfo_oo_gearman_task_is_known, 0)
-	__PHP_ME_MAPPING(isRunning, gearman_task_is_running, arginfo_oo_gearman_task_is_running, 0)
-	__PHP_ME_MAPPING(taskNumerator, gearman_task_numerator, arginfo_oo_gearman_task_numerator, 0)
-	__PHP_ME_MAPPING(taskDenominator, gearman_task_denominator, arginfo_oo_gearman_task_denominator, 0)
-	__PHP_ME_MAPPING(data, gearman_task_data, arginfo_oo_gearman_task_data, 0)
-	__PHP_ME_MAPPING(dataSize, gearman_task_data_size, arginfo_oo_gearman_task_data_size, 0)
-	__PHP_ME_MAPPING(sendData, gearman_task_send_data, arginfo_oo_gearman_task_send_data, 0)
-	__PHP_ME_MAPPING(recvData, gearman_task_recv_data, arginfo_oo_gearman_task_recv_data, 0)
 	{NULL, NULL, NULL}
 };
 
@@ -4066,49 +4213,62 @@ zend_function_entry gearman_exception_methods[] = {
 PHP_MINIT_FUNCTION(gearman) {
 	zend_class_entry ce;
 
-	/* gearman */
-	/* Still need to finish this
-	INIT_CLASS_ENTRY(ce, "gearman", gearman_methods);
+#if jluedke_0
+	INIT_CLASS_ENTRY(ce, "Gearman", gearman_methods);
 	ce.create_object= gearman_obj_new;
 	gearman_ce= zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
-	*/
 	memcpy(&gearman_obj_handlers, zend_get_std_object_handlers(),
-		   sizeof(zend_object_handlers));
+		sizeof(zend_object_handlers));
 	gearman_obj_handlers.clone_obj= NULL; /* use our clone method */
 
-	/* gearman_client */
+	INIT_CLASS_ENTRY(ce, "GearmanCon", gearman_con_methods);
+	ce.create_object= gearman_con_obj_new;
+	gearman_con_ce= zend_register_internal_class_ex(&ce, NULL,
+		NULL TSRMLS_CC);
+	memcpy(&gearman_con_obj_handlers, zend_get_std_object_handlers(),
+		sizeof(zend_object_handlers));
+	gearman_con_obj_handlers.clone_obj= NULL; /* use our clone method */
+
+	INIT_CLASS_ENTRY(ce, "GearmanPacket", gearman_packet_methods);
+	ce.create_object= gearman_packet_obj_new;
+	gearman_packet_ce= zend_register_internal_class_ex(&ce, NULL,
+		NULL TSRMLS_CC);
+	memcpy(&gearman_packet_obj_handlers, zend_get_std_object_handlers(),
+		sizeof(zend_object_handlers));
+	gearman_packet_obj_handlers.clone_obj= NULL; /* use our clone method */
+#endif
+
 	INIT_CLASS_ENTRY(ce, "GearmanClient", gearman_client_methods);
 	ce.create_object= gearman_client_obj_new;
-	gearman_client_ce= zend_register_internal_class_ex(&ce, NULL, 
-														NULL TSRMLS_CC);
+	gearman_client_ce= zend_register_internal_class_ex(&ce, NULL,
+		NULL TSRMLS_CC);
 	memcpy(&gearman_client_obj_handlers, zend_get_std_object_handlers(),
-		   sizeof(zend_object_handlers));
+		sizeof(zend_object_handlers));
 	gearman_client_obj_handlers.clone_obj= NULL; /* use our clone method */
 
-	/* gearman_worker */
+	INIT_CLASS_ENTRY(ce, "GearmanTask", gearman_task_methods);
+	ce.create_object= gearman_task_obj_new;
+	gearman_task_ce= zend_register_internal_class_ex(&ce, NULL,
+		NULL TSRMLS_CC);
+	memcpy(&gearman_task_obj_handlers, zend_get_std_object_handlers(),
+		sizeof(zend_object_handlers));
+	gearman_task_obj_handlers.clone_obj= NULL; /* use our clone method */
+
 	INIT_CLASS_ENTRY(ce, "GearmanWorker", gearman_worker_methods);
 	ce.create_object= gearman_worker_obj_new;
 	gearman_worker_ce= zend_register_internal_class_ex(&ce, NULL, 
-														NULL TSRMLS_CC);
+		NULL TSRMLS_CC);
 	memcpy(&gearman_worker_obj_handlers, zend_get_std_object_handlers(),
-		   sizeof(zend_object_handlers));
+		sizeof(zend_object_handlers));
 	gearman_worker_obj_handlers.clone_obj= NULL; /* use our clone method */
 
-	/* gearman_job */
 	INIT_CLASS_ENTRY(ce, "GearmanJob", gearman_job_methods);
 	ce.create_object= gearman_job_obj_new;
-	gearman_job_ce= zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
+	gearman_job_ce= zend_register_internal_class_ex(&ce, NULL,
+		NULL TSRMLS_CC);
 	memcpy(&gearman_job_obj_handlers, zend_get_std_object_handlers(),
-		   sizeof(zend_object_handlers));
+		sizeof(zend_object_handlers));
 	gearman_job_obj_handlers.clone_obj= NULL; /* use our clone method */
-
-	/* gearman_task */
-	INIT_CLASS_ENTRY(ce, "GearmanTask", gearman_task_methods);
-	ce.create_object= gearman_task_obj_new;
-	gearman_task_ce= zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
-	memcpy(&gearman_task_obj_handlers, zend_get_std_object_handlers(),
-		   sizeof(zend_object_handlers));
-	gearman_task_obj_handlers.clone_obj= NULL; /* use our clone method */
 
 	/* XXX exception class */
 	INIT_CLASS_ENTRY(ce, "GearmanException", gearman_exception_methods)
@@ -4116,650 +4276,576 @@ PHP_MINIT_FUNCTION(gearman) {
 	gearman_exception_ce->ce_flags |= ZEND_ACC_FINAL;
 	zend_declare_property_long(gearman_exception_ce, "code", sizeof("code")-1, 0, ZEND_ACC_PUBLIC TSRMLS_CC);
 
+	/* These are automatically generated from gearman_constants.h using
+	const_gen.sh. Do not remove the CONST_GEN_* comments, this is how the
+	script locates the correct location to replace. */
 
-
-  /* These are automatically generated from gearman_constants.h using
-     const_gen.sh. Do not remove the CONST_GEN_* comments, this is how the
-     script locates the correct location to replace. */
-
-  /* CONST_GEN_START */
-  REGISTER_STRING_CONSTANT("GEARMAN_DEFAULT_TCP_HOST",
-                         GEARMAN_DEFAULT_TCP_HOST,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_DEFAULT_TCP_PORT",
-                         GEARMAN_DEFAULT_TCP_PORT,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_DEFAULT_SOCKET_TIMEOUT",
-                         GEARMAN_DEFAULT_SOCKET_TIMEOUT,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_DEFAULT_SOCKET_SEND_SIZE",
-                         GEARMAN_DEFAULT_SOCKET_SEND_SIZE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_DEFAULT_SOCKET_RECV_SIZE",
-                         GEARMAN_DEFAULT_SOCKET_RECV_SIZE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_DEFAULT_BACKLOG",
-                         GEARMAN_DEFAULT_BACKLOG,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_DEFAULT_MAX_QUEUE_SIZE",
-                         GEARMAN_DEFAULT_MAX_QUEUE_SIZE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_MAX_ERROR_SIZE",
-                         GEARMAN_MAX_ERROR_SIZE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_PACKET_HEADER_SIZE",
-                         GEARMAN_PACKET_HEADER_SIZE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_JOB_HANDLE_SIZE",
-                         GEARMAN_JOB_HANDLE_SIZE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_OPTION_SIZE",
-                         GEARMAN_OPTION_SIZE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_UNIQUE_SIZE",
-                         GEARMAN_UNIQUE_SIZE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_MAX_COMMAND_ARGS",
-                         GEARMAN_MAX_COMMAND_ARGS,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_ARGS_BUFFER_SIZE",
-                         GEARMAN_ARGS_BUFFER_SIZE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_SEND_BUFFER_SIZE",
-                         GEARMAN_SEND_BUFFER_SIZE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_RECV_BUFFER_SIZE",
-                         GEARMAN_RECV_BUFFER_SIZE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_SERVER_CON_ID_SIZE",
-                         GEARMAN_SERVER_CON_ID_SIZE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_JOB_HASH_SIZE",
-                         GEARMAN_JOB_HASH_SIZE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_MAX_FREE_SERVER_CON",
-                         GEARMAN_MAX_FREE_SERVER_CON,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_MAX_FREE_SERVER_PACKET",
-                         GEARMAN_MAX_FREE_SERVER_PACKET,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_MAX_FREE_SERVER_JOB",
-                         GEARMAN_MAX_FREE_SERVER_JOB,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_MAX_FREE_SERVER_CLIENT",
-                         GEARMAN_MAX_FREE_SERVER_CLIENT,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_MAX_FREE_SERVER_WORKER",
-                         GEARMAN_MAX_FREE_SERVER_WORKER,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_TEXT_RESPONSE_SIZE",
-                         GEARMAN_TEXT_RESPONSE_SIZE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORKER_WAIT_TIMEOUT",
-                         GEARMAN_WORKER_WAIT_TIMEOUT,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_PIPE_BUFFER_SIZE",
-                         GEARMAN_PIPE_BUFFER_SIZE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_SUCCESS",
-                         GEARMAN_SUCCESS,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_IO_WAIT",
-                         GEARMAN_IO_WAIT,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_SHUTDOWN",
-                         GEARMAN_SHUTDOWN,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_SHUTDOWN_GRACEFUL",
-                         GEARMAN_SHUTDOWN_GRACEFUL,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_ERRNO",
-                         GEARMAN_ERRNO,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_EVENT",
-                         GEARMAN_EVENT,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_TOO_MANY_ARGS",
-                         GEARMAN_TOO_MANY_ARGS,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_NO_ACTIVE_FDS",
-                         GEARMAN_NO_ACTIVE_FDS,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_INVALID_MAGIC",
-                         GEARMAN_INVALID_MAGIC,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_INVALID_COMMAND",
-                         GEARMAN_INVALID_COMMAND,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_INVALID_PACKET",
-                         GEARMAN_INVALID_PACKET,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_UNEXPECTED_PACKET",
-                         GEARMAN_UNEXPECTED_PACKET,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_GETADDRINFO",
-                         GEARMAN_GETADDRINFO,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_NO_SERVERS",
-                         GEARMAN_NO_SERVERS,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_LOST_CONNECTION",
-                         GEARMAN_LOST_CONNECTION,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_MEMORY_ALLOCATION_FAILURE",
-                         GEARMAN_MEMORY_ALLOCATION_FAILURE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_JOB_EXISTS",
-                         GEARMAN_JOB_EXISTS,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_JOB_QUEUE_FULL",
-                         GEARMAN_JOB_QUEUE_FULL,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_SERVER_ERROR",
-                         GEARMAN_SERVER_ERROR,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORK_ERROR",
-                         GEARMAN_WORK_ERROR,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORK_DATA",
-                         GEARMAN_WORK_DATA,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORK_WARNING",
-                         GEARMAN_WORK_WARNING,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORK_STATUS",
-                         GEARMAN_WORK_STATUS,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORK_EXCEPTION",
-                         GEARMAN_WORK_EXCEPTION,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORK_FAIL",
-                         GEARMAN_WORK_FAIL,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_NOT_CONNECTED",
-                         GEARMAN_NOT_CONNECTED,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COULD_NOT_CONNECT",
-                         GEARMAN_COULD_NOT_CONNECT,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_SEND_IN_PROGRESS",
-                         GEARMAN_SEND_IN_PROGRESS,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_RECV_IN_PROGRESS",
-                         GEARMAN_RECV_IN_PROGRESS,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_NOT_FLUSHING",
-                         GEARMAN_NOT_FLUSHING,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_DATA_TOO_LARGE",
-                         GEARMAN_DATA_TOO_LARGE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_INVALID_FUNCTION_NAME",
-                         GEARMAN_INVALID_FUNCTION_NAME,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_INVALID_WORKER_FUNCTION",
-                         GEARMAN_INVALID_WORKER_FUNCTION,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_NO_REGISTERED_FUNCTIONS",
-                         GEARMAN_NO_REGISTERED_FUNCTIONS,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_NO_JOBS",
-                         GEARMAN_NO_JOBS,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_ECHO_DATA_CORRUPTION",
-                         GEARMAN_ECHO_DATA_CORRUPTION,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_NEED_WORKLOAD_FN",
-                         GEARMAN_NEED_WORKLOAD_FN,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_PAUSE",
-                         GEARMAN_PAUSE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_UNKNOWN_STATE",
-                         GEARMAN_UNKNOWN_STATE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_PTHREAD",
-                         GEARMAN_PTHREAD,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_PIPE_EOF",
-                         GEARMAN_PIPE_EOF,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_QUEUE_ERROR",
-                         GEARMAN_QUEUE_ERROR,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_MAX_RETURN",
-                         GEARMAN_MAX_RETURN,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_VERBOSE_FATAL",
-                         GEARMAN_VERBOSE_FATAL,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_VERBOSE_ERROR",
-                         GEARMAN_VERBOSE_ERROR,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_VERBOSE_INFO",
-                         GEARMAN_VERBOSE_INFO,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_VERBOSE_DEBUG",
-                         GEARMAN_VERBOSE_DEBUG,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_VERBOSE_CRAZY",
-                         GEARMAN_VERBOSE_CRAZY,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_ALLOCATED",
-                         GEARMAN_ALLOCATED,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_NON_BLOCKING",
-                         GEARMAN_NON_BLOCKING,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_DONT_TRACK_PACKETS",
-                         GEARMAN_DONT_TRACK_PACKETS,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CON_ALLOCATED",
-                         GEARMAN_CON_ALLOCATED,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CON_READY",
-                         GEARMAN_CON_READY,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CON_PACKET_IN_USE",
-                         GEARMAN_CON_PACKET_IN_USE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CON_EXTERNAL_FD",
-                         GEARMAN_CON_EXTERNAL_FD,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CON_STATE_ADDRINFO",
-                         GEARMAN_CON_STATE_ADDRINFO,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CON_STATE_CONNECT",
-                         GEARMAN_CON_STATE_CONNECT,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CON_STATE_CONNECTING",
-                         GEARMAN_CON_STATE_CONNECTING,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CON_STATE_CONNECTED",
-                         GEARMAN_CON_STATE_CONNECTED,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CON_SEND_STATE_NONE",
-                         GEARMAN_CON_SEND_STATE_NONE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CON_SEND_STATE_PRE_FLUSH",
-                         GEARMAN_CON_SEND_STATE_PRE_FLUSH,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CON_SEND_STATE_FORCE_FLUSH",
-                         GEARMAN_CON_SEND_STATE_FORCE_FLUSH,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CON_SEND_STATE_FLUSH",
-                         GEARMAN_CON_SEND_STATE_FLUSH,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CON_SEND_STATE_FLUSH_DATA",
-                         GEARMAN_CON_SEND_STATE_FLUSH_DATA,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CON_RECV_STATE_NONE",
-                         GEARMAN_CON_RECV_STATE_NONE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CON_RECV_STATE_READ",
-                         GEARMAN_CON_RECV_STATE_READ,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CON_RECV_STATE_READ_DATA",
-                         GEARMAN_CON_RECV_STATE_READ_DATA,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_PACKET_ALLOCATED",
-                         GEARMAN_PACKET_ALLOCATED,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_PACKET_COMPLETE",
-                         GEARMAN_PACKET_COMPLETE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_PACKET_FREE_DATA",
-                         GEARMAN_PACKET_FREE_DATA,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_MAGIC_TEXT",
-                         GEARMAN_MAGIC_TEXT,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_MAGIC_REQUEST",
-                         GEARMAN_MAGIC_REQUEST,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_MAGIC_RESPONSE",
-                         GEARMAN_MAGIC_RESPONSE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_TEXT",
-                         GEARMAN_COMMAND_TEXT,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_CAN_DO",
-                         GEARMAN_COMMAND_CAN_DO,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_CANT_DO",
-                         GEARMAN_COMMAND_CANT_DO,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_RESET_ABILITIES",
-                         GEARMAN_COMMAND_RESET_ABILITIES,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_PRE_SLEEP",
-                         GEARMAN_COMMAND_PRE_SLEEP,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_UNUSED",
-                         GEARMAN_COMMAND_UNUSED,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_NOOP",
-                         GEARMAN_COMMAND_NOOP,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_SUBMIT_JOB",
-                         GEARMAN_COMMAND_SUBMIT_JOB,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_JOB_CREATED",
-                         GEARMAN_COMMAND_JOB_CREATED,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_GRAB_JOB",
-                         GEARMAN_COMMAND_GRAB_JOB,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_NO_JOB",
-                         GEARMAN_COMMAND_NO_JOB,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_JOB_ASSIGN",
-                         GEARMAN_COMMAND_JOB_ASSIGN,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_WORK_STATUS",
-                         GEARMAN_COMMAND_WORK_STATUS,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_WORK_COMPLETE",
-                         GEARMAN_COMMAND_WORK_COMPLETE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_WORK_FAIL",
-                         GEARMAN_COMMAND_WORK_FAIL,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_GET_STATUS",
-                         GEARMAN_COMMAND_GET_STATUS,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_ECHO_REQ",
-                         GEARMAN_COMMAND_ECHO_REQ,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_ECHO_RES",
-                         GEARMAN_COMMAND_ECHO_RES,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_SUBMIT_JOB_BG",
-                         GEARMAN_COMMAND_SUBMIT_JOB_BG,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_ERROR",
-                         GEARMAN_COMMAND_ERROR,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_STATUS_RES",
-                         GEARMAN_COMMAND_STATUS_RES,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_SUBMIT_JOB_HIGH",
-                         GEARMAN_COMMAND_SUBMIT_JOB_HIGH,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_SET_CLIENT_ID",
-                         GEARMAN_COMMAND_SET_CLIENT_ID,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_CAN_DO_TIMEOUT",
-                         GEARMAN_COMMAND_CAN_DO_TIMEOUT,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_ALL_YOURS",
-                         GEARMAN_COMMAND_ALL_YOURS,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_WORK_EXCEPTION",
-                         GEARMAN_COMMAND_WORK_EXCEPTION,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_OPTION_REQ",
-                         GEARMAN_COMMAND_OPTION_REQ,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_OPTION_RES",
-                         GEARMAN_COMMAND_OPTION_RES,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_WORK_DATA",
-                         GEARMAN_COMMAND_WORK_DATA,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_WORK_WARNING",
-                         GEARMAN_COMMAND_WORK_WARNING,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_GRAB_JOB_UNIQ",
-                         GEARMAN_COMMAND_GRAB_JOB_UNIQ,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_JOB_ASSIGN_UNIQ",
-                         GEARMAN_COMMAND_JOB_ASSIGN_UNIQ,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_SUBMIT_JOB_HIGH_BG",
-                         GEARMAN_COMMAND_SUBMIT_JOB_HIGH_BG,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_SUBMIT_JOB_LOW",
-                         GEARMAN_COMMAND_SUBMIT_JOB_LOW,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_SUBMIT_JOB_LOW_BG",
-                         GEARMAN_COMMAND_SUBMIT_JOB_LOW_BG,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_SUBMIT_JOB_SCHED",
-                         GEARMAN_COMMAND_SUBMIT_JOB_SCHED,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_SUBMIT_JOB_EPOCH",
-                         GEARMAN_COMMAND_SUBMIT_JOB_EPOCH,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_MAX",
-                         GEARMAN_COMMAND_MAX,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_TASK_ALLOCATED",
-                         GEARMAN_TASK_ALLOCATED,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_TASK_SEND_IN_USE",
-                         GEARMAN_TASK_SEND_IN_USE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_TASK_STATE_NEW",
-                         GEARMAN_TASK_STATE_NEW,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_TASK_STATE_SUBMIT",
-                         GEARMAN_TASK_STATE_SUBMIT,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_TASK_STATE_WORKLOAD",
-                         GEARMAN_TASK_STATE_WORKLOAD,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_TASK_STATE_WORK",
-                         GEARMAN_TASK_STATE_WORK,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_TASK_STATE_CREATED",
-                         GEARMAN_TASK_STATE_CREATED,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_TASK_STATE_DATA",
-                         GEARMAN_TASK_STATE_DATA,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_TASK_STATE_WARNING",
-                         GEARMAN_TASK_STATE_WARNING,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_TASK_STATE_STATUS",
-                         GEARMAN_TASK_STATE_STATUS,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_TASK_STATE_COMPLETE",
-                         GEARMAN_TASK_STATE_COMPLETE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_TASK_STATE_EXCEPTION",
-                         GEARMAN_TASK_STATE_EXCEPTION,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_TASK_STATE_FAIL",
-                         GEARMAN_TASK_STATE_FAIL,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_TASK_STATE_FINISHED",
-                         GEARMAN_TASK_STATE_FINISHED,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_JOB_ALLOCATED",
-                         GEARMAN_JOB_ALLOCATED,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_JOB_ASSIGNED_IN_USE",
-                         GEARMAN_JOB_ASSIGNED_IN_USE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_JOB_WORK_IN_USE",
-                         GEARMAN_JOB_WORK_IN_USE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_JOB_FINISHED",
-                         GEARMAN_JOB_FINISHED,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_JOB_PRIORITY_HIGH",
-                         GEARMAN_JOB_PRIORITY_HIGH,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_JOB_PRIORITY_NORMAL",
-                         GEARMAN_JOB_PRIORITY_NORMAL,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_JOB_PRIORITY_LOW",
-                         GEARMAN_JOB_PRIORITY_LOW,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_JOB_PRIORITY_MAX",
-                         GEARMAN_JOB_PRIORITY_MAX,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CLIENT_ALLOCATED",
-                         GEARMAN_CLIENT_ALLOCATED,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CLIENT_NON_BLOCKING",
-                         GEARMAN_CLIENT_NON_BLOCKING,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CLIENT_TASK_IN_USE",
-                         GEARMAN_CLIENT_TASK_IN_USE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CLIENT_UNBUFFERED_RESULT",
-                         GEARMAN_CLIENT_UNBUFFERED_RESULT,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CLIENT_NO_NEW",
-                         GEARMAN_CLIENT_NO_NEW,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CLIENT_FREE_TASKS",
-                         GEARMAN_CLIENT_FREE_TASKS,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CLIENT_STATE_IDLE",
-                         GEARMAN_CLIENT_STATE_IDLE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CLIENT_STATE_NEW",
-                         GEARMAN_CLIENT_STATE_NEW,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CLIENT_STATE_SUBMIT",
-                         GEARMAN_CLIENT_STATE_SUBMIT,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_CLIENT_STATE_PACKET",
-                         GEARMAN_CLIENT_STATE_PACKET,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORKER_ALLOCATED",
-                         GEARMAN_WORKER_ALLOCATED,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORKER_NON_BLOCKING",
-                         GEARMAN_WORKER_NON_BLOCKING,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORKER_PACKET_INIT",
-                         GEARMAN_WORKER_PACKET_INIT,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORKER_GRAB_JOB_IN_USE",
-                         GEARMAN_WORKER_GRAB_JOB_IN_USE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORKER_PRE_SLEEP_IN_USE",
-                         GEARMAN_WORKER_PRE_SLEEP_IN_USE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORKER_WORK_JOB_IN_USE",
-                         GEARMAN_WORKER_WORK_JOB_IN_USE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORKER_CHANGE",
-                         GEARMAN_WORKER_CHANGE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORKER_GRAB_UNIQ",
-                         GEARMAN_WORKER_GRAB_UNIQ,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORKER_STATE_START",
-                         GEARMAN_WORKER_STATE_START,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORKER_STATE_FUNCTION_SEND",
-                         GEARMAN_WORKER_STATE_FUNCTION_SEND,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORKER_STATE_CONNECT",
-                         GEARMAN_WORKER_STATE_CONNECT,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORKER_STATE_GRAB_JOB_SEND",
-                         GEARMAN_WORKER_STATE_GRAB_JOB_SEND,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORKER_STATE_GRAB_JOB_RECV",
-                         GEARMAN_WORKER_STATE_GRAB_JOB_RECV,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORKER_STATE_PRE_SLEEP",
-                         GEARMAN_WORKER_STATE_PRE_SLEEP,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORKER_FUNCTION_PACKET_IN_USE",
-                         GEARMAN_WORKER_FUNCTION_PACKET_IN_USE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORKER_FUNCTION_CHANGE",
-                         GEARMAN_WORKER_FUNCTION_CHANGE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORKER_FUNCTION_REMOVE",
-                         GEARMAN_WORKER_FUNCTION_REMOVE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORKER_WORK_STATE_GRAB_JOB",
-                         GEARMAN_WORKER_WORK_STATE_GRAB_JOB,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORKER_WORK_STATE_FUNCTION",
-                         GEARMAN_WORKER_WORK_STATE_FUNCTION,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORKER_WORK_STATE_COMPLETE",
-                         GEARMAN_WORKER_WORK_STATE_COMPLETE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_WORKER_WORK_STATE_FAIL",
-                         GEARMAN_WORKER_WORK_STATE_FAIL,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_SERVER_ALLOCATED",
-                         GEARMAN_SERVER_ALLOCATED,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_SERVER_PROC_THREAD",
-                         GEARMAN_SERVER_PROC_THREAD,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_SERVER_QUEUE_REPLAY",
-                         GEARMAN_SERVER_QUEUE_REPLAY,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_SERVER_THREAD_ALLOCATED",
-                         GEARMAN_SERVER_THREAD_ALLOCATED,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_SERVER_CON_SLEEPING",
-                         GEARMAN_SERVER_CON_SLEEPING,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_SERVER_CON_EXCEPTIONS",
-                         GEARMAN_SERVER_CON_EXCEPTIONS,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_SERVER_CON_DEAD",
-                         GEARMAN_SERVER_CON_DEAD,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_SERVER_FUNCTION_ALLOCATED",
-                         GEARMAN_SERVER_FUNCTION_ALLOCATED,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_SERVER_CLIENT_ALLOCATED",
-                         GEARMAN_SERVER_CLIENT_ALLOCATED,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_SERVER_WORKER_ALLOCATED",
-                         GEARMAN_SERVER_WORKER_ALLOCATED,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_SERVER_JOB_ALLOCATED",
-                         GEARMAN_SERVER_JOB_ALLOCATED,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_SERVER_JOB_QUEUED",
-                         GEARMAN_SERVER_JOB_QUEUED,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAN_SERVER_JOB_IGNORE",
-                         GEARMAN_SERVER_JOB_IGNORE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAND_LISTEN_EVENT",
-                         GEARMAND_LISTEN_EVENT,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAND_WAKEUP_EVENT",
-                         GEARMAND_WAKEUP_EVENT,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAND_WAKEUP_PAUSE",
-                         GEARMAND_WAKEUP_PAUSE,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAND_WAKEUP_SHUTDOWN",
-                         GEARMAND_WAKEUP_SHUTDOWN,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAND_WAKEUP_SHUTDOWN_GRACEFUL",
-                         GEARMAND_WAKEUP_SHUTDOWN_GRACEFUL,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAND_WAKEUP_CON",
-                         GEARMAND_WAKEUP_CON,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAND_WAKEUP_RUN",
-                         GEARMAND_WAKEUP_RUN,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAND_THREAD_WAKEUP_EVENT",
-                         GEARMAND_THREAD_WAKEUP_EVENT,
-                         CONST_CS | CONST_PERSISTENT);
-  REGISTER_LONG_CONSTANT("GEARMAND_THREAD_LOCK",
-                         GEARMAND_THREAD_LOCK,
-                         CONST_CS | CONST_PERSISTENT);
-  /* CONST_GEN_STOP */
+	/* CONST_GEN_START */
+	REGISTER_STRING_CONSTANT("GEARMAN_DEFAULT_TCP_HOST",
+		GEARMAN_DEFAULT_TCP_HOST,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_DEFAULT_TCP_PORT",
+		GEARMAN_DEFAULT_TCP_PORT,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_DEFAULT_SOCKET_TIMEOUT",
+		GEARMAN_DEFAULT_SOCKET_TIMEOUT,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_DEFAULT_SOCKET_SEND_SIZE",
+		GEARMAN_DEFAULT_SOCKET_SEND_SIZE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_DEFAULT_SOCKET_RECV_SIZE",
+		GEARMAN_DEFAULT_SOCKET_RECV_SIZE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_MAX_ERROR_SIZE",
+		GEARMAN_MAX_ERROR_SIZE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_PACKET_HEADER_SIZE",
+		GEARMAN_PACKET_HEADER_SIZE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_JOB_HANDLE_SIZE",
+		GEARMAN_JOB_HANDLE_SIZE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_OPTION_SIZE",
+		GEARMAN_OPTION_SIZE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_UNIQUE_SIZE",
+		GEARMAN_UNIQUE_SIZE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_MAX_COMMAND_ARGS",
+		GEARMAN_MAX_COMMAND_ARGS,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_ARGS_BUFFER_SIZE",
+		GEARMAN_ARGS_BUFFER_SIZE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_SEND_BUFFER_SIZE",
+		GEARMAN_SEND_BUFFER_SIZE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_RECV_BUFFER_SIZE",
+		GEARMAN_RECV_BUFFER_SIZE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_WAIT_TIMEOUT",
+		GEARMAN_WORKER_WAIT_TIMEOUT,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_SUCCESS",
+		GEARMAN_SUCCESS,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_IO_WAIT",
+		GEARMAN_IO_WAIT,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_SHUTDOWN",
+		GEARMAN_SHUTDOWN,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_SHUTDOWN_GRACEFUL",
+		GEARMAN_SHUTDOWN_GRACEFUL,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_ERRNO",
+		GEARMAN_ERRNO,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_EVENT",
+		GEARMAN_EVENT,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_TOO_MANY_ARGS",
+		GEARMAN_TOO_MANY_ARGS,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_NO_ACTIVE_FDS",
+		GEARMAN_NO_ACTIVE_FDS,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_INVALID_MAGIC",
+		GEARMAN_INVALID_MAGIC,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_INVALID_COMMAND",
+		GEARMAN_INVALID_COMMAND,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_INVALID_PACKET",
+		GEARMAN_INVALID_PACKET,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_UNEXPECTED_PACKET",
+		GEARMAN_UNEXPECTED_PACKET,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_GETADDRINFO",
+		GEARMAN_GETADDRINFO,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_NO_SERVERS",
+		GEARMAN_NO_SERVERS,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_LOST_CONNECTION",
+		GEARMAN_LOST_CONNECTION,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_MEMORY_ALLOCATION_FAILURE",
+		GEARMAN_MEMORY_ALLOCATION_FAILURE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_JOB_EXISTS",
+		GEARMAN_JOB_EXISTS,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_JOB_QUEUE_FULL",
+		GEARMAN_JOB_QUEUE_FULL,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_SERVER_ERROR",
+		GEARMAN_SERVER_ERROR,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORK_ERROR",
+		GEARMAN_WORK_ERROR,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORK_DATA",
+		GEARMAN_WORK_DATA,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORK_WARNING",
+		GEARMAN_WORK_WARNING,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORK_STATUS",
+		GEARMAN_WORK_STATUS,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORK_EXCEPTION",
+		GEARMAN_WORK_EXCEPTION,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORK_FAIL",
+		GEARMAN_WORK_FAIL,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_NOT_CONNECTED",
+		GEARMAN_NOT_CONNECTED,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COULD_NOT_CONNECT",
+		GEARMAN_COULD_NOT_CONNECT,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_SEND_IN_PROGRESS",
+		GEARMAN_SEND_IN_PROGRESS,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_RECV_IN_PROGRESS",
+		GEARMAN_RECV_IN_PROGRESS,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_NOT_FLUSHING",
+		GEARMAN_NOT_FLUSHING,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_DATA_TOO_LARGE",
+		GEARMAN_DATA_TOO_LARGE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_INVALID_FUNCTION_NAME",
+		GEARMAN_INVALID_FUNCTION_NAME,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_INVALID_WORKER_FUNCTION",
+		GEARMAN_INVALID_WORKER_FUNCTION,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_NO_REGISTERED_FUNCTIONS",
+		GEARMAN_NO_REGISTERED_FUNCTIONS,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_NO_JOBS",
+		GEARMAN_NO_JOBS,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_ECHO_DATA_CORRUPTION",
+		GEARMAN_ECHO_DATA_CORRUPTION,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_NEED_WORKLOAD_FN",
+		GEARMAN_NEED_WORKLOAD_FN,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_PAUSE",
+		GEARMAN_PAUSE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_UNKNOWN_STATE",
+		GEARMAN_UNKNOWN_STATE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_PTHREAD",
+		GEARMAN_PTHREAD,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_PIPE_EOF",
+		GEARMAN_PIPE_EOF,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_QUEUE_ERROR",
+		GEARMAN_QUEUE_ERROR,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_FLUSH_DATA",
+		GEARMAN_FLUSH_DATA,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_SEND_BUFFER_TOO_SMALL",
+		GEARMAN_SEND_BUFFER_TOO_SMALL,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_IGNORE_PACKET",
+		GEARMAN_IGNORE_PACKET,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_UNKNOWN_OPTION",
+		GEARMAN_UNKNOWN_OPTION,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_TIMEOUT",
+		GEARMAN_TIMEOUT,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_MAX_RETURN",
+		GEARMAN_MAX_RETURN,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_VERBOSE_FATAL",
+		GEARMAN_VERBOSE_FATAL,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_VERBOSE_ERROR",
+		GEARMAN_VERBOSE_ERROR,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_VERBOSE_INFO",
+		GEARMAN_VERBOSE_INFO,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_VERBOSE_DEBUG",
+		GEARMAN_VERBOSE_DEBUG,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_VERBOSE_CRAZY",
+		GEARMAN_VERBOSE_CRAZY,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_VERBOSE_MAX",
+		GEARMAN_VERBOSE_MAX,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_ALLOCATED",
+		GEARMAN_ALLOCATED,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_NON_BLOCKING",
+		GEARMAN_NON_BLOCKING,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_DONT_TRACK_PACKETS",
+		GEARMAN_DONT_TRACK_PACKETS,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CON_ALLOCATED",
+		GEARMAN_CON_ALLOCATED,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CON_READY",
+		GEARMAN_CON_READY,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CON_PACKET_IN_USE",
+		GEARMAN_CON_PACKET_IN_USE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CON_EXTERNAL_FD",
+		GEARMAN_CON_EXTERNAL_FD,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CON_IGNORE_LOST_CONNECTION",
+		GEARMAN_CON_IGNORE_LOST_CONNECTION,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CON_CLOSE_AFTER_FLUSH",
+		GEARMAN_CON_CLOSE_AFTER_FLUSH,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CON_STATE_ADDRINFO",
+		GEARMAN_CON_STATE_ADDRINFO,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CON_STATE_CONNECT",
+		GEARMAN_CON_STATE_CONNECT,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CON_STATE_CONNECTING",
+		GEARMAN_CON_STATE_CONNECTING,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CON_STATE_CONNECTED",
+		GEARMAN_CON_STATE_CONNECTED,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CON_SEND_STATE_NONE",
+		GEARMAN_CON_SEND_STATE_NONE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CON_SEND_STATE_PRE_FLUSH",
+		GEARMAN_CON_SEND_STATE_PRE_FLUSH,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CON_SEND_STATE_FORCE_FLUSH",
+		GEARMAN_CON_SEND_STATE_FORCE_FLUSH,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CON_SEND_STATE_FLUSH",
+		GEARMAN_CON_SEND_STATE_FLUSH,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CON_SEND_STATE_FLUSH_DATA",
+		GEARMAN_CON_SEND_STATE_FLUSH_DATA,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CON_RECV_STATE_NONE",
+		GEARMAN_CON_RECV_STATE_NONE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CON_RECV_STATE_READ",
+		GEARMAN_CON_RECV_STATE_READ,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CON_RECV_STATE_READ_DATA",
+		GEARMAN_CON_RECV_STATE_READ_DATA,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_PACKET_ALLOCATED",
+		GEARMAN_PACKET_ALLOCATED,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_PACKET_COMPLETE",
+		GEARMAN_PACKET_COMPLETE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_PACKET_FREE_DATA",
+		GEARMAN_PACKET_FREE_DATA,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_MAGIC_TEXT",
+		GEARMAN_MAGIC_TEXT,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_MAGIC_REQUEST",
+		GEARMAN_MAGIC_REQUEST,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_MAGIC_RESPONSE",
+		GEARMAN_MAGIC_RESPONSE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_TEXT",
+		GEARMAN_COMMAND_TEXT,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_CAN_DO",
+		GEARMAN_COMMAND_CAN_DO,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_CANT_DO",
+		GEARMAN_COMMAND_CANT_DO,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_RESET_ABILITIES",
+		GEARMAN_COMMAND_RESET_ABILITIES,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_PRE_SLEEP",
+		GEARMAN_COMMAND_PRE_SLEEP,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_UNUSED",
+		GEARMAN_COMMAND_UNUSED,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_NOOP",
+		GEARMAN_COMMAND_NOOP,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_SUBMIT_JOB",
+		GEARMAN_COMMAND_SUBMIT_JOB,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_JOB_CREATED",
+		GEARMAN_COMMAND_JOB_CREATED,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_GRAB_JOB",
+		GEARMAN_COMMAND_GRAB_JOB,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_NO_JOB",
+		GEARMAN_COMMAND_NO_JOB,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_JOB_ASSIGN",
+		GEARMAN_COMMAND_JOB_ASSIGN,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_WORK_STATUS",
+		GEARMAN_COMMAND_WORK_STATUS,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_WORK_COMPLETE",
+		GEARMAN_COMMAND_WORK_COMPLETE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_WORK_FAIL",
+		GEARMAN_COMMAND_WORK_FAIL,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_GET_STATUS",
+		GEARMAN_COMMAND_GET_STATUS,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_ECHO_REQ",
+		GEARMAN_COMMAND_ECHO_REQ,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_ECHO_RES",
+		GEARMAN_COMMAND_ECHO_RES,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_SUBMIT_JOB_BG",
+		GEARMAN_COMMAND_SUBMIT_JOB_BG,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_ERROR",
+		GEARMAN_COMMAND_ERROR,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_STATUS_RES",
+		GEARMAN_COMMAND_STATUS_RES,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_SUBMIT_JOB_HIGH",
+		GEARMAN_COMMAND_SUBMIT_JOB_HIGH,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_SET_CLIENT_ID",
+		GEARMAN_COMMAND_SET_CLIENT_ID,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_CAN_DO_TIMEOUT",
+		GEARMAN_COMMAND_CAN_DO_TIMEOUT,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_ALL_YOURS",
+		GEARMAN_COMMAND_ALL_YOURS,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_WORK_EXCEPTION",
+		GEARMAN_COMMAND_WORK_EXCEPTION,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_OPTION_REQ",
+		GEARMAN_COMMAND_OPTION_REQ,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_OPTION_RES",
+		GEARMAN_COMMAND_OPTION_RES,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_WORK_DATA",
+		GEARMAN_COMMAND_WORK_DATA,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_WORK_WARNING",
+		GEARMAN_COMMAND_WORK_WARNING,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_GRAB_JOB_UNIQ",
+		GEARMAN_COMMAND_GRAB_JOB_UNIQ,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_JOB_ASSIGN_UNIQ",
+		GEARMAN_COMMAND_JOB_ASSIGN_UNIQ,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_SUBMIT_JOB_HIGH_BG",
+		GEARMAN_COMMAND_SUBMIT_JOB_HIGH_BG,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_SUBMIT_JOB_LOW",
+		GEARMAN_COMMAND_SUBMIT_JOB_LOW,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_SUBMIT_JOB_LOW_BG",
+		GEARMAN_COMMAND_SUBMIT_JOB_LOW_BG,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_SUBMIT_JOB_SCHED",
+		GEARMAN_COMMAND_SUBMIT_JOB_SCHED,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_SUBMIT_JOB_EPOCH",
+		GEARMAN_COMMAND_SUBMIT_JOB_EPOCH,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_MAX",
+		GEARMAN_COMMAND_MAX,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_TASK_ALLOCATED",
+		GEARMAN_TASK_ALLOCATED,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_TASK_SEND_IN_USE",
+		GEARMAN_TASK_SEND_IN_USE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_TASK_STATE_NEW",
+		GEARMAN_TASK_STATE_NEW,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_TASK_STATE_SUBMIT",
+		GEARMAN_TASK_STATE_SUBMIT,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_TASK_STATE_WORKLOAD",
+		GEARMAN_TASK_STATE_WORKLOAD,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_TASK_STATE_WORK",
+		GEARMAN_TASK_STATE_WORK,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_TASK_STATE_CREATED",
+		GEARMAN_TASK_STATE_CREATED,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_TASK_STATE_DATA",
+		GEARMAN_TASK_STATE_DATA,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_TASK_STATE_WARNING",
+		GEARMAN_TASK_STATE_WARNING,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_TASK_STATE_STATUS",
+		GEARMAN_TASK_STATE_STATUS,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_TASK_STATE_COMPLETE",
+		GEARMAN_TASK_STATE_COMPLETE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_TASK_STATE_EXCEPTION",
+		GEARMAN_TASK_STATE_EXCEPTION,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_TASK_STATE_FAIL",
+		GEARMAN_TASK_STATE_FAIL,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_TASK_STATE_FINISHED",
+		GEARMAN_TASK_STATE_FINISHED,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_JOB_ALLOCATED",
+		GEARMAN_JOB_ALLOCATED,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_JOB_ASSIGNED_IN_USE",
+		GEARMAN_JOB_ASSIGNED_IN_USE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_JOB_WORK_IN_USE",
+		GEARMAN_JOB_WORK_IN_USE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_JOB_FINISHED",
+		GEARMAN_JOB_FINISHED,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_JOB_PRIORITY_HIGH",
+		GEARMAN_JOB_PRIORITY_HIGH,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_JOB_PRIORITY_NORMAL",
+		GEARMAN_JOB_PRIORITY_NORMAL,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_JOB_PRIORITY_LOW",
+		GEARMAN_JOB_PRIORITY_LOW,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_JOB_PRIORITY_MAX",
+		GEARMAN_JOB_PRIORITY_MAX,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CLIENT_ALLOCATED",
+		GEARMAN_CLIENT_ALLOCATED,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CLIENT_NON_BLOCKING",
+		GEARMAN_CLIENT_NON_BLOCKING,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CLIENT_TASK_IN_USE",
+		GEARMAN_CLIENT_TASK_IN_USE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CLIENT_UNBUFFERED_RESULT",
+		GEARMAN_CLIENT_UNBUFFERED_RESULT,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CLIENT_NO_NEW",
+		GEARMAN_CLIENT_NO_NEW,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CLIENT_FREE_TASKS",
+		GEARMAN_CLIENT_FREE_TASKS,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CLIENT_STATE_IDLE",
+		GEARMAN_CLIENT_STATE_IDLE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CLIENT_STATE_NEW",
+		GEARMAN_CLIENT_STATE_NEW,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CLIENT_STATE_SUBMIT",
+		GEARMAN_CLIENT_STATE_SUBMIT,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CLIENT_STATE_PACKET",
+		GEARMAN_CLIENT_STATE_PACKET,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_ALLOCATED",
+		GEARMAN_WORKER_ALLOCATED,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_NON_BLOCKING",
+		GEARMAN_WORKER_NON_BLOCKING,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_PACKET_INIT",
+		GEARMAN_WORKER_PACKET_INIT,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_GRAB_JOB_IN_USE",
+		GEARMAN_WORKER_GRAB_JOB_IN_USE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_PRE_SLEEP_IN_USE",
+		GEARMAN_WORKER_PRE_SLEEP_IN_USE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_WORK_JOB_IN_USE",
+		GEARMAN_WORKER_WORK_JOB_IN_USE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_CHANGE",
+		GEARMAN_WORKER_CHANGE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_GRAB_UNIQ",
+		GEARMAN_WORKER_GRAB_UNIQ,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_TIMEOUT_RETURN",
+		GEARMAN_WORKER_TIMEOUT_RETURN,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_STATE_START",
+		GEARMAN_WORKER_STATE_START,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_STATE_FUNCTION_SEND",
+		GEARMAN_WORKER_STATE_FUNCTION_SEND,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_STATE_CONNECT",
+		GEARMAN_WORKER_STATE_CONNECT,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_STATE_GRAB_JOB_SEND",
+		GEARMAN_WORKER_STATE_GRAB_JOB_SEND,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_STATE_GRAB_JOB_RECV",
+		GEARMAN_WORKER_STATE_GRAB_JOB_RECV,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_STATE_PRE_SLEEP",
+		GEARMAN_WORKER_STATE_PRE_SLEEP,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_FUNCTION_PACKET_IN_USE",
+		GEARMAN_WORKER_FUNCTION_PACKET_IN_USE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_FUNCTION_CHANGE",
+		GEARMAN_WORKER_FUNCTION_CHANGE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_FUNCTION_REMOVE",
+		GEARMAN_WORKER_FUNCTION_REMOVE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_WORK_STATE_GRAB_JOB",
+		GEARMAN_WORKER_WORK_STATE_GRAB_JOB,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_WORK_STATE_FUNCTION",
+		GEARMAN_WORKER_WORK_STATE_FUNCTION,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_WORK_STATE_COMPLETE",
+		GEARMAN_WORKER_WORK_STATE_COMPLETE,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_WORK_STATE_FAIL",
+		GEARMAN_WORKER_WORK_STATE_FAIL,
+		CONST_CS | CONST_PERSISTENT);
+	/* CONST_GEN_STOP */
 
 	return SUCCESS;
 }

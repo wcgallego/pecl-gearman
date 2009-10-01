@@ -46,7 +46,7 @@ function reverse_fn($job)
   {
     echo "Sending status: $x/$workload_size complete\n";
     /*
-    $job->status($x, $workload_size);
+    $job->sendStatus($x, $workload_size);
     sleep(1);
     */
   }

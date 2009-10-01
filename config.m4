@@ -27,12 +27,12 @@ if test "$PHP_GEARMAN" != "no"; then
      AC_MSG_ERROR([Please install libgearman])
   fi
 
-  PHP_CHECK_LIBRARY(gearman, gearman_create,
+  PHP_CHECK_LIBRARY(gearman, gearman_client_set_context,
   [
     PHP_ADD_LIBRARY_WITH_PATH(gearman, $GEARMAN_LIB_DIR, GEARMAN_SHARED_LIBADD)
     AC_DEFINE(HAVE_GEARMAN, 1, [Whether you have gearman])
   ],[
-    AC_MSG_ERROR([wrong libgearman version or lib not found])
+    AC_MSG_ERROR([libgearman version 0.10 or later required])
   ],[
     -L$GEARMAN_LIB_DIR -R$GEARMAN_LIB_DIR
   ])

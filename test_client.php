@@ -33,8 +33,8 @@ if (! is_object($client_new))
 else
     echo "gearman_client_clone() pass\n";
 
-gearman_client_free($client_new);
-echo "gearman_client_free() pass\n";
+unset($client_new);
+echo "unset client pass\n";
 
 $ret= gearman_client_error($client);
 if ($ret != GEARMAN_SUCCESS)
@@ -54,12 +54,12 @@ if ($ret != 0)
 else
     echo "gearman_client_errno() pass\n";
 
-if (! gearman_client_set_options($client, GEARMAN_CLIENT_UNBUFFERED_RESULT, 1))
+if (! gearman_client_add_options($client, GEARMAN_CLIENT_UNBUFFERED_RESULT))
 {
     echo "gearman_client_set_options() FAILED\n";
     exit(0);
 }
-gearman_client_set_options($client, GEARMAN_CLIENT_UNBUFFERED_RESULT, 0);
+gearman_client_remove_options($client, GEARMAN_CLIENT_UNBUFFERED_RESULT);
 echo "gearman_client_set_options() pass\n";
 
 /*
@@ -194,7 +194,7 @@ $res = gearman_client_run_tasks($client);
 gearman_client_clear_fn($client);
 
 # You can turn off auto task destruction by unsetting this flag on a gearman client.
-gearman_client_set_options($client, GEARMAN_CLIENT_FREE_TASKS, 0);
+gearman_client_remove_options($client, GEARMAN_CLIENT_FREE_TASKS);
 $task = gearman_client_add_task_background($client, "test_tasks_background", "test_tasks_background", "test_tasks_background");
 gearman_client_set_status_fn($client, "test_gearman_task_status");
 $res = gearman_client_run_tasks($client);
@@ -255,11 +255,6 @@ gearman_task_fn_arg($task_new);
 echo "gearman_task_fn_arg() pass\n";
 */
 
-/*
-gearman_task_free($task);
-echo "gearman_task_free() pass\n";
-*/
-
 
 /*
  * Test Functions
@@ -310,10 +305,10 @@ function test_gearman_tasks($task)
     $is_running= false;
 
     echo "Testing Task Functions\n";
-    $func = gearman_task_function($task);
-    echo "\tgearman_task_function() pass - $func\n";
-    $uuid = gearman_task_uuid($task);
-    echo "\tgearman_task_uuid() pass - $uuid\n";
+    $func = gearman_task_function_name($task);
+    echo "\tgearman_task_function_name() pass - $func\n";
+    $uuid = gearman_task_unique($task);
+    echo "\tgearman_task_unique() pass - $uuid\n";
     $job_handle = gearman_task_job_handle($task);
     echo "\tgearman_task_job_handle() pass - $job_handle\n";
 

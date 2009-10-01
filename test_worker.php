@@ -47,8 +47,8 @@ if (! is_object($worker_new))
 else
     echo "gearman_worker_clone() pass\n";
 
-gearman_worker_free($worker_new);
-echo "gearman_worker_free() pass\n";
+unset($worker_new);
+echo "unset worker pass\n";
 
 $ret = gearman_worker_error($worker);
 if ($ret != GEARMAN_SUCCESS)
@@ -205,16 +205,16 @@ function test_gearman_job_complete($job, $data)
 
 function test_gearman_job_status($job, $data)
 {
-    gearman_job_data($job, "test data");
-    gearman_job_status($job, 1, 4);
+    gearman_job_send_data($job, "test data");
+    gearman_job_send_status($job, 1, 4);
     sleep(1);
-    gearman_job_status($job, 2, 4);
+    gearman_job_send_status($job, 2, 4);
     sleep(1);
-    gearman_job_status($job, 3, 4);
+    gearman_job_send_status($job, 3, 4);
     sleep(1);
-    gearman_job_status($job, 4, 4);
+    gearman_job_send_status($job, 4, 4);
     sleep(1);
-    echo "gearman_job_status() pass\n";
+    echo "gearman_send_job_status() pass\n";
 }
 
 function test_worker($job, $data=NULL)
@@ -238,27 +238,27 @@ function test_gearman_job($job, $data)
 
 function test_set_callback_fn($job, $data)
 {
-    gearman_job_status($job, 1, 1);
-    echo "\tgearman_job_status() pass\n";
+    gearman_job_send_status($job, 1, 1);
+    echo "\tgearman_job_send_status() pass\n";
     sleep(1);
-    gearman_job_warning($job, "test_set_callback_fn warning");
-    echo "\tgearman_job_warning() pass\n";
+    gearman_job_send_warning($job, "test_set_callback_fn warning");
+    echo "\tgearman_job_send_warning() pass\n";
     sleep(1);
-    gearman_job_exception($job, "test_set_callback_fn exception");
-    echo "\tgearman_job_exception() pass\n";
+    gearman_job_send_exception($job, "test_set_callback_fn exception");
+    echo "\tgearman_job_send_exception() pass\n";
     sleep(1);
     /* $job->set_return(GEARMAN_WORK_FAIL); == $job->fail() == */
-    if(! gearman_job_fail($job))
-        echo "\tgearman_job_fail() FAILED\n";
+    if(! gearman_job_send_fail($job))
+        echo "\tgearman_job_send_fail() FAILED\n";
     else
-        echo "\tgearman_job_fail() pass\n";
+        echo "\tgearman_job_send_fail() pass\n";
     sleep(1);
 }
 
 function test_tasks($job, $data)
 {
-    $job->data("foobar");
-    gearman_job_status($job, 1, 1);
+    $job->sendData("foobar");
+    gearman_job_send_status($job, 1, 1);
     sleep(2);
     return "test_tasks";
 }
@@ -266,9 +266,9 @@ function test_tasks($job, $data)
 function test_tasks_background($job, $data)
 {
     echo "\ttest_tasks_background() pass\n";
-    gearman_job_status($job, 1, 2);
+    gearman_job_send_status($job, 1, 2);
     sleep(4);
-    gearman_job_status($job, 2, 2);
+    gearman_job_send_status($job, 2, 2);
     return "done";
 }
 
