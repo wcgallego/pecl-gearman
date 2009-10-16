@@ -3303,7 +3303,7 @@ PHP_FUNCTION(gearman_worker_register) {
 	gearman_worker_obj *obj;
 	char *function_name;
 	int function_name_len;
-	int timeout;
+	int timeout = 0;
 
 	GEARMAN_ZPMP(RETURN_NULL(), "s|l", &zobj, gearman_worker_ce, 
 				 &function_name, &function_name_len, &timeout)
@@ -3474,7 +3474,7 @@ PHP_FUNCTION(gearman_worker_add_function) {
 	zval *zname;
 	zval *zcall;
 	zval *zdata= NULL;
-	long timeout;
+	long timeout = 0;
 
 	char *callable= NULL;
 
