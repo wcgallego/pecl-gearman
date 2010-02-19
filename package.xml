@@ -15,10 +15,10 @@ http://pear.php.net/dtd/package-2.0.xsd">
   <email>contact@jamesluedke.com</email>
   <active>yes</active>
  </lead>
- <date>2009-10-01</date>
+ <date>2010-02-19</date>
  <version>
-  <release>0.6.0</release>
-  <api>0.6.0</api>
+  <release>0.7.0</release>
+  <api>0.7.0</api>
  </version>
  <stability>
   <release>beta</release>
@@ -26,12 +26,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-- Fixed build issue with 5.1.x
-- Merged eday changes
-- Added wait functions, uncommented other worker functions.
-- Added timeout functions.
-- Updated function list from C library and removed free methods (should use unset).
-- Added stubs for new functions, fixed tests, fixed some of the existing functions from changes.
+- Builds with gearmand 0.12
  </notes>
  <contents>
   <dir name="/">
@@ -74,6 +69,15 @@ http://pear.php.net/dtd/package-2.0.xsd">
  <extsrcrelease>
  </extsrcrelease>
  <changelog>
+  <release>
+   <stability><release>beta</release><api>beta</api></stability>
+   <version><release>0.6.0</release><api>0.6.0</api></version>
+   <date>2010-02-19</date>
+   <notes>
+- Now builds against gearmand 0.12
+   </notes>
+  </release>
+  <release>
   <release>
    <stability><release>beta</release><api>beta</api></stability>
    <version><release>0.6.0</release><api>0.6.0</api></version>
