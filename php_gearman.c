@@ -906,7 +906,7 @@ typedef enum {
 
 typedef struct {
 	zend_object std;
-	gearman_obj_flags_t flagsr;
+	gearman_obj_flags_t flags;
 	gearman_universal_st gearman;
 } gearman_obj;
 
