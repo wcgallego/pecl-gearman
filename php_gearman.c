@@ -904,14 +904,6 @@ typedef enum {
 	GEARMAN_OBJ_CREATED= (1 << 0)
 } gearman_obj_flags_t;
 
-/*
-typedef struct {
-	zend_object std;
-	gearman_obj_flags_t flags;
-	gearman_universal_st gearman;
-} gearman_obj;
-*/
-
 typedef enum {
 	GEARMAN_CLIENT_OBJ_CREATED= (1 << 0)
 } gearman_client_obj_flags_t;

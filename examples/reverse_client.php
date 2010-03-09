@@ -34,9 +34,6 @@ do
       list($numerator, $denominator)= $gmclient->doStatus();
       echo "Status: $numerator/$denominator complete\n";
       break;
-    case GEARMAN_WORK_FAIL:
-      echo "Failed\n";
-      exit;
     case GEARMAN_SUCCESS:
       break;
     default:

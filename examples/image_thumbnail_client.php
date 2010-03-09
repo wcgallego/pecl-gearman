@@ -32,9 +32,6 @@ do
         case GEARMAN_SUCCESS:
             echo "SUCCESS: $value\n";
             break;
-        case GEARMAN_WORK_FAIL:
-            echo "FAILED\n";
-            break;
         case GEARMAN_WORK_STATUS:
             list($numerator, $denominator)= $gmc->doStatus();
             echo "Status: $numerator/$denominator\n";

@@ -15,7 +15,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
   <email>contact@jamesluedke.com</email>
   <active>yes</active>
  </lead>
- <date>2010-02-19</date>
+ <date>2010-03-09</date>
  <version>
   <release>0.7.0</release>
   <api>0.7.0</api>
@@ -71,13 +71,13 @@ http://pear.php.net/dtd/package-2.0.xsd">
  <changelog>
   <release>
    <stability><release>beta</release><api>beta</api></stability>
-   <version><release>0.6.0</release><api>0.6.0</api></version>
-   <date>2010-02-19</date>
+   <version><release>0.7.0</release><api>0.7.0</api></version>
+   <date>2010-03-09</date>
    <notes>
 - Now builds against gearmand 0.12
+- Had to remove some of the low level code I was working on.
    </notes>
   </release>
-  <release>
   <release>
    <stability><release>beta</release><api>beta</api></stability>
    <version><release>0.6.0</release><api>0.6.0</api></version>
