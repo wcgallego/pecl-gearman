@@ -3624,10 +3624,14 @@ gearman_client_obj_new_ex(zend_class_entry *class_type,
 	}
 
 	zend_object_std_init(&(client->std), class_type TSRMLS_CC);
+#if PHP_VERSION_ID < 50399
 	zend_hash_copy(client->std.properties, 
 				 &(class_type->default_properties),
 				  (copy_ctor_func_t)zval_add_ref, (void *)(&tmp),
 				   sizeof(zval *));
+#else
+	object_properties_init(&client->std, class_type);
+#endif
 
 	value.handle= zend_objects_store_put(client,
 				 (zend_objects_store_dtor_t)zend_objects_destroy_object,
@@ -3697,10 +3701,14 @@ gearman_worker_obj_new_ex(zend_class_entry *class_type,
 	}
 
 	zend_object_std_init(&(worker->std), class_type TSRMLS_CC);
+#if PHP_VERSION_ID < 50399
 	zend_hash_copy(worker->std.properties, 
 				 &(class_type->default_properties),
 				  (copy_ctor_func_t)zval_add_ref, (void *)(&tmp),
 				   sizeof(zval *));
+#else
+	object_properties_init(&worker->std, class_type);
+#endif
 
 	value.handle= zend_objects_store_put(worker,
 				 (zend_objects_store_dtor_t)zend_objects_destroy_object,
@@ -3755,10 +3763,14 @@ gearman_job_obj_new_ex(zend_class_entry *class_type,
 	}
 
 	zend_object_std_init(&(job->std), class_type TSRMLS_CC);
+#if PHP_VERSION_ID < 50399
 	zend_hash_copy(job->std.properties, 
 				 &(class_type->default_properties),
 				  (copy_ctor_func_t)zval_add_ref, (void *)(&tmp),
 				   sizeof(zval *));
+#else
+	object_properties_init(&job->std, class_type);
+#endif
 
 	value.handle= zend_objects_store_put(job,
 					(zend_objects_store_dtor_t)zend_objects_destroy_object,
@@ -3813,10 +3825,14 @@ gearman_task_obj_new_ex(zend_class_entry *class_type,
 	}
 
 	zend_object_std_init(&(task->std), class_type TSRMLS_CC);
+#if PHP_VERSION_ID < 50399
 	zend_hash_copy(task->std.properties, 
 				 &(class_type->default_properties),
 				  (copy_ctor_func_t)zval_add_ref, (void *)(&tmp),
 				   sizeof(zval *));
+#else
+	object_properties_init(&task->std, class_type);
+#endif
 
 	task->value.handle= zend_objects_store_put(task,
 					(zend_objects_store_dtor_t)zend_objects_destroy_object,
@@ -4464,9 +4480,11 @@ PHP_MINIT_FUNCTION(gearman) {
 	REGISTER_LONG_CONSTANT("GEARMAN_MAX_RETURN",
 		GEARMAN_MAX_RETURN,
 		CONST_CS | CONST_PERSISTENT);
+#ifdef GEARMAN_VERBOSE_NEVER
 	REGISTER_LONG_CONSTANT("GEARMAN_VERBOSE_NEVER",
 		GEARMAN_VERBOSE_NEVER,
 		CONST_CS | CONST_PERSISTENT);
+#endif
 	REGISTER_LONG_CONSTANT("GEARMAN_VERBOSE_FATAL",
 		GEARMAN_VERBOSE_FATAL,
 		CONST_CS | CONST_PERSISTENT);
