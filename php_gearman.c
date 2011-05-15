@@ -1453,6 +1453,11 @@ PHP_FUNCTION(gearman_job_send_data) {
 
 	GEARMAN_ZPMP(RETURN_NULL(), "s", &zobj, gearman_job_ce, &data, &data_len)
 
+        /* make sure worker initialized a job */
+        if (obj->job == NULL) {
+                RETURN_FALSE;
+        }
+
 	obj->ret= gearman_job_send_data(obj->job, data, data_len);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
