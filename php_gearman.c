@@ -1657,9 +1657,11 @@ PHP_FUNCTION(gearman_job_set_return) {
 	zval *zobj;
 	gearman_job_obj *obj;
 	gearman_return_t ret;
+       long ret_val;
 
-	GEARMAN_ZPMP(RETURN_NULL(), "l", &zobj, gearman_job_ce, &ret)
+	GEARMAN_ZPMP(RETURN_NULL(), "l", &zobj, gearman_job_ce, &ret_val)
 	
+       ret = ret_val;
 	/* make sure its a valid gearman_return_t */
 	if (ret < GEARMAN_SUCCESS || ret > GEARMAN_MAX_RETURN) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
