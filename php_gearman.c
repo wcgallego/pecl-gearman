@@ -3485,6 +3485,13 @@ PHP_FUNCTION(gearman_worker_add_function) {
 	GEARMAN_ZPMP(RETURN_NULL(), "zz|zl", &zobj, gearman_worker_ce,
 				 &zname, &zcall, &zdata, &timeout)
 
+        /* check that the function name is a string */
+	if (Z_TYPE_P(zname) != IS_STRING) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
+						 "function name must be a string");
+		RETURN_FALSE;
+	}
+
 	/* check that the function can be called */
 	if (!GEARMAN_IS_CALLABLE(zcall, 0, &callable)) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
