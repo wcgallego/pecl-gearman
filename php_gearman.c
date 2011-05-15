@@ -3131,17 +3131,16 @@ PHP_FUNCTION(gearman_worker_clone) {
 PHP_FUNCTION(gearman_worker_error) {
 	zval *zobj;
 	gearman_worker_obj *obj;
-    char *error;
+        char *error;
 
 	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_worker_ce)
 
-	error = (char *)gearman_worker_error(&(obj->worker));
+        error = (char *)gearman_worker_error(&(obj->worker));
+        if (error) {
+            RETURN_STRING(error, 1);
+        }
 
-    if (error) {
-        RETURN_STRING(error, 1);
-    }
-
-    RETURN_FALSE;
+        RETURN_FALSE;
 }
 /* }}} */
 
@@ -3445,28 +3444,7 @@ static void *_php_worker_function_callback(gearman_job_st *job, void *context,
 						 worker_cb->zcall->value.str.val : "[undefined]");
 		*ret_ptr= GEARMAN_WORK_FAIL;
 	}
-
-	if (EG(exception)) {
-		char *msg = "Unknown Exception occurred";
-		int msg_len = strlen(msg);
-		if (Z_TYPE_P(EG(exception)) == IS_OBJECT) {
-			zval *prop = zend_read_property(Z_OBJCE_P(EG(exception)), EG(exception), "message", sizeof("message") - 1, 1 TSRMLS_CC);
-			msg = Z_STRVAL_P(prop);
-			msg_len = Z_STRLEN_P(prop);
-		}
-		zend_clear_exception(TSRMLS_C);
-
-		*ret_ptr = gearman_job_send_exception(jobj->job, msg, msg_len);
-		if (jobj->ret != GEARMAN_SUCCESS && jobj->ret != GEARMAN_IO_WAIT) {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
-					gearman_worker_error(jobj->job->worker));
-		}
-
-		*ret_ptr = GEARMAN_WORK_EXCEPTION;
-
-	} else {
-		*ret_ptr= jobj->ret;
-	}
+	*ret_ptr= jobj->ret;
 
 	if (zret_ptr == NULL || Z_TYPE_P(zret_ptr) == IS_NULL) {
 		result= NULL;
@@ -3533,7 +3511,7 @@ PHP_FUNCTION(gearman_worker_add_function) {
 	obj->cb_list= worker_cb;
 
 	/* add the function */
-	/* NOTE: php_worker_function_callback is a wrapper that calls
+	/* NOTE: _php_worker_function_callback is a wrapper that calls
 	 * the function defined by gearman_worker_add_function */
 	obj->ret= gearman_worker_add_function(&(obj->worker), zname->value.str.val, 
 										 (uint32_t)timeout, 
@@ -3559,14 +3537,10 @@ PHP_FUNCTION(gearman_worker_work) {
 
 	obj->ret= gearman_worker_work(&(obj->worker));
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT &&
-		obj->ret != GEARMAN_WORK_FAIL && obj->ret != GEARMAN_WORK_EXCEPTION) {
+		obj->ret != GEARMAN_WORK_FAIL) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_worker_error(&(obj->worker)));
 		RETURN_FALSE;
-	}
-
-	if(obj->ret == GEARMAN_WORK_EXCEPTION) {
-		RETURN_TRUE;
 	}
 
 	if(obj->ret != GEARMAN_SUCCESS) {
