@@ -3464,10 +3464,8 @@ static void *_php_worker_function_callback(gearman_job_st *job, void *context,
 		if (Z_TYPE_P(zret_ptr) != IS_STRING) {
 			convert_to_string(zret_ptr);
 		}
-		result= Z_STRVAL_P(zret_ptr);
+                result = estrndup(Z_STRVAL_P(zret_ptr),  Z_STRLEN_P(zret_ptr));
 		*result_size= Z_STRLEN_P(zret_ptr);
-		Z_STRVAL_P(zret_ptr)= NULL;
-		Z_TYPE_P(zret_ptr)= IS_NULL;
 	}
 
 	if (zret_ptr != NULL) {
