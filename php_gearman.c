@@ -1672,6 +1672,7 @@ PHP_FUNCTION(gearman_job_set_return) {
 	obj->ret= ret;
 	RETURN_TRUE;
 }
+/* }}} */
 
 /*
  * Functions from client.h
@@ -1909,6 +1910,7 @@ PHP_FUNCTION(gearman_client_wait) {
 
 	RETURN_TRUE;
 }
+/* }}} */
 
 /* TODO
 void *_php_client_do()
@@ -2807,6 +2809,7 @@ PHP_FUNCTION(gearman_client_set_created_fn) {
 
 	RETURN_TRUE;
 }
+/* }}} */
 
 /* {{{ proto bool gearman_client_set_data_fn(object client, callback function)
    Callback function when there is a data packet for a task. */
@@ -3076,6 +3079,7 @@ PHP_FUNCTION(gearman_client_run_tasks) {
 
 	RETURN_TRUE;
 }
+/* }}} */
 
 /*
  * Functions from worker.h
@@ -3311,6 +3315,7 @@ PHP_FUNCTION(gearman_worker_wait) {
 
 	RETURN_TRUE;
 }
+/* }}} */
 
 /* {{{ proto bool gearman_worker_register(object worker, string function [, int timeout ])
    Register function with job servers with an optional timeout. The timeout specifies how many seconds the server will wait before marking a job as failed. If timeout is zero, there is no timeout. */
@@ -3589,6 +3594,7 @@ PHP_FUNCTION(gearman_worker_echo) {
 
 	RETURN_TRUE;
 }
+/* }}} */
 
 /*
  * Methods for gearman_client
