@@ -3308,8 +3308,11 @@ PHP_FUNCTION(gearman_worker_wait) {
 	obj->ret= gearman_worker_wait(&(obj->worker));
 
 	if (! PHP_GEARMAN_CLIENT_RET_OK(obj->ret)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
-			gearman_worker_error(&(obj->worker)));
+		if (obj->ret != GEARMAN_TIMEOUT) {
+			php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
+				gearman_worker_error(&(obj->worker)));
+		}
+
 		RETURN_FALSE;
 	}
 
@@ -3559,7 +3562,7 @@ PHP_FUNCTION(gearman_worker_work) {
 
 	obj->ret= gearman_worker_work(&(obj->worker));
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT &&
-		obj->ret != GEARMAN_WORK_FAIL) {
+		obj->ret != GEARMAN_WORK_FAIL && obj->ret != GEARMAN_TIMEOUT) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_worker_error(&(obj->worker)));
 		RETURN_FALSE;
