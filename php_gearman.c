@@ -3419,8 +3419,7 @@ PHP_FUNCTION(gearman_worker_grab_job) {
 static void *_php_worker_function_callback(gearman_job_st *job, void *context,
 										   size_t *result_size,
 										   gearman_return_t *ret_ptr) {
-	zval *zjob, *exception, *message = NULL;
-	zend_class_entry *ce_exception;
+	zval *zjob, *message = NULL;
 	gearman_job_obj *jobj;
 	gearman_worker_cb *worker_cb= (gearman_worker_cb *)context;
 	char *result;
@@ -3474,12 +3473,7 @@ static void *_php_worker_function_callback(gearman_job_st *job, void *context,
 	if (EG(exception)) {
 		*ret_ptr = GEARMAN_WORK_EXCEPTION;
 
-		exception = EG(exception);
-		ce_exception = Z_OBJCE_P(exception);
-
-		zend_exception_save(TSRMLS_C);
-		zend_call_method_with_0_params(&exception, ce_exception, NULL, "getmessage", &message);
-		zend_exception_restore(TSRMLS_C);
+		message = zend_read_property(Z_OBJCE_P(EG(exception)), EG(exception), "message", sizeof("message") - 1, 1 TSRMLS_CC);
 
 		jobj->ret = gearman_job_send_exception(jobj->job, Z_STRVAL_P(message), Z_STRLEN_P(message));
 		if (jobj->ret != GEARMAN_SUCCESS && jobj->ret != GEARMAN_IO_WAIT) {
