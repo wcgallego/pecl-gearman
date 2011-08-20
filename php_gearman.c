@@ -3068,6 +3068,10 @@ PHP_FUNCTION(gearman_client_run_tasks) {
 
 	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_client_ce)
 
+	if (!gearman_client_set_server_option(&(obj->client), "exceptions", (sizeof("exceptions") - 1))) {
+	    GEARMAN_EXCEPTION("Failed to set exception option", 0);
+	}
+
 	obj->zclient= zobj;
 	obj->ret= gearman_client_run_tasks(&(obj->client));
 
@@ -3415,7 +3419,8 @@ PHP_FUNCTION(gearman_worker_grab_job) {
 static void *_php_worker_function_callback(gearman_job_st *job, void *context,
 										   size_t *result_size,
 										   gearman_return_t *ret_ptr) {
-	zval *zjob;
+	zval *zjob, *exception, *message = NULL;
+	zend_class_entry *ce_exception;
 	gearman_job_obj *jobj;
 	gearman_worker_cb *worker_cb= (gearman_worker_cb *)context;
 	char *result;
@@ -3465,6 +3470,23 @@ static void *_php_worker_function_callback(gearman_job_st *job, void *context,
 		*ret_ptr= GEARMAN_WORK_FAIL;
 	}
 	*ret_ptr= jobj->ret;
+
+	if (EG(exception)) {
+		*ret_ptr = GEARMAN_WORK_EXCEPTION;
+
+		exception = EG(exception);
+		ce_exception = Z_OBJCE_P(exception);
+
+		zend_exception_save(TSRMLS_C);
+		zend_call_method_with_0_params(&exception, ce_exception, NULL, "getmessage", &message);
+		zend_exception_restore(TSRMLS_C);
+
+		jobj->ret = gearman_job_send_exception(jobj->job, Z_STRVAL_P(message), Z_STRLEN_P(message));
+		if (jobj->ret != GEARMAN_SUCCESS && jobj->ret != GEARMAN_IO_WAIT) {
+			php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
+					gearman_worker_error(jobj->job->worker));
+		}
+	}
 
 	if (zret_ptr == NULL || Z_TYPE_P(zret_ptr) == IS_NULL) {
 		result= NULL;
@@ -3560,11 +3582,16 @@ PHP_FUNCTION(gearman_worker_work) {
 
 	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_worker_ce)
 
+	if (! gearman_worker_set_server_option(&(obj->worker), "exceptions", (sizeof("exceptions") - 1))) {
+		GEARMAN_EXCEPTION("Failed to set exception option", 0);
+	}
+
 	obj->ret= gearman_worker_work(&(obj->worker));
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT &&
-		obj->ret != GEARMAN_WORK_FAIL && obj->ret != GEARMAN_TIMEOUT) {
+			obj->ret != GEARMAN_WORK_FAIL && obj->ret != GEARMAN_TIMEOUT &&
+			obj->ret != GEARMAN_WORK_EXCEPTION) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
-						 gearman_worker_error(&(obj->worker)));
+				gearman_worker_error(&(obj->worker)));
 		RETURN_FALSE;
 	}
 
