@@ -36,6 +36,16 @@ if test "$PHP_GEARMAN" != "no"; then
   ],[
     -L$GEARMAN_LIB_DIR -R$GEARMAN_LIB_DIR
   ])
+
+  PHP_CHECK_LIBRARY(gearman, gearman_worker_set_server_option,
+  [
+    PHP_ADD_LIBRARY_WITH_PATH(gearman, $GEARMAN_LIB_DIR, GEARMAN_SHARED_LIBADD)
+    AC_DEFINE(HAVE_GEARMAN, 1, [Whether you have gearman])
+  ],[
+    AC_MSG_ERROR([libgearman version 0.21 or later required])
+  ],[
+    -L$GEARMAN_LIB_DIR -R$GEARMAN_LIB_DIR
+  ])
   dnl
   PHP_SUBST(GEARMAN_SHARED_LIBADD)
 
