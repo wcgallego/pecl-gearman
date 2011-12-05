@@ -21,10 +21,10 @@ http://pear.php.net/dtd/package-2.0.xsd">
   <email>hradtke@php.net</email>
   <active>yes</active>
  </lead>
- <date>2011-12-02</date>
+ <date>2011-12-05</date>
  <version>
-  <release>1.0.0</release>
-  <api>1.0.0</api>
+  <release>1.0.1</release>
+  <api>1.0.1</api>
  </version>
  <stability>
   <release>stable</release>
@@ -32,11 +32,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-- Fixed PECL Bug #18658 (GearmanWorker::wait and GearmanWorker::work are spamming the log with warnings.)
-- Fixed PECL Bug #22636 (Uncaught worker exception sends back GEARMAN_SUCCESS return code)
-- Fixed PECL Bug #16900 (Don't use reseved method names)
-- Fixed PECL Bug #59944 (Undefined symbol: gearman_client_set_server_option)
- - Now requires libgearman 0.21 or greater
+- Fixed PECL Bug #60438 (wrong version number in php_gearman.h)
  </notes>
  <contents>
   <dir name="/">
@@ -79,6 +75,14 @@ http://pear.php.net/dtd/package-2.0.xsd">
  <extsrcrelease>
  </extsrcrelease>
  <changelog>
+  <release>
+   <stability><release>stable</release><api>stable</api></stability>
+   <version><release>1.0.1</release><api>1.0.1</api></version>
+   <date>2011-12-05</date>
+   <notes>
+- Fixed PECL Bug #60438 (wrong version number in php_gearman.h)
+   </notes>
+  </release>
   <release>
    <stability><release>stable</release><api>stable</api></stability>
    <version><release>1.0.0</release><api>1.0.0</api></version>
