@@ -21,10 +21,10 @@ http://pear.php.net/dtd/package-2.0.xsd">
   <email>hradtke@php.net</email>
   <active>yes</active>
  </lead>
- <date>2010-05-17</date>
+ <date>2011-12-05</date>
  <version>
-  <release>0.8.0</release>
-  <api>0.8.0</api>
+  <release>0.8.1</release>
+  <api>0.8.1</api>
  </version>
  <stability>
   <release>beta</release>
@@ -32,12 +32,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-- Fixed PECL Bug #17114 (Return values that are class private variables are null'd)
-- Fixed PECL Bug #22637 (GearmanJob::setReturn causes segfault)
-- Fixed PECL Bug #16883 (GearmanJob::sendWarning() segfaults)
-- Fixed PECL Bug #16884 (GearmanJob::sendData() crashes)
-- Fixed PECL Bug #16883 (GearmanWorker::addFunction segfaults when function name is non-string)
-- Fixed PECL Bug #17539 (Segmentation fault on calling error() of a fresh worker).  Patch by jiayong.
+- Fixed PECL Bug #18658 (GearmanWorker::wait and GearmanWorker::work are spamming the log with warnings.)
  </notes>
  <contents>
   <dir name="/">
@@ -80,6 +75,14 @@ http://pear.php.net/dtd/package-2.0.xsd">
  <extsrcrelease>
  </extsrcrelease>
  <changelog>
+  <release>
+   <stability><release>beta</release><api>beta</api></stability>
+   <version><release>0.8.1</release><api>0.8.1</api></version>
+   <date>2011-12-08</date>
+   <notes>
+- Fixed PECL Bug #18658 (GearmanWorker::wait and GearmanWorker::work are spamming the log with warnings.)
+   </notes>
+  </release>
   <release>
    <stability><release>beta</release><api>beta</api></stability>
    <version><release>0.8.0</release><api>0.8.0</api></version>
