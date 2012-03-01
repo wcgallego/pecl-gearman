@@ -3707,7 +3707,9 @@ gearman_client_obj_new_ex(zend_class_entry *class_type,
 
 	gearman_client_obj *client;
 	zend_object_value value;
+#if PHP_VERSION_ID < 50399
 	zval *tmp;
+#endif
 
 	client= emalloc(sizeof(gearman_client_obj));
 	memset(client, 0, sizeof(gearman_client_obj));
@@ -3784,7 +3786,9 @@ gearman_worker_obj_new_ex(zend_class_entry *class_type,
 						  gearman_worker_obj **gearman_worker_ptr TSRMLS_DC) {
 	gearman_worker_obj *worker;
 	zend_object_value value;
+#if PHP_VERSION_ID < 50399
 	zval *tmp;
+#endif
 
 	worker= emalloc(sizeof(gearman_worker_obj));
 	memset(worker, 0, sizeof(gearman_worker_obj));
@@ -3846,7 +3850,9 @@ gearman_job_obj_new_ex(zend_class_entry *class_type,
 					   gearman_job_obj **gearman_job_ptr TSRMLS_DC) {
 	gearman_job_obj *job;
 	zend_object_value value;
+#if PHP_VERSION_ID < 50399
 	zval *tmp;
+#endif
 
 	job= emalloc(sizeof(gearman_job_obj));
 	memset(job, 0, sizeof(gearman_job_obj));
@@ -3908,7 +3914,9 @@ static inline zend_object_value
 gearman_task_obj_new_ex(zend_class_entry *class_type,
 						gearman_task_obj **gearman_task_ptr TSRMLS_DC) {
 	gearman_task_obj *task;
+#if PHP_VERSION_ID < 50399
 	zval *tmp;
+#endif
 
 	task= emalloc(sizeof(gearman_task_obj));
 	memset(task, 0, sizeof(gearman_task_obj));
