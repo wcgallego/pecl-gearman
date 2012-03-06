@@ -21,10 +21,10 @@ http://pear.php.net/dtd/package-2.0.xsd">
   <email>hradtke@php.net</email>
   <active>yes</active>
  </lead>
- <date>2011-12-05</date>
+ <date>2012-03-05</date>
  <version>
-  <release>1.0.1</release>
-  <api>1.0.1</api>
+  <release>1.0.2</release>
+  <api>1.0.2</api>
  </version>
  <stability>
   <release>stable</release>
@@ -32,7 +32,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-- Fixed PECL Bug #60438 (wrong version number in php_gearman.h)
+- Updates for PHP 5.4
  </notes>
  <contents>
   <dir name="/">
@@ -75,6 +75,14 @@ http://pear.php.net/dtd/package-2.0.xsd">
  <extsrcrelease>
  </extsrcrelease>
  <changelog>
+  <release>
+   <stability><release>stable</release><api>stable</api></stability>
+   <version><release>1.0.2</release><api>1.0.2</api></version>
+   <date>2012-03-05</date>
+   <notes>
+- Updates for PHP 5.4
+   </notes>
+  </release>
   <release>
    <stability><release>stable</release><api>stable</api></stability>
    <version><release>1.0.1</release><api>1.0.1</api></version>
