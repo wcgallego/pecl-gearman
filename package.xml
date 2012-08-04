@@ -1,14 +1,9 @@
-<?xml version="1.0"?>
-<package packagerversion="1.4.11" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
-http://pear.php.net/dtd/tasks-1.0.xsd
-http://pear.php.net/dtd/package-2.0
-http://pear.php.net/dtd/package-2.0.xsd">
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<package packagerversion="1.9.4" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>gearman</name>
  <channel>pecl.php.net</channel>
  <summary>PHP wrapper to libgearman</summary>
- <description>
-  This extension uses libgearman library to provide API for communicating with gearmand, and writing clients and workers.
- </description>
+ <description>This extension uses libgearman library to provide API for communicating with gearmand, and writing clients and workers.</description>
  <lead>
   <name>James M. Luedke</name>
   <user>jluedke</user>
@@ -22,6 +17,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
   <active>yes</active>
  </lead>
  <date>2012-08-04</date>
+ <time>23:46:36</time>
  <version>
   <release>1.0.3</release>
   <api>1.0.3</api>
@@ -36,28 +32,26 @@ http://pear.php.net/dtd/package-2.0.xsd">
  </notes>
  <contents>
   <dir name="/">
-   <file role='doc' name='EXPERIMENTAL'/>
-   <file role='doc' name='README'/>
-   <file role='doc' name='CREDITS'/>
-   <file role='doc' name='LICENSE'/>
-   <file role='doc' name='ChangeLog'/>
-   <file role='doc' name='test_client.php'/>
-   <file role='doc' name='test_worker.php'/>
-   <file role='src' name='config.m4'/>
-   <file role='src' name='php_gearman.c'/>
-   <file role='src' name='php_gearman.h'/>
-   <file role='test' name='gearman_001.phpt'/>
-   <dir name="examples">
-    <file role='doc' name='image_thumbnail_client_bg.php'/>
-    <file role='doc' name='image_thumbnail_client.php'/>
-    <file role='doc' name='image_thumbnail_client_task.php'/>
-    <file role='doc' name='image_thumbnail_worker.php'/>
-    <file role='doc' name='reverse_client_bg.php'/>
-    <file role='doc' name='reverse_client.php'/>
-    <file role='doc' name='reverse_client_task.php'/>
-    <file role='doc' name='reverse_worker.php'/>
-   </dir> <!-- examples" -->
-  </dir> <!-- / -->
+   <file md5sum="da6d77a214aa6239b68efdbe2b12fd61" name="examples/image_thumbnail_client_bg.php" role="doc" />
+   <file md5sum="bdda0aa48d9df805b7cb333d1d986d62" name="examples/image_thumbnail_client.php" role="doc" />
+   <file md5sum="4c6afcfb3c9614c8f67e62ca77c9d93b" name="examples/image_thumbnail_client_task.php" role="doc" />
+   <file md5sum="828cc27885029474707acda417f15d16" name="examples/image_thumbnail_worker.php" role="doc" />
+   <file md5sum="8b868e03769c9422ca6891f440105359" name="examples/reverse_client_bg.php" role="doc" />
+   <file md5sum="3b344e946e0f0fe061ec34472e5f5fc2" name="examples/reverse_client.php" role="doc" />
+   <file md5sum="dbd0e80feebfc6f411556716e6339afc" name="examples/reverse_client_task.php" role="doc" />
+   <file md5sum="90be1117d2a4b2ccd79962ec6bb6e8bf" name="examples/reverse_worker.php" role="doc" />
+   <file md5sum="3171f70cb81342ee73acd90107bfccbb" name="EXPERIMENTAL" role="doc" />
+   <file md5sum="bf5270ef67ddf5132999761937755146" name="README" role="doc" />
+   <file md5sum="1eaa5362eb94b86ac3aaf63d4bb1b1e8" name="CREDITS" role="doc" />
+   <file md5sum="0e964e9273c606c46afbd311b5ad4d77" name="LICENSE" role="doc" />
+   <file md5sum="1edac7f37568b77870f60bb8d6fdccd0" name="ChangeLog" role="doc" />
+   <file md5sum="2965d6db29b2ca681b03ecb09fff689a" name="test_client.php" role="doc" />
+   <file md5sum="8e194fc11fb0ff5b2ef96f16758060aa" name="test_worker.php" role="doc" />
+   <file md5sum="7bcde7f5f213cb48e48c62ee9a948240" name="config.m4" role="src" />
+   <file md5sum="371624f498ee6380821822107ac4bcc1" name="php_gearman.c" role="src" />
+   <file md5sum="2ff48114ec96349e4cf587b818b8d3be" name="php_gearman.h" role="src" />
+   <file md5sum="c1c60600b416889269c65bf1a72b5862" name="gearman_001.phpt" role="test" />
+  </dir>
  </contents>
  <dependencies>
   <required>
@@ -72,51 +66,80 @@ http://pear.php.net/dtd/package-2.0.xsd">
   </required>
  </dependencies>
  <providesextension>gearman</providesextension>
- <extsrcrelease>
- </extsrcrelease>
+ <extsrcrelease />
  <changelog>
   <release>
-   <stability><release>stable</release><api>stable</api></stability>
-   <version><release>1.0.3</release><api>1.0.3</api></version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <version>
+    <release>1.0.3</release>
+    <api>1.0.3</api>
+   </version>
    <date>2012-08-04</date>
    <notes>
 - Additional fix for PECL Bug #59423 (GearmanWorker::wait and GearmanWorker::work are spamming the log with warnings.)
    </notes>
   </release>
   <release>
-   <stability><release>stable</release><api>stable</api></stability>
-   <version><release>1.0.2</release><api>1.0.2</api></version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <version>
+    <release>1.0.2</release>
+    <api>1.0.2</api>
+   </version>
    <date>2012-03-05</date>
    <notes>
 - Updates for PHP 5.4
    </notes>
   </release>
   <release>
-   <stability><release>stable</release><api>stable</api></stability>
-   <version><release>1.0.1</release><api>1.0.1</api></version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <version>
+    <release>1.0.1</release>
+    <api>1.0.1</api>
+   </version>
    <date>2011-12-05</date>
    <notes>
 - Fixed PECL Bug #60438 (wrong version number in php_gearman.h)
    </notes>
   </release>
   <release>
-   <stability><release>stable</release><api>stable</api></stability>
-   <version><release>1.0.0</release><api>1.0.0</api></version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <version>
+    <release>1.0.0</release>
+    <api>1.0.0</api>
+   </version>
    <date>2011-12-02</date>
    <notes>
 - Fixed PECL Bug #18658 (GearmanWorker::wait and GearmanWorker::work are spamming the log with warnings.)
 - Fixed PECL Bug #22636 (Uncaught worker exception sends back GEARMAN_SUCCESS return code)
-- Fixed PECL Bug #16900 (Don't use reseved method names)
+- Fixed PECL Bug #16900 (Don&apos;t use reseved method names)
 - Fixed PECL Bug #59944 (Undefined symbol: gearman_client_set_server_option)
  - Now requires libgearman 0.21 or greater
    </notes>
   </release>
   <release>
-   <stability><release>beta</release><api>beta</api></stability>
-   <version><release>0.8.0</release><api>0.8.0</api></version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <version>
+    <release>0.8.0</release>
+    <api>0.8.0</api>
+   </version>
    <date>2010-05-17</date>
    <notes>
-- Fixed PECL Bug #17114 (Return values that are class private variables are null'd)
+- Fixed PECL Bug #17114 (Return values that are class private variables are null&apos;d)
 - Fixed PECL Bug #22637 (GearmanJob::setReturn causes segfault)
 - Fixed PECL Bug #16883 (GearmanJob::sendWarning() segfaults)
 - Fixed PECL Bug #16884 (GearmanJob::sendData() crashes)
@@ -125,8 +148,14 @@ http://pear.php.net/dtd/package-2.0.xsd">
    </notes>
   </release>
   <release>
-   <stability><release>beta</release><api>beta</api></stability>
-   <version><release>0.7.0</release><api>0.7.0</api></version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <version>
+    <release>0.7.0</release>
+    <api>0.7.0</api>
+   </version>
    <date>2010-03-09</date>
    <notes>
 - Now builds against gearmand 0.12
@@ -134,8 +163,14 @@ http://pear.php.net/dtd/package-2.0.xsd">
    </notes>
   </release>
   <release>
-   <stability><release>beta</release><api>beta</api></stability>
-   <version><release>0.6.0</release><api>0.6.0</api></version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <version>
+    <release>0.6.0</release>
+    <api>0.6.0</api>
+   </version>
    <date>2009-10-01</date>
    <notes>
 - Fixed build issue with 5.1.x
@@ -147,8 +182,14 @@ http://pear.php.net/dtd/package-2.0.xsd">
    </notes>
   </release>
   <release>
-   <stability><release>beta</release><api>beta</api></stability>
-   <version><release>0.5.0</release><api>0.5.0</api></version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <version>
+    <release>0.5.0</release>
+    <api>0.5.0</api>
+   </version>
    <date>2009-07-27</date>
    <notes>
 - Fixed a bug in the task callbacks, the addtional data arg will now work as expected.
@@ -158,8 +199,14 @@ http://pear.php.net/dtd/package-2.0.xsd">
    </notes>
   </release>
   <release>
-   <stability><release>beta</release><api>beta</api></stability>
-   <version><release>0.4.0</release><api>0.4.0</api></version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <version>
+    <release>0.4.0</release>
+    <api>0.4.0</api>
+   </version>
    <date>2009-06-30</date>
    <notes>
 - Fixed memory leak in $task object
@@ -171,13 +218,19 @@ http://pear.php.net/dtd/package-2.0.xsd">
    </notes>
   </release>
   <release>
-   <stability><release>beta</release><api>beta</api></stability>
-   <version><release>0.3</release><api>0.3</api></version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <version>
+    <release>0.3</release>
+    <api>0.3</api>
+   </version>
    <date>2009-05-20</date>
    <notes>
 - Initial PECL import
 - Reworked client/worker/task/job objects.
-- Added $obj->return_code() to all objects
+- Added $obj-&gt;return_code() to all objects
 - Fixed compile issues with PHP 5.1 and 5.3
    </notes>
   </release>
