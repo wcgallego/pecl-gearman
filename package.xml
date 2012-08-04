@@ -21,10 +21,10 @@ http://pear.php.net/dtd/package-2.0.xsd">
   <email>hradtke@php.net</email>
   <active>yes</active>
  </lead>
- <date>2011-12-05</date>
+ <date>2012-08-04</date>
  <version>
-  <release>0.8.1</release>
-  <api>0.8.1</api>
+  <release>0.8.2</release>
+  <api>0.8.2</api>
  </version>
  <stability>
   <release>beta</release>
@@ -32,7 +32,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-- Fixed PECL Bug #18658 (GearmanWorker::wait and GearmanWorker::work are spamming the log with warnings.)
+- Additional fix for PECL Bug #59423 (GearmanWorker::wait and GearmanWorker::work are spamming the log with warnings.)
  </notes>
  <contents>
   <dir name="/">
@@ -77,10 +77,18 @@ http://pear.php.net/dtd/package-2.0.xsd">
  <changelog>
   <release>
    <stability><release>beta</release><api>beta</api></stability>
+   <version><release>0.8.2</release><api>0.8.2</api></version>
+   <date>2011-12-08</date>
+   <notes>
+- Additional fix for PECL Bug #59423 (GearmanWorker::wait and GearmanWorker::work are spamming the log with warnings.)
+   </notes>
+  </release>
+  <release>
+   <stability><release>beta</release><api>beta</api></stability>
    <version><release>0.8.1</release><api>0.8.1</api></version>
    <date>2011-12-08</date>
    <notes>
-- Fixed PECL Bug #18658 (GearmanWorker::wait and GearmanWorker::work are spamming the log with warnings.)
+- Fixed PECL Bug #59423 (GearmanWorker::wait and GearmanWorker::work are spamming the log with warnings.)
    </notes>
   </release>
   <release>
