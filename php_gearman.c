@@ -3562,7 +3562,8 @@ PHP_FUNCTION(gearman_worker_work) {
 
 	obj->ret= gearman_worker_work(&(obj->worker));
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT &&
-		obj->ret != GEARMAN_WORK_FAIL && obj->ret != GEARMAN_TIMEOUT) {
+		obj->ret != GEARMAN_WORK_FAIL && obj->ret != GEARMAN_TIMEOUT &&
+		obj->ret != GEARMAN_NO_JOBS) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_worker_error(&(obj->worker)));
 		RETURN_FALSE;
