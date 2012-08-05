@@ -1,19 +1,15 @@
-KNOWN BUGS
-    - There is a known bug in the $client->do* functions. Since the do
-      interface uses task internally I suggest just using the task interface.
-      This is a bug in the libgearman c api with luck there will be a fix soon.
-
 The Gearman PHP Extension provides a wrapper to libgearman. This
 gives the user the ability to write fully featured Gearman clients
 and workers in PHP, allowing them to quickly develop distributed
 applications.
 
-For more information about Gearman, see:
-
+For more information about Gearman, see: http://www.gearman.org/
 
 Requirements
-    * libgearman v0.8 or greater
-http://www.gearman.org/
+    * For the 0.8.* versions, libgearman v0.14 or greater
+    * For the 1.0.* versions, libgearman v0.21 or greater
+
+
 The Gearman PHP Extension requires the Gearman C server and library package
 to be installed. You can download the latest from:
 
@@ -66,4 +62,4 @@ scripts about the status and then a final result.
 
 Have fun!
 
--James <contact@jluedke.com>
+http://pecl.php.net/package/gearman
