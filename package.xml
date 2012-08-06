@@ -40,7 +40,6 @@
    <file md5sum="3b344e946e0f0fe061ec34472e5f5fc2" name="examples/reverse_client.php" role="doc" />
    <file md5sum="dbd0e80feebfc6f411556716e6339afc" name="examples/reverse_client_task.php" role="doc" />
    <file md5sum="90be1117d2a4b2ccd79962ec6bb6e8bf" name="examples/reverse_worker.php" role="doc" />
-   <file md5sum="3171f70cb81342ee73acd90107bfccbb" name="EXPERIMENTAL" role="doc" />
    <file md5sum="bf5270ef67ddf5132999761937755146" name="README" role="doc" />
    <file md5sum="1eaa5362eb94b86ac3aaf63d4bb1b1e8" name="CREDITS" role="doc" />
    <file md5sum="0e964e9273c606c46afbd311b5ad4d77" name="LICENSE" role="doc" />
@@ -50,7 +49,8 @@
    <file md5sum="7bcde7f5f213cb48e48c62ee9a948240" name="config.m4" role="src" />
    <file md5sum="371624f498ee6380821822107ac4bcc1" name="php_gearman.c" role="src" />
    <file md5sum="2ff48114ec96349e4cf587b818b8d3be" name="php_gearman.h" role="src" />
-   <file md5sum="c1c60600b416889269c65bf1a72b5862" name="gearman_001.phpt" role="test" />
+   <file md5sum="c1c60600b416889269c65bf1a72b5862" name="/tests/gearman_001.phpt" role="test" />
+   <file md5sum="c1c60600b416889269c65bf1a72b5862" name="/tests/gearman_002.phpt" role="test" />
   </dir>
  </contents>
  <dependencies>
