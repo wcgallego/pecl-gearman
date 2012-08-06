@@ -824,6 +824,15 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_set_timeout, 0, 0, 1)
 	ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_set_id, 0, 0, 2)
+	ZEND_ARG_INFO(0, worker_object)
+	ZEND_ARG_INFO(0, id)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_set_id, 0, 0, 1)
+	ZEND_ARG_INFO(0, id)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_add_server, 0, 0, 1)
 	ZEND_ARG_INFO(0, worker_object)
 	ZEND_ARG_INFO(0, host)
@@ -3296,6 +3305,24 @@ PHP_FUNCTION(gearman_worker_set_timeout) {
 }
 /* }}} */
 
+/* {{{ proto void gearman_worker_set_id(object worker, string id)
+   Set id for a worker structure. */
+PHP_FUNCTION(gearman_worker_set_id) {
+	zval *zobj;
+	gearman_worker_obj *obj;
+	char *id;
+	int id_len;
+
+	GEARMAN_ZPMP(RETURN_NULL(), "s", &zobj, gearman_worker_ce, &id, &id_len)
+
+	if(gearman_failed(gearman_worker_set_identifier(&(obj->worker), id, id_len))) {
+		RETURN_FALSE;
+	}
+
+	RETURN_TRUE;
+}
+/* }}} */
+
 /* {{{ proto bool gearman_worker_add_server(object worker [, string host [, int port ]])
    Add a job server to a worker. This goes into a list of servers than can be used to run tasks. No socket I/O happens here, it is just added to a list. */
 PHP_FUNCTION(gearman_worker_add_server) {
@@ -4108,6 +4135,7 @@ zend_function_entry gearman_functions[] = {
 	PHP_FE(gearman_worker_remove_options, arginfo_gearman_worker_remove_options)
 	PHP_FE(gearman_worker_timeout, arginfo_gearman_worker_timeout)
 	PHP_FE(gearman_worker_set_timeout, arginfo_gearman_worker_set_timeout)
+	PHP_FE(gearman_worker_set_id, arginfo_gearman_worker_set_id)
 #if jluedke_0
 	PHP_FE(gearman_worker_context, arginfo_gearman_worker_context)
 	PHP_FE(gearman_worker_set_context, arginfo_gearman_worker_set_context)
@@ -4279,6 +4307,7 @@ zend_function_entry gearman_worker_methods[]= {
 	__PHP_ME_MAPPING(removeOptions, gearman_worker_remove_options, arginfo_oo_gearman_worker_remove_options, 0)
 	__PHP_ME_MAPPING(timeout, gearman_worker_timeout, arginfo_oo_gearman_worker_timeout, 0)
 	__PHP_ME_MAPPING(setTimeout, gearman_worker_set_timeout, arginfo_oo_gearman_worker_set_timeout, 0)
+	__PHP_ME_MAPPING(setId, gearman_worker_set_id, arginfo_oo_gearman_worker_set_id, 0)
 #if jluedke_0
 	__PHP_ME_MAPPING(context, gearman_worker_context, arginfo_oo_gearman_worker_context, 0)
 	__PHP_ME_MAPPING(setContext, gearman_worker_set_context, arginfo_oo_gearman_worker_set_context, 0)
