@@ -4945,7 +4945,7 @@ zend_module_entry gearman_module_entry = {
 	NULL,
 	PHP_MINFO(gearman),
 #if ZEND_MODULE_API_NO >= 20010901
-	"0.1",
+	PHP_GEARMAN_VERSION,
 #endif
 	STANDARD_MODULE_PROPERTIES
 };
