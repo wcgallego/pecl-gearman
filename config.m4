@@ -14,7 +14,7 @@ PHP_ARG_WITH(gearman, whether to enable gearman support,
 
 if test "$PHP_GEARMAN" != "no"; then
   for i in $PHP_GEARMAN /usr/local /usr /opt/local; do
-    if test -r $i/include/libgearman/gearman.h; then
+    if test -r $i/include/libgearman-1.0/gearman.h; then
       GEARMAN_LIB_DIR=$i/lib
       GEARMAN_INC_DIR=$i/include
       AC_MSG_RESULT([found in $i])

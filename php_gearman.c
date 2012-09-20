@@ -21,7 +21,7 @@
 #include "zend_exceptions.h"
 #include "zend_interfaces.h"
 
-#include <libgearman/gearman.h>
+#include <libgearman-1.0/gearman.h>
 
 /* XXX Compatibility Macros
  * If there is a better way to do this someone please let me know.
@@ -1492,7 +1492,7 @@ PHP_FUNCTION(gearman_job_send_data) {
 	obj->ret= gearman_job_send_data(obj->job, data, data_len);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
-			gearman_worker_error(obj->job->worker));
+			gearman_job_error(obj->job));
 		RETURN_FALSE;
 	}
 
@@ -1520,7 +1520,7 @@ PHP_FUNCTION(gearman_job_send_warning) {
 								 (size_t) warning_len);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
-			gearman_worker_error(obj->job->worker));
+			gearman_job_error(obj->job));
 		RETURN_FALSE;
 	}
 
@@ -1543,7 +1543,7 @@ PHP_FUNCTION(gearman_job_send_status) {
 								(uint32_t)denominator);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
-			gearman_worker_error(obj->job->worker));
+			gearman_job_error(obj->job));
 		RETURN_FALSE;
 	}
 
@@ -1565,7 +1565,7 @@ PHP_FUNCTION(gearman_job_send_complete) {
 	obj->ret= gearman_job_send_complete(obj->job, result, result_len);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
-			gearman_worker_error(obj->job->worker));
+			gearman_job_error(obj->job));
 		RETURN_FALSE;
 	}
 
@@ -1587,7 +1587,7 @@ PHP_FUNCTION(gearman_job_send_exception) {
 	obj->ret= gearman_job_send_exception(obj->job, exception, exception_len);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
-			gearman_worker_error(obj->job->worker));
+			gearman_job_error(obj->job));
 		RETURN_FALSE;
 	}
 
@@ -1606,7 +1606,7 @@ PHP_FUNCTION(gearman_job_send_fail) {
 	obj->ret= gearman_job_send_fail(obj->job);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
-			gearman_worker_error(obj->job->worker));
+			gearman_job_error(obj->job));
 		RETURN_FALSE;
 	}
 
@@ -3545,7 +3545,7 @@ static void *_php_worker_function_callback(gearman_job_st *job, void *context,
 		jobj->ret = gearman_job_send_exception(jobj->job, Z_STRVAL_P(message), Z_STRLEN_P(message));
 		if (jobj->ret != GEARMAN_SUCCESS && jobj->ret != GEARMAN_IO_WAIT) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
-					gearman_worker_error(jobj->job->worker));
+					gearman_job_error(jobj->job));
 		}
 	}
 
@@ -4663,15 +4663,6 @@ PHP_MINIT_FUNCTION(gearman) {
 		CONST_CS | CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("GEARMAN_CON_RECV_STATE_READ_DATA",
 		GEARMAN_CON_RECV_STATE_READ_DATA,
-		CONST_CS | CONST_PERSISTENT);
-	REGISTER_LONG_CONSTANT("GEARMAN_MAGIC_TEXT",
-		GEARMAN_MAGIC_TEXT,
-		CONST_CS | CONST_PERSISTENT);
-	REGISTER_LONG_CONSTANT("GEARMAN_MAGIC_REQUEST",
-		GEARMAN_MAGIC_REQUEST,
-		CONST_CS | CONST_PERSISTENT);
-	REGISTER_LONG_CONSTANT("GEARMAN_MAGIC_RESPONSE",
-		GEARMAN_MAGIC_RESPONSE,
 		CONST_CS | CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("GEARMAN_COMMAND_TEXT",
 		GEARMAN_COMMAND_TEXT,
