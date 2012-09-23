@@ -16,11 +16,11 @@
   <email>hradtke@php.net</email>
   <active>yes</active>
  </lead>
- <date>2012-08-04</date>
- <time>23:46:36</time>
+ <date>2012-09-22</date>
+ <time>17:00:00</time>
  <version>
-  <release>1.0.3</release>
-  <api>1.0.3</api>
+  <release>1.1.0</release>
+  <api>1.1.0</api>
  </version>
  <stability>
   <release>stable</release>
@@ -28,29 +28,32 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-- Additional fix for PECL Bug #59423 (GearmanWorker::wait and GearmanWorker::work are spamming the log with warnings.)
+- libgearman v1.1.* is now required
+- Fixed PECL bug #60877 (no way to set client_id for a GearmanWorker)
+- Fixed BC breaks in libgearman v1.1.0
+- Make phpversion('gearman') return the real version
  </notes>
  <contents>
   <dir name="/">
-   <file md5sum="da6d77a214aa6239b68efdbe2b12fd61" name="examples/image_thumbnail_client_bg.php" role="doc" />
-   <file md5sum="bdda0aa48d9df805b7cb333d1d986d62" name="examples/image_thumbnail_client.php" role="doc" />
-   <file md5sum="4c6afcfb3c9614c8f67e62ca77c9d93b" name="examples/image_thumbnail_client_task.php" role="doc" />
-   <file md5sum="828cc27885029474707acda417f15d16" name="examples/image_thumbnail_worker.php" role="doc" />
-   <file md5sum="8b868e03769c9422ca6891f440105359" name="examples/reverse_client_bg.php" role="doc" />
-   <file md5sum="3b344e946e0f0fe061ec34472e5f5fc2" name="examples/reverse_client.php" role="doc" />
-   <file md5sum="dbd0e80feebfc6f411556716e6339afc" name="examples/reverse_client_task.php" role="doc" />
-   <file md5sum="90be1117d2a4b2ccd79962ec6bb6e8bf" name="examples/reverse_worker.php" role="doc" />
-   <file md5sum="bf5270ef67ddf5132999761937755146" name="README" role="doc" />
-   <file md5sum="1eaa5362eb94b86ac3aaf63d4bb1b1e8" name="CREDITS" role="doc" />
-   <file md5sum="0e964e9273c606c46afbd311b5ad4d77" name="LICENSE" role="doc" />
-   <file md5sum="1edac7f37568b77870f60bb8d6fdccd0" name="ChangeLog" role="doc" />
-   <file md5sum="2965d6db29b2ca681b03ecb09fff689a" name="test_client.php" role="doc" />
-   <file md5sum="8e194fc11fb0ff5b2ef96f16758060aa" name="test_worker.php" role="doc" />
-   <file md5sum="7bcde7f5f213cb48e48c62ee9a948240" name="config.m4" role="src" />
-   <file md5sum="371624f498ee6380821822107ac4bcc1" name="php_gearman.c" role="src" />
-   <file md5sum="2ff48114ec96349e4cf587b818b8d3be" name="php_gearman.h" role="src" />
-   <file md5sum="c1c60600b416889269c65bf1a72b5862" name="/tests/gearman_001.phpt" role="test" />
-   <file md5sum="c1c60600b416889269c65bf1a72b5862" name="/tests/gearman_002.phpt" role="test" />
+   <file name="examples/image_thumbnail_client_bg.php" role="doc" />
+   <file name="examples/image_thumbnail_client.php" role="doc" />
+   <file name="examples/image_thumbnail_client_task.php" role="doc" />
+   <file name="examples/image_thumbnail_worker.php" role="doc" />
+   <file name="examples/reverse_client_bg.php" role="doc" />
+   <file name="examples/reverse_client.php" role="doc" />
+   <file name="examples/reverse_client_task.php" role="doc" />
+   <file name="examples/reverse_worker.php" role="doc" />
+   <file name="README" role="doc" />
+   <file name="CREDITS" role="doc" />
+   <file name="LICENSE" role="doc" />
+   <file name="ChangeLog" role="doc" />
+   <file name="test_client.php" role="doc" />
+   <file name="test_worker.php" role="doc" />
+   <file name="config.m4" role="src" />
+   <file name="php_gearman.c" role="src" />
+   <file name="php_gearman.h" role="src" />
+   <file name="tests/gearman_001.phpt" role="test" />
+   <file name="tests/gearman_002.phpt" role="test" />
   </dir>
  </contents>
  <dependencies>
@@ -68,6 +71,23 @@
  <providesextension>gearman</providesextension>
  <extsrcrelease />
  <changelog>
+  <release>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <version>
+    <release>1.1.0</release>
+    <api>1.1.0</api>
+   </version>
+   <date>2012-09-22</date>
+   <notes>
+- libgearman v1.1.* is now required
+- Fixed PECL bug #60877 (no way to set client_id for a GearmanWorker)
+- Fixed BC breaks in libgearman v1.1.0
+- Make phpversion('gearman') return the real version
+   </notes>
+  </release>
   <release>
    <stability>
     <release>stable</release>
