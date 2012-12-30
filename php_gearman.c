@@ -3643,10 +3643,6 @@ PHP_FUNCTION(gearman_worker_work) {
 
 	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_worker_ce)
 
-	if (! gearman_worker_set_server_option(&(obj->worker), "exceptions", (sizeof("exceptions") - 1))) {
-		GEARMAN_EXCEPTION("Failed to set exception option", 0);
-	}
-
 	obj->ret= gearman_worker_work(&(obj->worker));
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT &&
 			obj->ret != GEARMAN_WORK_FAIL && obj->ret != GEARMAN_TIMEOUT &&
@@ -3785,6 +3781,10 @@ PHP_METHOD(gearman_worker, __construct) {
 	worker->flags|= GEARMAN_WORKER_OBJ_CREATED;
 	gearman_worker_set_workload_malloc_fn(&(worker->worker), _php_malloc, NULL);
 	gearman_worker_set_workload_free_fn(&(worker->worker), _php_free, NULL);
+
+	if (! gearman_worker_set_server_option(&(worker->worker), "exceptions", (sizeof("exceptions") - 1))) {
+		GEARMAN_EXCEPTION("Failed to set exception option", 0);
+	}
 }
 
 static void gearman_worker_obj_free(void *object TSRMLS_DC) {
