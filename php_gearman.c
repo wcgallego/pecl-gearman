@@ -22,6 +22,8 @@
 #include "zend_interfaces.h"
 
 #include <libgearman-1.0/gearman.h>
+#include <libgearman-1.0/interface/status.h>
+#include <libgearman-1.0/status.h>
 
 /* XXX Compatibility Macros
  * If there is a better way to do this someone please let me know.
@@ -515,6 +517,15 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_job_status, 0, 0, 1)
 	ZEND_ARG_INFO(0, job_handle)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_job_status_by_unique_key, 0, 0, 2)
+	ZEND_ARG_INFO(0, client_object)
+	ZEND_ARG_INFO(0, unique_key)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_job_status_by_unique_key, 0, 0, 1)
+	ZEND_ARG_INFO(0, unique_key)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_echo, 0, 0, 2)
@@ -2243,6 +2254,33 @@ PHP_FUNCTION(gearman_client_job_status) {
 	add_next_index_bool(return_value, is_running);
 	add_next_index_long(return_value, (long) numerator);
 	add_next_index_long(return_value, (long) denominator);
+}
+/* }}} */
+
+/* {{{ proto array gearman_client_job_status_by_unique_key(object client, string unique_key)
+   Get the status for a backgound job using the unique key passed in during job submission, rather than job handle. */
+PHP_FUNCTION(gearman_client_job_status_by_unique_key) {
+	zval *zobj;
+	gearman_client_obj *obj;
+	char *unique_key;
+	int unique_key_len;
+
+	GEARMAN_ZPMP(RETURN_NULL(), "s", &zobj, gearman_client_ce,
+				 &unique_key, &unique_key_len)
+
+	gearman_status_t status= gearman_client_unique_status(&(obj->client), unique_key, unique_key_len);
+	gearman_return_t rc = gearman_status_return(status);
+
+	if (rc != GEARMAN_SUCCESS && rc != GEARMAN_IO_WAIT) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
+						 gearman_client_error(&(obj->client)));
+	}
+
+	array_init(return_value);
+	add_next_index_bool(return_value, gearman_status_is_known(status));
+	add_next_index_bool(return_value, gearman_status_is_running(status));
+	add_next_index_long(return_value, (long) gearman_status_numerator(status));
+	add_next_index_long(return_value, (long) gearman_status_denominator(status));
 }
 /* }}} */
 
@@ -4081,6 +4119,7 @@ zend_function_entry gearman_functions[] = {
 	PHP_FE(gearman_client_do_high_background, arginfo_gearman_client_do_high_background)
 	PHP_FE(gearman_client_do_low_background, arginfo_gearman_client_do_low_background)
 	PHP_FE(gearman_client_job_status, arginfo_gearman_client_job_status)
+	PHP_FE(gearman_client_job_status_by_unique_key, arginfo_gearman_client_job_status_by_unique_key)
 	PHP_FE(gearman_client_echo, arginfo_gearman_client_echo)
 	PHP_FE(gearman_client_ping, arginfo_gearman_client_ping)
 #if jluedke_0
@@ -4247,6 +4286,7 @@ zend_function_entry gearman_client_methods[]= {
 	__PHP_ME_MAPPING(doHighBackground, gearman_client_do_high_background, arginfo_oo_gearman_client_do_high_background, 0)
 	__PHP_ME_MAPPING(doLowBackground, gearman_client_do_low_background, arginfo_oo_gearman_client_do_low_background, 0)
 	__PHP_ME_MAPPING(jobStatus, gearman_client_job_status, arginfo_oo_gearman_client_job_status, 0)
+	__PHP_ME_MAPPING(jobStatusByUniqueKey, gearman_client_job_status_by_unique_key, arginfo_oo_gearman_client_job_status_by_unique_key, 0)
 	__PHP_ME_MAPPING(echo, gearman_client_echo, arginfo_oo_gearman_client_echo, 0)
 	__PHP_ME_MAPPING(ping, gearman_client_ping, arginfo_oo_gearman_client_ping, 0)
 #if jluedke_0
