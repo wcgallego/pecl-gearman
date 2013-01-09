@@ -1908,6 +1908,10 @@ PHP_FUNCTION(gearman_client_add_server) {
 		RETURN_FALSE;
 	}
 
+	if (!gearman_client_set_server_option(&(obj->client), "exceptions", (sizeof("exceptions") - 1))) {
+	    GEARMAN_EXCEPTION("Failed to set exception option", 0);
+	}
+
 	RETURN_TRUE;
 }
 /* }}} */
@@ -1928,6 +1932,10 @@ PHP_FUNCTION(gearman_client_add_servers) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_client_error(&(obj->client)));
 		RETURN_FALSE;
+	}
+
+	if (!gearman_client_set_server_option(&(obj->client), "exceptions", (sizeof("exceptions") - 1))) {
+	    GEARMAN_EXCEPTION("Failed to set exception option", 0);
 	}
 
 	RETURN_TRUE;
@@ -3155,10 +3163,6 @@ PHP_FUNCTION(gearman_client_run_tasks) {
 
 	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_client_ce)
 
-	if (!gearman_client_set_server_option(&(obj->client), "exceptions", (sizeof("exceptions") - 1))) {
-	    GEARMAN_EXCEPTION("Failed to set exception option", 0);
-	}
-
 	obj->zclient= zobj;
 	obj->ret= gearman_client_run_tasks(&(obj->client));
 
@@ -3380,6 +3384,10 @@ PHP_FUNCTION(gearman_worker_add_server) {
 		RETURN_FALSE;
 	}
 
+	if (! gearman_worker_set_server_option(&(obj->worker), "exceptions", (sizeof("exceptions") - 1))) {
+		GEARMAN_EXCEPTION("Failed to set exception option", 0);
+	}
+
 	RETURN_TRUE;
 }
 /* }}} */
@@ -3400,6 +3408,10 @@ PHP_FUNCTION(gearman_worker_add_servers) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_worker_error(&(obj->worker)));
 		RETURN_FALSE;
+	}
+
+	if (! gearman_worker_set_server_option(&(obj->worker), "exceptions", (sizeof("exceptions") - 1))) {
+		GEARMAN_EXCEPTION("Failed to set exception option", 0);
 	}
 
 	RETURN_TRUE;
@@ -3820,9 +3832,6 @@ PHP_METHOD(gearman_worker, __construct) {
 	gearman_worker_set_workload_malloc_fn(&(worker->worker), _php_malloc, NULL);
 	gearman_worker_set_workload_free_fn(&(worker->worker), _php_free, NULL);
 
-	if (! gearman_worker_set_server_option(&(worker->worker), "exceptions", (sizeof("exceptions") - 1))) {
-		GEARMAN_EXCEPTION("Failed to set exception option", 0);
-	}
 }
 
 static void gearman_worker_obj_free(void *object TSRMLS_DC) {
