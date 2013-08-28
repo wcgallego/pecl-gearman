@@ -2867,6 +2867,7 @@ PHP_FUNCTION(gearman_client_set_workload_fn) {
 
 	/* store the cb in client object */
 	obj->zworkload_fn= zworkload_fn;
+	Z_ADDREF_P(zworkload_fn);
 
 	/* set the callback for php */
 	gearman_client_set_workload_fn(&(obj->client), _php_task_workload_fn);
