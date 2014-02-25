@@ -1384,10 +1384,11 @@ PHP_FUNCTION(gearman_task_data) {
 
 	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_task_ce)
 
-	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
+	if ((obj->flags & GEARMAN_TASK_OBJ_CREATED) &&
+		!gearman_client_has_option(obj->client, GEARMAN_CLIENT_UNBUFFERED_RESULT)) {
 		data= gearman_task_data(obj->task);
 		data_len= gearman_task_data_size(obj->task);
-	
+
 		RETURN_STRINGL((char *)data, (long) data_len, 1);
 	}
 	RETURN_FALSE;
@@ -1447,9 +1448,10 @@ PHP_FUNCTION(gearman_task_recv_data) {
 	long data_buffer_size;
 	size_t data_len;
 
-	GEARMAN_ZPMP(RETURN_NULL(), "l", &zobj, gearman_job_ce, &data_buffer_size)
+	GEARMAN_ZPMP(RETURN_NULL(), "l", &zobj, gearman_task_ce, &data_buffer_size)
 
-	if (!(obj->flags & GEARMAN_TASK_OBJ_CREATED)) {
+	if (!(obj->flags & GEARMAN_TASK_OBJ_CREATED) ||
+		!gearman_client_has_option(obj->client, GEARMAN_CLIENT_UNBUFFERED_RESULT)) {
 		RETURN_FALSE;
 	}
 
@@ -1953,8 +1955,10 @@ PHP_FUNCTION(gearman_client_wait) {
 	obj->ret= gearman_client_wait(&(obj->client));
 
 	if (! PHP_GEARMAN_CLIENT_RET_OK(obj->ret)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
-			gearman_client_error(&(obj->client)));
+		if (obj->ret != GEARMAN_TIMEOUT) {
+			php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
+				gearman_client_error(&(obj->client)));
+		}
 		RETURN_FALSE;
 	}
 
@@ -2726,6 +2730,7 @@ static gearman_return_t _php_task_cb_fn(gearman_task_obj *task,
 	} else {
 		Z_TYPE_P(ztask)= IS_OBJECT;
 		Z_OBJVAL_P(ztask)= task->value;
+		zend_objects_store_add_ref_by_handle(task->value.handle);
 		null_ztask= true;
 	}
 
@@ -2762,6 +2767,7 @@ static gearman_return_t _php_task_cb_fn(gearman_task_obj *task,
 
 	if (null_ztask) {
 		Z_TYPE_P(ztask)= IS_NULL;
+		zend_objects_store_del_ref_by_handle(task->value.handle);
 	}
 	GEARMAN_ZVAL_DONE(ztask)
 
