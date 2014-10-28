@@ -13,7 +13,7 @@
 #define __PHP_GEARMAN_H
 
 /* module version */
-#define PHP_GEARMAN_VERSION "1.1.2"
+#define PHP_GEARMAN_VERSION "2.0.0-dev"
 
 #ifdef ZTS
 #include "TSRM.h"
