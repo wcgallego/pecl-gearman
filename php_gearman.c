@@ -331,51 +331,54 @@ ZEND_END_ARG_INFO()
 /*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_clone, 0, 0, 0)
 ZEND_END_ARG_INFO()
-
+*/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_error, 0, 0, 1)
 	ZEND_ARG_INFO(0, client_object)
 ZEND_END_ARG_INFO()
 
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_error, 0, 0, 0)
 ZEND_END_ARG_INFO()
-
+*/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_errno, 0, 0, 1)
 	ZEND_ARG_INFO(0, client_object)
 ZEND_END_ARG_INFO()
 
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_errno, 0, 0, 0)
 ZEND_END_ARG_INFO()
-
+*/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_options, 0, 0, 1)
 	ZEND_ARG_INFO(0, client_object)
 ZEND_END_ARG_INFO()
-
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_options, 0, 0, 0)
 ZEND_END_ARG_INFO()
-
+*/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_set_options, 0, 0, 2)
 	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, option)
 ZEND_END_ARG_INFO()
 
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_set_options, 0, 0, 1)
 	ZEND_ARG_INFO(0, option)
 ZEND_END_ARG_INFO()
-
+*/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_add_options, 0, 0, 2)
 	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, option)
 ZEND_END_ARG_INFO()
-
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_add_options, 0, 0, 1)
 	ZEND_ARG_INFO(0, option)
 ZEND_END_ARG_INFO()
-
+*/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_remove_options, 0, 0, 2)
 	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, option)
 ZEND_END_ARG_INFO()
-
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_remove_options, 0, 0, 1)
 	ZEND_ARG_INFO(0, option)
 ZEND_END_ARG_INFO()
@@ -1915,26 +1918,22 @@ PHP_FUNCTION(gearman_client_clone) {
 
 /* {{{ proto string gearman_client_error(object client)
    Return an error string for the last error encountered. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_error) {
 	zval *zobj;
 	gearman_client_obj *obj;
-    char  *error = NULL;
+	char *error = NULL;
 
 	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_client_ce)
-    error = (char *)gearman_client_error(&(obj->client));
-    if (error) {
-	    RETURN_STRING(error, 1)
-    } 
-    RETURN_FALSE;
+	error = (char *)gearman_client_error(&(obj->client));
+	if (error) {
+		RETURN_STRING(error)
+	} 
+	RETURN_FALSE;
 }
 /* }}} */
 
 /* {{{ proto int gearman_client_errno(object client)
    Value of errno in the case of a GEARMAN_ERRNO return value. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_errno) {
 	zval *zobj;
 	gearman_client_obj *obj;
@@ -1947,8 +1946,6 @@ PHP_FUNCTION(gearman_client_errno) {
 
 /* {{{ proto int gearman_client_options(object client)
    Get options for a client structure. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_options) {
 	zval *zobj;
 	gearman_client_obj *obj;
@@ -1961,8 +1958,6 @@ PHP_FUNCTION(gearman_client_options) {
 
 /* {{{ proto void gearman_client_set_options(object client, constant option)
    Set options for a client structure. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_set_options) {
 	zval *zobj;
 	gearman_client_obj *obj;
@@ -1977,8 +1972,6 @@ PHP_FUNCTION(gearman_client_set_options) {
 
 /* {{{ proto void gearman_client_add_options(object client, constant option)
    Set options for a client structure. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_add_options) {
 	zval *zobj;
 	gearman_client_obj *obj;
@@ -1993,8 +1986,6 @@ PHP_FUNCTION(gearman_client_add_options) {
 
 /* {{{ proto void gearman_client_remove_options(object client, constant option)
    Set options for a client structure. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_remove_options) {
 	zval *zobj;
 	gearman_client_obj *obj;
@@ -4525,13 +4516,13 @@ wgallego - hiding for now
 */
 	PHP_FE(gearman_client_create, arginfo_gearman_client_create)
 	PHP_FE(gearman_client_clone, arginfo_gearman_client_clone)
-/*
 	PHP_FE(gearman_client_error, arginfo_gearman_client_error)
 	PHP_FE(gearman_client_errno, arginfo_gearman_client_errno)
 	PHP_FE(gearman_client_options, arginfo_gearman_client_options)
 	PHP_FE(gearman_client_set_options, arginfo_gearman_client_set_options)
 	PHP_FE(gearman_client_add_options, arginfo_gearman_client_add_options)
 	PHP_FE(gearman_client_remove_options, arginfo_gearman_client_remove_options)
+/*
 	PHP_FE(gearman_client_timeout, arginfo_gearman_client_timeout)
 	PHP_FE(gearman_client_set_timeout, arginfo_gearman_client_set_timeout)
 	PHP_FE(gearman_client_context, arginfo_gearman_client_context)
@@ -4938,8 +4929,6 @@ wgallego - hiding for now
 	script locates the correct location to replace. */
 
 	/* CONST_GEN_START */
-/*
-wgallego - hiding for now
 	REGISTER_STRING_CONSTANT("GEARMAN_DEFAULT_TCP_HOST",
 		GEARMAN_DEFAULT_TCP_HOST,
 		CONST_CS | CONST_PERSISTENT);
