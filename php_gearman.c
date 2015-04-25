@@ -323,12 +323,12 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_create, 0, 0, 1)
 	ZEND_ARG_INFO(0, client_object)
 ZEND_END_ARG_INFO()
-/*
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_clone, 0, 0, 1)
 	ZEND_ARG_INFO(0, client_object)
 ZEND_END_ARG_INFO()
 
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_clone, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
@@ -1090,12 +1090,13 @@ wgallego -  hiding for now
   obj= zend_object_store_get_object(zobj TSRMLS_CC); \
 }
 */
+
 #define GEARMAN_ZPMP(__return, __args, ...) { \
   if (zend_parse_method_parameters(ZEND_NUM_ARGS() TSRMLS_CC, getThis(), \
                                    "O" __args, __VA_ARGS__) == FAILURE) { \
     __return; \
   } \
-  obj= zend_object_store_get_object(zobj TSRMLS_CC); \
+  obj = (gearman_client_obj *) Z_OBJ_P(zobj TSRMLS_CC); \
 }
 
 #define GEARMAN_ZVAL_DONE(__zval) { \
@@ -1856,6 +1857,7 @@ PHP_FUNCTION(gearman_client_return_code)
 
 /* {{{ proto object gearman_client_create()
    Initialize a client object.  */
+// TODO - this is leaking memory now
 PHP_FUNCTION(gearman_client_create) {
 	if (object_init_ex(return_value, gearman_client_ce) != SUCCESS) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
@@ -1884,8 +1886,6 @@ PHP_FUNCTION(gearman_client_create) {
 
 /* {{{ proto object gearman_client_clone(object client)
    Clone a client object */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_clone) {
 	zval *zobj;
 	gearman_client_obj *obj;
@@ -1893,9 +1893,13 @@ PHP_FUNCTION(gearman_client_clone) {
 
 	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_client_ce)
 
-	Z_TYPE_P(return_value)= IS_OBJECT;
-	object_init_ex(return_value, gearman_client_ce);
-	new= zend_object_store_get_object(return_value TSRMLS_CC);
+	if (object_init_ex(return_value, gearman_client_ce) != SUCCESS) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
+						 "Object creation failure.");
+		RETURN_FALSE;
+	}
+
+	new = (gearman_client_obj *) return_value;
 
 	if (gearman_client_clone(&(new->client), &(obj->client)) == NULL) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
@@ -1904,8 +1908,9 @@ PHP_FUNCTION(gearman_client_clone) {
 		RETURN_FALSE;
 	}
 
-	new->flags|= GEARMAN_CLIENT_OBJ_CREATED;
+	new->flags |= GEARMAN_CLIENT_OBJ_CREATED;
 }
+/*
 /* }}} */
 
 /* {{{ proto string gearman_client_error(object client)
@@ -4519,8 +4524,8 @@ wgallego - hiding for now
 	PHP_FE(gearman_client_return_code, arginfo_gearman_client_return_code)
 */
 	PHP_FE(gearman_client_create, arginfo_gearman_client_create)
-/*
 	PHP_FE(gearman_client_clone, arginfo_gearman_client_clone)
+/*
 	PHP_FE(gearman_client_error, arginfo_gearman_client_error)
 	PHP_FE(gearman_client_errno, arginfo_gearman_client_errno)
 	PHP_FE(gearman_client_options, arginfo_gearman_client_options)
