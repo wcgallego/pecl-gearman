@@ -382,29 +382,29 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_remove_options, 0, 0, 1)
 	ZEND_ARG_INFO(0, option)
 ZEND_END_ARG_INFO()
-
+*/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_timeout, 0, 0, 1)
 	ZEND_ARG_INFO(0, client_object)
 ZEND_END_ARG_INFO()
-
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_timeout, 0, 0, 0)
 ZEND_END_ARG_INFO()
-
+*/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_set_timeout, 0, 0, 2)
 	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
-
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_set_timeout, 0, 0, 1)
 	ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
-
+*/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_add_server, 0, 0, 3)
 	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, host)
 	ZEND_ARG_INFO(0, port)
 ZEND_END_ARG_INFO()
-
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_add_server, 0, 0, 2)
 	ZEND_ARG_INFO(0, host)
 	ZEND_ARG_INFO(0, port)
@@ -1075,8 +1075,8 @@ static zend_object_handlers gearman_job_obj_handlers;
 zend_class_entry *gearman_task_ce;
 static zend_object_handlers gearman_task_obj_handlers;
 
-zend_class_entry *gearman_exception_ce;
 */
+zend_class_entry *gearman_exception_ce;
 /* static zend_object_handlers gearman_exception_obj_handlers; */
 
 /*
@@ -1118,8 +1118,6 @@ wgallego -  hiding for now
  * back to the client about a failed job, other return codes can
  * be passed back but they will cause a docref Warning. Might
  * want to think of a better solution XXX */
-/*
-wgallego -  hiding for now
 #define PHP_GEARMAN_CLIENT_RET_OK(__ret) ((__ret) == GEARMAN_SUCCESS || \
                                           (__ret) == GEARMAN_PAUSE || \
                                           (__ret) == GEARMAN_IO_WAIT || \
@@ -1133,7 +1131,6 @@ wgallego -  hiding for now
 	zend_throw_exception(gearman_exception_ce, __error, __error_code TSRMLS_CC); \
     return; \
 }
-*/
 
 /* Custom malloc and free calls to avoid excessive buffer copies. */
 static void *_php_malloc(size_t size, void *arg) {
@@ -2000,8 +1997,6 @@ PHP_FUNCTION(gearman_client_remove_options) {
 
 /* {{{ proto int gearman_client_timeout(object client)
    Get timeout for a client structure. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_timeout) {
 	zval *zobj;
 	gearman_client_obj *obj;
@@ -2014,8 +2009,6 @@ PHP_FUNCTION(gearman_client_timeout) {
 
 /* {{{ proto void gearman_client_set_timeout(object client, constant timeout)
    Set timeout for a client structure. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_set_timeout) {
 	zval *zobj;
 	gearman_client_obj *obj;
@@ -2030,14 +2023,12 @@ PHP_FUNCTION(gearman_client_set_timeout) {
 
 /* {{{ proto bool gearman_client_add_server(object client [, string host [, int port]])
    Add a job server to a client. This goes into a list of servers than can be used to run tasks. No socket I/O happens here, it is just added to a list. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_add_server) {
 	zval *zobj;
 	gearman_client_obj *obj;
-	char *host= NULL;
-	int host_len= 0;
-	long port= 0;
+	char *host = NULL;
+	size_t host_len = 0;
+	long port = 0;
 
 	GEARMAN_ZPMP(RETURN_NULL(), "|sl", &zobj, gearman_client_ce, 
 				 &host, &host_len, &port)
@@ -2049,9 +2040,12 @@ PHP_FUNCTION(gearman_client_add_server) {
 		RETURN_FALSE;
 	}
 
+/*
+TODO - need to come back to this to fix - wgallego
 	if (!gearman_client_set_server_option(&(obj->client), "exceptions", (sizeof("exceptions") - 1))) {
 	    GEARMAN_EXCEPTION("Failed to set exception option", 0);
 	}
+*/
 
 	RETURN_TRUE;
 }
@@ -2061,6 +2055,8 @@ PHP_FUNCTION(gearman_client_add_server) {
    Add a list of job servers to a client. This goes into a list of servers that can be used to run tasks. No socket I/O happens here, it is just added to a list. */
 /*
 wgallego -  hiding for now.
+
+// TODO - seems like this could leverage same code as gearman_client_add_server
 PHP_FUNCTION(gearman_client_add_servers) {
 	zval *zobj;
 	gearman_client_obj *obj;
@@ -3062,7 +3058,6 @@ static gearman_return_t _php_task_workload_fn(gearman_task_st *task) {
 	client_obj= (gearman_client_obj *)gearman_client_context(task_obj->client);
 	return _php_task_cb_fn(task_obj, client_obj, client_obj->zworkload_fn);
 }
-*/
 static gearman_return_t _php_task_created_fn(gearman_task_st *task) {
 	gearman_task_obj *task_obj;
 	gearman_client_obj *client_obj;
@@ -3070,7 +3065,6 @@ static gearman_return_t _php_task_created_fn(gearman_task_st *task) {
 	client_obj= (gearman_client_obj *)gearman_client_context(task_obj->client);
 	return _php_task_cb_fn(task_obj, client_obj, client_obj->zcreated_fn);
 }
-/*
 
 static gearman_return_t _php_task_data_fn(gearman_task_st *task) {
 	gearman_task_obj *task_obj;
@@ -4522,16 +4516,18 @@ wgallego - hiding for now
 	PHP_FE(gearman_client_set_options, arginfo_gearman_client_set_options)
 	PHP_FE(gearman_client_add_options, arginfo_gearman_client_add_options)
 	PHP_FE(gearman_client_remove_options, arginfo_gearman_client_remove_options)
-/*
 	PHP_FE(gearman_client_timeout, arginfo_gearman_client_timeout)
 	PHP_FE(gearman_client_set_timeout, arginfo_gearman_client_set_timeout)
+/*
 	PHP_FE(gearman_client_context, arginfo_gearman_client_context)
 	PHP_FE(gearman_client_set_context, arginfo_gearman_client_set_context)
 #if jluedke_0
 	PHP_FE(gearman_client_set_log_fn, arginfo_gearman_client_set_log_fn)
 	PHP_FE(gearman_client_set_event_watch_fn, arginfo_gearman_client_set_event_watch_fn)
 #endif
+*/
 	PHP_FE(gearman_client_add_server, arginfo_gearman_client_add_server)
+/*
 	PHP_FE(gearman_client_add_servers, arginfo_gearman_client_add_servers)
 #if jluedke_0
 	PHP_FE(gearman_client_remove_servers, arginfo_gearman_client_remove_servers)
