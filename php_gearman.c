@@ -2103,11 +2103,6 @@ PHP_FUNCTION(gearman_client_wait) {
 }
 /* }}} */
 
-/* TODO
-void *_php_client_do()
-{
-}
-*/
 
 /* {{{ proto string gearman_client_do_normal(object client, string function, string workload [, string unique ])
    Run a single task and return an allocated result. */
@@ -4877,7 +4872,6 @@ wgallego - hiding for now
 	INIT_CLASS_ENTRY(ce, "GearmanClient", gearman_client_methods);
 	ce.create_object = gearman_client_obj_new;
 	gearman_client_ce = zend_register_internal_class_ex(&ce, NULL TSRMLS_CC);
-/*
 	memcpy(&gearman_client_obj_handlers, zend_get_std_object_handlers(),
 		sizeof(zend_object_handlers));
 	gearman_client_obj_handlers.clone_obj= NULL; /* use our clone method */
