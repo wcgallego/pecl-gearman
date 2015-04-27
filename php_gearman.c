@@ -530,39 +530,39 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_do_low_background, 0, 0, 2)
 	ZEND_ARG_INFO(0, workload)
 	ZEND_ARG_INFO(0, unique)
 ZEND_END_ARG_INFO()
-
+*/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_job_status, 0, 0, 2)
 	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, job_handle)
 ZEND_END_ARG_INFO()
-
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_job_status, 0, 0, 1)
 	ZEND_ARG_INFO(0, job_handle)
 ZEND_END_ARG_INFO()
-
+*/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_job_status_by_unique_key, 0, 0, 2)
 	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, unique_key)
 ZEND_END_ARG_INFO()
-
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_job_status_by_unique_key, 0, 0, 1)
 	ZEND_ARG_INFO(0, unique_key)
 ZEND_END_ARG_INFO()
-
+*/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_echo, 0, 0, 2)
 	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, workload)
 ZEND_END_ARG_INFO()
-
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_echo, 0, 0, 1)
 	ZEND_ARG_INFO(0, workload)
 ZEND_END_ARG_INFO()
-
+*/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_ping, 0, 0, 2)
 	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, workload)
 ZEND_END_ARG_INFO()
-
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_ping, 0, 0, 1)
 	ZEND_ARG_INFO(0, workload)
 ZEND_END_ARG_INFO()
@@ -2382,13 +2382,11 @@ PHP_FUNCTION(gearman_client_do_low_background) {
 
 /* {{{ proto array gearman_client_job_status(object client, string job_handle)
    Get the status for a backgound job. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_job_status) {
 	zval *zobj;
 	gearman_client_obj *obj;
 	char *job_handle;
-	int job_handle_len;
+	size_t job_handle_len;
 	bool is_known;
 	bool is_running;
 	uint32_t numerator;
@@ -2397,7 +2395,7 @@ PHP_FUNCTION(gearman_client_job_status) {
 	GEARMAN_ZPMP(RETURN_NULL(), "s", &zobj, gearman_client_ce,
 				 &job_handle, &job_handle_len)
 
-	obj->ret= gearman_client_job_status(&(obj->client), job_handle, 
+	obj->ret = gearman_client_job_status(&(obj->client), job_handle, 
 										&is_known, &is_running,
 										&numerator, &denominator);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
@@ -2415,18 +2413,16 @@ PHP_FUNCTION(gearman_client_job_status) {
 
 /* {{{ proto array gearman_client_job_status_by_unique_key(object client, string unique_key)
    Get the status for a backgound job using the unique key passed in during job submission, rather than job handle. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_job_status_by_unique_key) {
 	zval *zobj;
 	gearman_client_obj *obj;
 	char *unique_key;
-	int unique_key_len;
+	size_t unique_key_len;
 
 	GEARMAN_ZPMP(RETURN_NULL(), "s", &zobj, gearman_client_ce,
 				 &unique_key, &unique_key_len)
 
-	gearman_status_t status= gearman_client_unique_status(&(obj->client), unique_key, unique_key_len);
+	gearman_status_t status = gearman_client_unique_status(&(obj->client), unique_key, unique_key_len);
 	gearman_return_t rc = gearman_status_return(status);
 
 	if (rc != GEARMAN_SUCCESS && rc != GEARMAN_IO_WAIT) {
@@ -2444,32 +2440,29 @@ PHP_FUNCTION(gearman_client_job_status_by_unique_key) {
 
 /* {{{ proto bool gearman_client_ping(object client, string workload)
    Send data to all job servers to see if they echo it back. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_ping) {
 	zval *zobj;
 	gearman_client_obj *obj;
 	char *workload;
-	int workload_len;
+	size_t workload_len;
 
 	GEARMAN_ZPMP(RETURN_NULL(), "s", &zobj, gearman_client_ce, 
 				 &workload, &workload_len)
 
-	obj->ret= gearman_client_echo(&(obj->client), workload, 
-								 (size_t)workload_len);
+	obj->ret = gearman_client_echo(&(obj->client), workload, (size_t)workload_len);
+
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
 						 gearman_client_error(&(obj->client)));
 		RETURN_FALSE;
 	}
+
 	RETURN_TRUE;
 }
 /* }}} */
 
 /* {{{ proto bool gearman_client_echo(object client, string workload)
    Send data to all job servers to see if they echo it back. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_echo) {
 	php_error_docref(NULL TSRMLS_CC, E_DEPRECATED, "Use GearmanClient::ping()");
 
@@ -4529,10 +4522,12 @@ wgallego - hiding for now
 /*
 	PHP_FE(gearman_client_do_high_background, arginfo_gearman_client_do_high_background)
 	PHP_FE(gearman_client_do_low_background, arginfo_gearman_client_do_low_background)
+*/
 	PHP_FE(gearman_client_job_status, arginfo_gearman_client_job_status)
 	PHP_FE(gearman_client_job_status_by_unique_key, arginfo_gearman_client_job_status_by_unique_key)
 	PHP_FE(gearman_client_echo, arginfo_gearman_client_echo)
 	PHP_FE(gearman_client_ping, arginfo_gearman_client_ping)
+/*
 #if jluedke_0
 	PHP_FE(gearman_client_task_free_all, arginfo_gearman_client_task_free_all)
 	PHP_FE(gearman_client_set_task_context_free_fn, arginfo_gearman_client_set_task_context_free_fn)
