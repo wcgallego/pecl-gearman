@@ -477,28 +477,28 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_do_low, 0, 0, 2)
 	ZEND_ARG_INFO(0, workload)
 	ZEND_ARG_INFO(0, unique)
 ZEND_END_ARG_INFO()
-
+*/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_do_job_handle, 0, 0, 1)
 	ZEND_ARG_INFO(0, client_object)
 ZEND_END_ARG_INFO()
-
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_do_job_handle, 0, 0, 0)
 ZEND_END_ARG_INFO()
-
+*/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_do_status, 0, 0, 1)
 	ZEND_ARG_INFO(0, client_object)
 ZEND_END_ARG_INFO()
-
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_do_status, 0, 0, 0)
 ZEND_END_ARG_INFO()
-
+*/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_do_background, 0, 0, 3)
 	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, function_name)
 	ZEND_ARG_INFO(0, workload)
 	ZEND_ARG_INFO(0, unique)
 ZEND_END_ARG_INFO()
-
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_do_background, 0, 0, 2)
 	ZEND_ARG_INFO(0, function_name)
 	ZEND_ARG_INFO(0, workload)
@@ -2140,8 +2140,6 @@ PHP_FUNCTION(gearman_client_do_normal) {
 
 /* {{{ proto string gearman_client_do(object client, string function, string workload [, string unique ])
    Run a single task and return an allocated result. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_do) {
 	php_error_docref(NULL TSRMLS_CC, E_DEPRECATED, "Use GearmanClient::doNormal()");
 
@@ -2234,22 +2232,18 @@ wgallego -  hiding for now.
 
 /* {{{ proto string gearman_client_do_job_handle(object client)
    Get the job handle for the running task. This should be used between repeated gearman_client_do() and gearman_client_do_high() calls to get information. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_do_job_handle) {
 	zval *zobj;
 	gearman_client_obj *obj;
 
 	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_client_ce)
 
-	RETURN_STRING((char *)gearman_client_do_job_handle(&(obj->client)), 1)
+	RETURN_STRING((char *)gearman_client_do_job_handle(&(obj->client)))
 }
 /* }}} */
 
 /* {{{ proto array gearman_client_do_status(object client)
    Get the status for the running task. This should be used between repeated gearman_client_do() and gearman_client_do_high() calls to get information. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_do_status) {
 	zval *zobj;
 	gearman_client_obj *obj;
@@ -2268,26 +2262,24 @@ PHP_FUNCTION(gearman_client_do_status) {
 
 /* {{{ proto string gearman_client_do_background(object client, string function, string workload [, string unique ])
    Run a task in the background. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_do_background) {
 	zval *zobj;
 	gearman_client_obj *obj;
 	char *function_name;
-	int function_name_len;
+	size_t function_name_len;
 	char *workload;
-	int workload_len;
-	char *unique= NULL;
-	int unique_len= 0;
+	size_t workload_len;
+	char *unique = NULL;
+	size_t unique_len = 0;
 	char *job_handle;
 
 	GEARMAN_ZPMP(RETURN_NULL(), "ss|s", &zobj, gearman_client_ce, 
 				 &function_name, &function_name_len, 
 				 &workload, &workload_len, &unique, &unique_len)
 
-	job_handle= emalloc(GEARMAN_JOB_HANDLE_SIZE);
+	job_handle = emalloc(GEARMAN_JOB_HANDLE_SIZE);
 
-	obj->ret= gearman_client_do_background(&(obj->client), 
+	obj->ret = gearman_client_do_background(&(obj->client), 
 									(char *)function_name, 
 									(char *)unique, (void *)workload, 
 									(size_t)workload_len, job_handle);
@@ -2303,7 +2295,7 @@ PHP_FUNCTION(gearman_client_do_background) {
 		RETURN_EMPTY_STRING();
 	}
 
-	RETURN_STRING(job_handle, 0);
+	RETURN_STRING(job_handle);
 }
 /* }}} */
 
@@ -4530,9 +4522,11 @@ wgallego - hiding for now
 /*
 	PHP_FE(gearman_client_do_high, arginfo_gearman_client_do_high)
 	PHP_FE(gearman_client_do_low, arginfo_gearman_client_do_low)
+*/
 	PHP_FE(gearman_client_do_job_handle, arginfo_gearman_client_do_job_handle)
 	PHP_FE(gearman_client_do_status, arginfo_gearman_client_do_status)
 	PHP_FE(gearman_client_do_background, arginfo_gearman_client_do_background)
+/*
 	PHP_FE(gearman_client_do_high_background, arginfo_gearman_client_do_high_background)
 	PHP_FE(gearman_client_do_low_background, arginfo_gearman_client_do_low_background)
 	PHP_FE(gearman_client_job_status, arginfo_gearman_client_job_status)
