@@ -418,11 +418,11 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_add_servers, 0, 0, 1)
 	ZEND_ARG_INFO(0, servers)
 ZEND_END_ARG_INFO()
-
+*/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_wait, 0, 0, 1)
 	ZEND_ARG_INFO(0, client_object)
 ZEND_END_ARG_INFO()
-
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_wait, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
@@ -438,14 +438,14 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_do, 0, 0, 2)
 	ZEND_ARG_INFO(0, workload)
 	ZEND_ARG_INFO(0, unique)
 ZEND_END_ARG_INFO()
-
+*/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_do_normal, 0, 0, 3)
 	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, function_name)
 	ZEND_ARG_INFO(0, workload)
 	ZEND_ARG_INFO(0, unique)
 ZEND_END_ARG_INFO()
-
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_do_normal, 0, 0, 2)
 	ZEND_ARG_INFO(0, function_name)
 	ZEND_ARG_INFO(0, workload)
@@ -2083,15 +2083,13 @@ PHP_FUNCTION(gearman_client_add_servers) {
 
 /* {{{ proto bool gearman_client_wait(object client)
    Wait for I/O activity on all connections in a client. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_wait) {
 	zval *zobj;
 	gearman_client_obj *obj;
 
 	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_client_ce)
 
-	obj->ret= gearman_client_wait(&(obj->client));
+	obj->ret = gearman_client_wait(&(obj->client));
 
 	if (! PHP_GEARMAN_CLIENT_RET_OK(obj->ret)) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
@@ -2106,25 +2104,23 @@ PHP_FUNCTION(gearman_client_wait) {
 
 /* {{{ proto string gearman_client_do_normal(object client, string function, string workload [, string unique ])
    Run a single task and return an allocated result. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_do_normal) {
 	zval *zobj;
 	gearman_client_obj *obj;
 	char *function_name;
-	int function_name_len;
+	size_t function_name_len;
 	char *workload;
-	int workload_len;
-	char *unique= NULL;
-	int unique_len= 0;
+	size_t workload_len;
+	char *unique = NULL;
+	size_t unique_len = 0;
 	void *result;
-	size_t result_size= 0;
+	size_t result_size = 0;
 
 	GEARMAN_ZPMP(RETURN_NULL(), "ss|s", &zobj, gearman_client_ce, 
 				 &function_name, &function_name_len, 
 				 &workload, &workload_len, &unique, &unique_len)
 
-	result= (char *)gearman_client_do(&(obj->client), function_name, unique,
+	result = (char *)gearman_client_do(&(obj->client), function_name, unique,
 									  workload, (size_t)workload_len,
 									  &result_size, &(obj)->ret);
 	if (! PHP_GEARMAN_CLIENT_RET_OK(obj->ret)) {
@@ -2134,13 +2130,11 @@ PHP_FUNCTION(gearman_client_do_normal) {
 	}
 
 	/* NULL results are valid */
-/*
-wgallego -  hiding for now.
 	if (! result) {
 		RETURN_EMPTY_STRING();
 	}
 
-	RETURN_STRINGL((char *)result, (long) result_size, 0);
+	RETURN_STRINGL((char *)result, (long) result_size);
 }
 /* }}} */
 
@@ -4527,9 +4521,13 @@ wgallego - hiding for now
 #if jluedke_0
 	PHP_FE(gearman_client_remove_servers, arginfo_gearman_client_remove_servers)
 #endif
+*/
 	PHP_FE(gearman_client_wait, arginfo_gearman_client_wait)
+/*
 	PHP_FE(gearman_client_do, arginfo_gearman_client_do)
+*/
 	PHP_FE(gearman_client_do_normal, arginfo_gearman_client_do_normal)
+/*
 	PHP_FE(gearman_client_do_high, arginfo_gearman_client_do_high)
 	PHP_FE(gearman_client_do_low, arginfo_gearman_client_do_low)
 	PHP_FE(gearman_client_do_job_handle, arginfo_gearman_client_do_job_handle)
