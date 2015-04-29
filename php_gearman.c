@@ -301,14 +301,13 @@ ZEND_END_ARG_INFO()
  * Gearman Client arginfo
  */
 
-/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_return_code, 0, 0, 1)
 	ZEND_ARG_INFO(0, client_object)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_return_code, 0, 0, 0)
 ZEND_END_ARG_INFO()
-*/
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_create, 0, 0, 1)
 	ZEND_ARG_INFO(0, client_object)
 ZEND_END_ARG_INFO()
@@ -375,19 +374,19 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_timeout, 0, 0, 1)
 	ZEND_ARG_INFO(0, client_object)
 ZEND_END_ARG_INFO()
-/*
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_timeout, 0, 0, 0)
 ZEND_END_ARG_INFO()
-*/
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_set_timeout, 0, 0, 2)
 	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
-/*
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_set_timeout, 0, 0, 1)
 	ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
-*/
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_add_server, 0, 0, 3)
 	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, host)
@@ -411,10 +410,10 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_wait, 0, 0, 1)
 	ZEND_ARG_INFO(0, client_object)
 ZEND_END_ARG_INFO()
-/*
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_wait, 0, 0, 0)
 ZEND_END_ARG_INFO()
-
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_do, 0, 0, 3)
 	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, function_name)
@@ -1833,8 +1832,6 @@ wgallego -  hiding for now.
 
 /* {{{ proto int gearman_client_return_code()
    get last gearman_return_t */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_return_code)
 {
 	zval *zobj;
@@ -2083,6 +2080,7 @@ TODO - need to come back to this to fix - wgallego
 
 /* {{{ proto bool gearman_client_wait(object client)
    Wait for I/O activity on all connections in a client. */
+// TODO wgallego - need to confirm this is actually working
 PHP_FUNCTION(gearman_client_wait) {
 	zval *zobj;
 	gearman_client_obj *obj;
@@ -4459,10 +4457,7 @@ wgallego - hiding for now
 #endif
 
 	/* Functions from client.h */
-/*
-wgallego - hiding for now
 	PHP_FE(gearman_client_return_code, arginfo_gearman_client_return_code)
-*/
 	PHP_FE(gearman_client_create, arginfo_gearman_client_create)
 	PHP_FE(gearman_client_clone, arginfo_gearman_client_clone)
 	PHP_FE(gearman_client_error, arginfo_gearman_client_error)
@@ -4655,9 +4650,7 @@ zend_function_entry gearman_packet_methods[];
 */
 static const zend_function_entry gearman_client_methods[]= {
 	PHP_ME(GearmanClient, __construct, arginfo_oo_gearman_client_construct, ZEND_ACC_CTOR | ZEND_ACC_PUBLIC)
-/*
 	PHP_ME_MAPPING(returnCode, gearman_client_return_code, arginfo_oo_gearman_client_return_code, 0)
-*/
 	PHP_ME_MAPPING(clone, gearman_client_clone, arginfo_oo_gearman_client_clone, 0)
 	PHP_ME_MAPPING(error, gearman_client_error, arginfo_oo_gearman_client_error, 0)
 	PHP_ME_MAPPING(getErrno, gearman_client_errno, arginfo_oo_gearman_client_errno, 0)
@@ -4666,8 +4659,10 @@ static const zend_function_entry gearman_client_methods[]= {
 	PHP_ME_MAPPING(setOptions, gearman_client_set_options, arginfo_oo_gearman_client_set_options, 0)
 	PHP_ME_MAPPING(addOptions, gearman_client_add_options, arginfo_oo_gearman_client_add_options, 0)
 	PHP_ME_MAPPING(removeOptions, gearman_client_remove_options, arginfo_oo_gearman_client_remove_options, 0)
+*/
 	PHP_ME_MAPPING(timeout, gearman_client_timeout, arginfo_oo_gearman_client_timeout, 0)
 	PHP_ME_MAPPING(setTimeout, gearman_client_set_timeout, arginfo_oo_gearman_client_set_timeout, 0)
+/*
 	PHP_ME_MAPPING(context, gearman_client_context, arginfo_oo_gearman_client_context, 0)
 	PHP_ME_MAPPING(setContext, gearman_client_set_context, arginfo_oo_gearman_client_set_context, 0)
 #if jluedke_0
@@ -4681,7 +4676,9 @@ static const zend_function_entry gearman_client_methods[]= {
 #if jluedke_0
 	PHP_ME_MAPPING(removeServers, gearman_client_remove_servers, arginfo_oo_gearman_client_remove_servers, 0)
 #endif
+*/
 	PHP_ME_MAPPING(wait, gearman_client_wait, arginfo_oo_gearman_client_wait, 0)
+/*
 	PHP_ME_MAPPING(do, gearman_client_do, arginfo_oo_gearman_client_do, 0)
 	PHP_ME_MAPPING(doNormal, gearman_client_do_normal, arginfo_oo_gearman_client_do_normal, 0)
 	PHP_ME_MAPPING(doHigh, gearman_client_do_high, arginfo_oo_gearman_client_do_high, 0)
