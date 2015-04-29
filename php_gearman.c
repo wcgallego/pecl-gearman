@@ -412,7 +412,7 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_wait, 0, 0, 0)
 ZEND_END_ARG_INFO()
-/*
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_do, 0, 0, 3)
 	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, function_name)
@@ -425,14 +425,14 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_do, 0, 0, 2)
 	ZEND_ARG_INFO(0, workload)
 	ZEND_ARG_INFO(0, unique)
 ZEND_END_ARG_INFO()
-*/
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_do_normal, 0, 0, 3)
 	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, function_name)
 	ZEND_ARG_INFO(0, workload)
 	ZEND_ARG_INFO(0, unique)
 ZEND_END_ARG_INFO()
-/*
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_do_normal, 0, 0, 2)
 	ZEND_ARG_INFO(0, function_name)
 	ZEND_ARG_INFO(0, workload)
@@ -464,7 +464,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_do_low, 0, 0, 2)
 	ZEND_ARG_INFO(0, workload)
 	ZEND_ARG_INFO(0, unique)
 ZEND_END_ARG_INFO()
-*/
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_do_job_handle, 0, 0, 1)
 	ZEND_ARG_INFO(0, client_object)
 ZEND_END_ARG_INFO()
@@ -491,7 +491,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_do_background, 0, 0, 2)
 	ZEND_ARG_INFO(0, unique)
 ZEND_END_ARG_INFO()
 
-/*
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_do_high_background, 0, 0, 3)
 	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, function_name)
@@ -517,7 +517,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_do_low_background, 0, 0, 2)
 	ZEND_ARG_INFO(0, workload)
 	ZEND_ARG_INFO(0, unique)
 ZEND_END_ARG_INFO()
-*/
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_job_status, 0, 0, 2)
 	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, job_handle)
@@ -957,11 +957,11 @@ ZEND_END_ARG_INFO()
  */
 
 typedef enum {
-	GEARMAN_OBJ_CREATED= (1 << 0)
+	GEARMAN_OBJ_CREATED = (1 << 0)
 } gearman_obj_flags_t;
 
 typedef enum {
-	GEARMAN_CLIENT_OBJ_CREATED= (1 << 0)
+	GEARMAN_CLIENT_OBJ_CREATED = (1 << 0)
 } gearman_client_obj_flags_t;
 
 typedef struct {
@@ -990,7 +990,7 @@ struct _gearman_worker_cb {
 };
 
 typedef enum {
-	GEARMAN_WORKER_OBJ_CREATED= (1 << 0)
+	GEARMAN_WORKER_OBJ_CREATED = (1 << 0)
 } gearman_worker_obj_flags_t;
 
 typedef struct {
@@ -1002,7 +1002,7 @@ typedef struct {
 } gearman_worker_obj;
 
 typedef enum {
-	GEARMAN_JOB_OBJ_CREATED= (1 << 0)
+	GEARMAN_JOB_OBJ_CREATED = (1 << 0)
 } gearman_job_obj_flags_t;
 
 typedef struct {
@@ -1015,8 +1015,8 @@ typedef struct {
 } gearman_job_obj;
 
 typedef enum {
-	GEARMAN_TASK_OBJ_CREATED= (1 << 0),
-	GEARMAN_TASK_OBJ_DEAD=    (1 << 1)
+	GEARMAN_TASK_OBJ_CREATED = (1 << 0),
+	GEARMAN_TASK_OBJ_DEAD =    (1 << 1)
 } gearman_task_obj_flags_t;
 
 typedef struct {
@@ -1123,7 +1123,7 @@ wgallego -  hiding for now
 /* Custom malloc and free calls to avoid excessive buffer copies. */
 static void *_php_malloc(size_t size, void *arg) {
 	uint8_t *ret;
-	ret= emalloc(size+1);
+	ret = emalloc(size+1);
 	ret[size]= 0;
 	return ret;
 }
@@ -1133,7 +1133,7 @@ void _php_free(void *ptr, void *arg) {
 }
 
 void _php_task_free(gearman_task_st *task, void *context) {
-	gearman_task_obj *obj= (gearman_task_obj *)context;
+	gearman_task_obj *obj = (gearman_task_obj *)context;
 	TSRMLS_FETCH();
 
 	if (obj->flags & GEARMAN_TASK_OBJ_DEAD) {
@@ -2147,25 +2147,23 @@ PHP_FUNCTION(gearman_client_do) {
 
 /* {{{ proto string gearman_client_do_high(object client, string function, string workload [, string unique ])
    Run a high priority task and return an allocated result. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_do_high) {
 	zval *zobj;
 	gearman_client_obj *obj;
 	char *function_name;
-	int function_name_len;
+	size_t function_name_len;
 	char *workload;
-	int workload_len;
-	char *unique= NULL;
-	int unique_len= 0;
+	size_t workload_len;
+	char *unique = NULL;
+	size_t unique_len = 0;
 	void *result;
-	size_t result_size= 0;
+	size_t result_size = 0;
 
 	GEARMAN_ZPMP(RETURN_NULL(), "ss|s", &zobj, gearman_client_ce, 
 				 &function_name, &function_name_len, 
 				 &workload, &workload_len, &unique, &unique_len)
 
-	result= (char *)gearman_client_do_high(&(obj->client), function_name, 
+	result = (char *)gearman_client_do_high(&(obj->client), function_name, 
 										   unique, workload, 
 										   (size_t)workload_len,
 										   &result_size, &(obj)->ret);
@@ -2176,37 +2174,33 @@ PHP_FUNCTION(gearman_client_do_high) {
 	}
 
 	/* NULL results are valid */
-/*
-wgallego -  hiding for now.
 	if (! result) {
 		RETURN_EMPTY_STRING();
 	}
 
-	RETURN_STRINGL((char *)result, (long) result_size, 0);
+	RETURN_STRINGL((char *)result, (long) result_size);
 }
 /* }}} */
 
 /* {{{ proto array gearman_client_do_low(object client, string function, string workload [, string unique ])
    Run a low priority task and return an allocated result. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_do_low) {
 	zval *zobj;
 	gearman_client_obj *obj;
 	char *function_name;
-	int function_name_len;
+	size_t function_name_len;
 	char *workload;
-	int workload_len;
-	char *unique= NULL;
-	int unique_len= 0;
+	size_t workload_len;
+	char *unique = NULL;
+	size_t unique_len = 0;
 	void *result;
-	size_t result_size= 0;
+	size_t result_size = 0;
 
 	GEARMAN_ZPMP(RETURN_NULL(), "ss|s", &zobj, gearman_client_ce, 
 				 &function_name, &function_name_len, 
 				 &workload, &workload_len, &unique, &unique_len)
 
-	result= (char *)gearman_client_do_low(&(obj->client), function_name, 
+	result = (char *)gearman_client_do_low(&(obj->client), function_name, 
 										  unique, workload, 
 										  (size_t)workload_len,
 										  &result_size, &obj->ret);
@@ -2217,13 +2211,11 @@ PHP_FUNCTION(gearman_client_do_low) {
 	}
 
 	/* NULL results are valid */
-/*
-wgallego -  hiding for now.
 	if (! result) {
 		RETURN_EMPTY_STRING();
 	}
 
-	RETURN_STRINGL((char *)result, (long) result_size, 0);
+	RETURN_STRINGL((char *)result, (long) result_size);
 }
 /* }}} */
 
@@ -2299,26 +2291,24 @@ PHP_FUNCTION(gearman_client_do_background) {
 
 /* {{{ proto string gearman_client_do_high_background(object client, string function, string workload [, string unique ])
    Run a high priority task in the background. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_do_high_background) {
 	zval *zobj;
 	gearman_client_obj *obj;
 	char *function_name;
-	int function_name_len;
+	size_t function_name_len;
 	char *workload;
-	int workload_len;
-	char *unique= NULL;
-	int unique_len= 0;
+	size_t workload_len;
+	char *unique = NULL;
+	size_t unique_len = 0;
 	char *job_handle;
 
 	GEARMAN_ZPMP(RETURN_NULL(), "ss|s", &zobj, gearman_client_ce, 
 				 &function_name, &function_name_len, 
 				 &workload, &workload_len, &unique, &unique_len)
 
-	job_handle= emalloc(GEARMAN_JOB_HANDLE_SIZE);
+	job_handle = emalloc(GEARMAN_JOB_HANDLE_SIZE);
 
-	obj->ret= gearman_client_do_high_background(&(obj->client), 
+	obj->ret = gearman_client_do_high_background(&(obj->client), 
 									(char *)function_name, 
 									(char *)unique, (void *)workload, 
 									(size_t)workload_len, job_handle);
@@ -2334,31 +2324,29 @@ PHP_FUNCTION(gearman_client_do_high_background) {
 		RETURN_EMPTY_STRING();
 	}
 
-	RETURN_STRING(job_handle, 0);
+	RETURN_STRING(job_handle);
 }
 /* }}} */
 
 /* {{{ proto string gearman_client_do_low_background(object client, string function, string workload [, string unique ])
    Run a low priority task in the background. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_client_do_low_background) {
 	zval *zobj;
 	gearman_client_obj *obj;
 	char *function_name;
-	int function_name_len;
+	size_t function_name_len;
 	char *workload;
-	int workload_len;
-	char *unique= NULL;
-	int unique_len= 0;
+	size_t workload_len;
+	char *unique = NULL;
+	size_t unique_len = 0;
 	char *job_handle;
 
 	GEARMAN_ZPMP(RETURN_NULL(), "ss|s", &zobj, gearman_client_ce, 
 				 &function_name, &function_name_len, 
 				 &workload, &workload_len, &unique, &unique_len)
 
-	job_handle= emalloc(GEARMAN_JOB_HANDLE_SIZE);
-	obj->ret= gearman_client_do_low_background(&(obj->client), 
+	job_handle = emalloc(GEARMAN_JOB_HANDLE_SIZE);
+	obj->ret = gearman_client_do_low_background(&(obj->client), 
 									(char *)function_name, 
 									(char *)unique, (void *)workload, 
 									(size_t)workload_len, job_handle);
@@ -2374,7 +2362,7 @@ PHP_FUNCTION(gearman_client_do_low_background) {
 		RETURN_EMPTY_STRING();
 	}
 
-	RETURN_STRING(job_handle, 0);
+	RETURN_STRING(job_handle);
 }
 /* }}} */
 
@@ -4484,21 +4472,15 @@ wgallego - hiding for now
 #endif
 */
 	PHP_FE(gearman_client_wait, arginfo_gearman_client_wait)
-/*
 	PHP_FE(gearman_client_do, arginfo_gearman_client_do)
-*/
 	PHP_FE(gearman_client_do_normal, arginfo_gearman_client_do_normal)
-/*
 	PHP_FE(gearman_client_do_high, arginfo_gearman_client_do_high)
 	PHP_FE(gearman_client_do_low, arginfo_gearman_client_do_low)
-*/
 	PHP_FE(gearman_client_do_job_handle, arginfo_gearman_client_do_job_handle)
 	PHP_FE(gearman_client_do_status, arginfo_gearman_client_do_status)
 	PHP_FE(gearman_client_do_background, arginfo_gearman_client_do_background)
-/*
 	PHP_FE(gearman_client_do_high_background, arginfo_gearman_client_do_high_background)
 	PHP_FE(gearman_client_do_low_background, arginfo_gearman_client_do_low_background)
-*/
 	PHP_FE(gearman_client_job_status, arginfo_gearman_client_job_status)
 	PHP_FE(gearman_client_job_status_by_unique_key, arginfo_gearman_client_job_status_by_unique_key)
 	PHP_FE(gearman_client_echo, arginfo_gearman_client_echo)
@@ -4676,19 +4658,15 @@ static const zend_function_entry gearman_client_methods[]= {
 #endif
 */
 	PHP_ME_MAPPING(wait, gearman_client_wait, arginfo_oo_gearman_client_wait, 0)
-/*
 	PHP_ME_MAPPING(do, gearman_client_do, arginfo_oo_gearman_client_do, 0)
 	PHP_ME_MAPPING(doNormal, gearman_client_do_normal, arginfo_oo_gearman_client_do_normal, 0)
 	PHP_ME_MAPPING(doHigh, gearman_client_do_high, arginfo_oo_gearman_client_do_high, 0)
 	PHP_ME_MAPPING(doLow, gearman_client_do_low, arginfo_oo_gearman_client_do_low, 0)
-*/
 	PHP_ME_MAPPING(doJobHandle, gearman_client_do_job_handle, arginfo_oo_gearman_client_do_job_handle, 0)
 	PHP_ME_MAPPING(doStatus, gearman_client_do_status, arginfo_oo_gearman_client_do_status, 0)
 	PHP_ME_MAPPING(doBackground, gearman_client_do_background, arginfo_oo_gearman_client_do_background, 0)
-/*
 	PHP_ME_MAPPING(doHighBackground, gearman_client_do_high_background, arginfo_oo_gearman_client_do_high_background, 0)
 	PHP_ME_MAPPING(doLowBackground, gearman_client_do_low_background, arginfo_oo_gearman_client_do_low_background, 0)
-*/
 	PHP_ME_MAPPING(jobStatus, gearman_client_job_status, arginfo_oo_gearman_client_job_status, 0)
 	PHP_ME_MAPPING(jobStatusByUniqueKey, gearman_client_job_status_by_unique_key, arginfo_oo_gearman_client_job_status_by_unique_key, 0)
 	PHP_ME_MAPPING(echo, gearman_client_echo, arginfo_oo_gearman_client_echo, 0)
