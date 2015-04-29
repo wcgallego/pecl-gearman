@@ -774,10 +774,10 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_return_code, 0, 0, 0)
 ZEND_END_ARG_INFO()
-
+*/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_create, 0, 0, 0)
 ZEND_END_ARG_INFO()
-
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_clone, 0, 0, 1)
 	ZEND_ARG_INFO(0, worker_object)
 ZEND_END_ARG_INFO()
@@ -1054,10 +1054,10 @@ static zend_object_handlers gearman_packet_obj_handlers;
 zend_class_entry *gearman_client_ce;
 static zend_object_handlers gearman_client_obj_handlers;
 
-/*
 zend_class_entry *gearman_worker_ce;
 static zend_object_handlers gearman_worker_obj_handlers;
 
+/*
 zend_class_entry *gearman_job_ce;
 static zend_object_handlers gearman_job_obj_handlers;
 */
@@ -1844,16 +1844,15 @@ PHP_FUNCTION(gearman_client_return_code)
 /* {{{ proto object gearman_client_create()
    Initialize a client object.  */
 // TODO - this is leaking memory now
+// I bet it's because I'm not calling gearman_client_obj_free in gearman_client_obj_new_ex
 static void gearman_client_ctor(INTERNAL_FUNCTION_PARAMETERS)
 {
 	gearman_client_obj *client;
 	client = (gearman_client_obj *) Z_OBJ_P(return_value TSRMLS_CC);
 
 	if (gearman_client_create(&(client->client)) == NULL) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
-						 "Memory allocation failure.");
 		zval_dtor(return_value);
-		RETURN_FALSE;
+		GEARMAN_EXCEPTION("Memory allocation failure", 0);
 	}
 
 	client->flags |= GEARMAN_CLIENT_OBJ_CREATED;
@@ -3731,8 +3730,6 @@ PHP_FUNCTION(gearman_worker_echo) {
 /*
  * Methods for gearman_client
  */
-
-
 static void gearman_client_obj_free(void *object TSRMLS_DC) {
 	gearman_client_obj *client = (gearman_client_obj *) object;
 
@@ -3753,9 +3750,10 @@ static void gearman_client_obj_free(void *object TSRMLS_DC) {
 	efree(object);
 }
 
+// I think GearmanClient memory leaks springing from here
+// I bet it's because I'm not calling gearman_client_obj_free
 static inline zend_object *gearman_client_obj_new_ex(zend_class_entry *class_type,
 						  gearman_client_obj **gearman_client_ptr TSRMLS_DC) {
-
 	gearman_client_obj *client;
 
 	client = emalloc(sizeof(gearman_client_obj));
@@ -3779,24 +3777,25 @@ static zend_object *gearman_client_obj_new(zend_class_entry *class_type TSRMLS_D
 /*
  * Methods for gearman_worker
  */
-
-/*
-wgallego - hiding for now
-PHP_METHOD(gearman_worker, __construct) {
+// TODO - figure out how to call gearman_worker_obj_free here
+PHP_METHOD(GearmanWorker, __construct) {
+	return_value = getThis();
 	gearman_worker_obj *worker;
 
-	worker= zend_object_store_get_object(getThis() TSRMLS_CC);
+	worker = (gearman_worker_obj *) Z_OBJ_P(return_value TSRMLS_CC);
 
 	if (gearman_worker_create(&(worker->worker)) == NULL) {
+		zval_dtor(return_value);
 		GEARMAN_EXCEPTION("Memory allocation failure", 0);
 	}
 
-	worker->flags|= GEARMAN_WORKER_OBJ_CREATED;
+	worker->flags |= GEARMAN_WORKER_OBJ_CREATED;
 	gearman_worker_set_workload_malloc_fn(&(worker->worker), _php_malloc, NULL);
 	gearman_worker_set_workload_free_fn(&(worker->worker), _php_free, NULL);
-
 }
 
+/*
+// TODO - need to put this back in
 static void gearman_worker_obj_free(void *object TSRMLS_DC) {
 	gearman_worker_obj *worker= (gearman_worker_obj *)object;
 	gearman_worker_cb *next_cb= NULL;
@@ -3817,44 +3816,25 @@ static void gearman_worker_obj_free(void *object TSRMLS_DC) {
 	zend_object_std_dtor(&(worker->std) TSRMLS_CC);
 	efree(object);
 }
+*/
 
-static inline zend_object_value
-gearman_worker_obj_new_ex(zend_class_entry *class_type,
-						  gearman_worker_obj **gearman_worker_ptr TSRMLS_DC) {
+static inline zend_object *gearman_worker_obj_new_ex(zend_class_entry *class_type, gearman_worker_obj **gearman_worker_ptr TSRMLS_DC) {
 	gearman_worker_obj *worker;
-	zend_object_value value;
-#if PHP_VERSION_ID < 50399
-	zval *tmp;
-#endif
 
-	worker= emalloc(sizeof(gearman_worker_obj));
+	worker = emalloc(sizeof(gearman_worker_obj));
 	memset(worker, 0, sizeof(gearman_worker_obj));
 
 	if (gearman_worker_ptr) {
-		*gearman_worker_ptr= worker;
+		*gearman_worker_ptr = worker;
 	}
 
 	zend_object_std_init(&(worker->std), class_type TSRMLS_CC);
-#if PHP_VERSION_ID < 50399
-	zend_hash_copy(worker->std.properties, 
-				 &(class_type->default_properties),
-				  (copy_ctor_func_t)zval_add_ref, (void *)(&tmp),
-				   sizeof(zval *));
-#else
 	object_properties_init(&worker->std, class_type);
-#endif
-
-	value.handle= zend_objects_store_put(worker,
-				 (zend_objects_store_dtor_t)zend_objects_destroy_object,
-				 (zend_objects_free_object_storage_t)gearman_worker_obj_free,
-				  NULL TSRMLS_CC);
-
-	value.handlers= &gearman_worker_obj_handlers;
-	return value;
+	worker->std.handlers = &gearman_worker_obj_handlers;
+	return &worker->std;
 }
 
-static zend_object_value
-gearman_worker_obj_new(zend_class_entry *class_type TSRMLS_DC) {
+static zend_object *gearman_worker_obj_new(zend_class_entry *class_type TSRMLS_DC) {
 	return gearman_worker_obj_new_ex(class_type, NULL TSRMLS_CC);
 }
 
@@ -4334,8 +4314,10 @@ zend_function_entry gearman_task_methods[]= {
 };
 
 zend_function_entry gearman_worker_methods[]= {
+	// TODO - delete this
+	//PHP_ME(GearmanClient, __construct, arginfo_oo_gearman_client_construct, ZEND_ACC_CTOR | ZEND_ACC_PUBLIC)
+	PHP_ME(GearmanWorker, __construct, NULL, ZEND_ACC_CTOR | ZEND_ACC_PUBLIC)
 /*
-	PHP_ME(gearman_worker, __construct, NULL, ZEND_ACC_CTOR | ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(returnCode, gearman_worker_return_code, arginfo_oo_gearman_worker_return_code, 0)
 	PHP_ME_MAPPING(clone, gearman_worker_clone, arginfo_oo_gearman_worker_clone, 0)
 	PHP_ME_MAPPING(error, gearman_worker_error, arginfo_oo_gearman_worker_error, 0)
@@ -4447,15 +4429,12 @@ wgallego - hiding for now
 		sizeof(zend_object_handlers));
 	gearman_task_obj_handlers.clone_obj = NULL; /* use our clone method */
 
-/*
-wgallego - hiding for now
 	INIT_CLASS_ENTRY(ce, "GearmanWorker", gearman_worker_methods);
-	ce.create_object= gearman_worker_obj_new;
-	gearman_worker_ce= zend_register_internal_class_ex(&ce, NULL, 
-		NULL TSRMLS_CC);
+	ce.create_object = gearman_worker_obj_new;
+	gearman_worker_ce = zend_register_internal_class_ex(&ce, NULL TSRMLS_CC);
 	memcpy(&gearman_worker_obj_handlers, zend_get_std_object_handlers(),
 		sizeof(zend_object_handlers));
-	gearman_worker_obj_handlers.clone_obj= NULL; /* use our clone method */
+	gearman_worker_obj_handlers.clone_obj = NULL; /* use our clone method */
 
 /*
 wgallego - hiding for now
