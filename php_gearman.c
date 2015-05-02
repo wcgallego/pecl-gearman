@@ -50,7 +50,6 @@ wgallego - I think we can eliminate this
 #endif
 */
 
-/* XXX php 5.3 changed the api for zend_is_callable */
 // TODO, wgallego - I think I can eliminate this macro
 #if (PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 3)
 #   define GEARMAN_IS_CALLABLE(callable, check_flags, callable_name) zend_is_callable(callable, check_flags, callable_name)
@@ -924,7 +923,7 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_grab_job, 0, 0, 0)
 ZEND_END_ARG_INFO()
-
+*/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_add_function, 0, 0, 3)
 	ZEND_ARG_INFO(0, worker_object)
 	ZEND_ARG_INFO(0, function_name)
@@ -939,7 +938,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_add_function, 0, 0, 2)
 	ZEND_ARG_INFO(0, data)
 	ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
-
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_work, 0, 0, 1)
 	ZEND_ARG_INFO(0, worker_object)
 ZEND_END_ARG_INFO()
@@ -990,8 +989,8 @@ typedef struct {
 
 typedef struct _gearman_worker_cb gearman_worker_cb;
 struct _gearman_worker_cb {
-	zval *zname; /* name associated with callback */
-	zval *zcall; /* name of callback */
+	zend_string *name; /* name associated with callback */
+	zend_string *call; /* name of callback */
 	zval *zdata; /* data passed to callback via worker */
 	gearman_worker_cb *next;
 };
@@ -1063,10 +1062,9 @@ static zend_object_handlers gearman_client_obj_handlers;
 zend_class_entry *gearman_worker_ce;
 static zend_object_handlers gearman_worker_obj_handlers;
 
-/*
 zend_class_entry *gearman_job_ce;
 static zend_object_handlers gearman_job_obj_handlers;
-*/
+
 zend_class_entry *gearman_task_ce;
 static zend_object_handlers gearman_task_obj_handlers;
 
@@ -1096,16 +1094,22 @@ wgallego -  hiding for now
   obj = (__obj_type *) Z_OBJ_P(zobj TSRMLS_CC); \
 }
 
+/*
+TODO - I think I can eliminate this for just zval_dtor
+*/
 #define GEARMAN_ZVAL_DONE(__zval) { \
+	zval_dtor(__zval); \
+}
+/*
   if ((__zval) != NULL) { \
     if (READY_TO_DESTROY(__zval)) { \
       zval_dtor(__zval); \
-      FREE_ZVAL(__zval); \
-    } \
-    else \
+      ZVAL_NULL(__zval); \
+    } else \
       Z_DELREF_P(__zval); \
   } \
 }
+*/
 
 /* NOTE: It seems kinda weird that GEARMAN_WORK_FAIL is a valid
  * return code, however it is required for a worker to pass status
@@ -1140,14 +1144,13 @@ void _php_free(void *ptr, void *arg) {
 
 void _php_task_free(gearman_task_st *task, void *context) {
 	gearman_task_obj *obj = (gearman_task_obj *)context;
-	TSRMLS_FETCH();
 
 	if (obj->flags & GEARMAN_TASK_OBJ_DEAD) {
 		GEARMAN_ZVAL_DONE(obj->zdata)
 		GEARMAN_ZVAL_DONE(obj->zworkload)
 		efree(obj);
 	} else {
-	  obj->flags &= ~GEARMAN_TASK_OBJ_CREATED;
+		obj->flags &= ~GEARMAN_TASK_OBJ_CREATED;
 	}
 }
 
@@ -2042,9 +2045,12 @@ PHP_FUNCTION(gearman_client_add_server) {
 		RETURN_FALSE;
 	}
 
+/*
+TODO wgallego - come back to this
 	if (!gearman_client_set_server_option(&(obj->client), "exceptions", (sizeof("exceptions") - 1))) {
 	    GEARMAN_EXCEPTION("Failed to set exception option", 0);
 	}
+*/
 
 	RETURN_TRUE;
 }
@@ -2068,9 +2074,12 @@ PHP_FUNCTION(gearman_client_add_servers) {
 		RETURN_FALSE;
 	}
 
+/*
+TODO wgallego - come back to this
 	if (!gearman_client_set_server_option(&(obj->client), "exceptions", (sizeof("exceptions") - 1))) {
 	    GEARMAN_EXCEPTION("Failed to set exception option", 0);
 	}
+*/
 
 	RETURN_TRUE;
 }
@@ -3302,7 +3311,6 @@ PHP_FUNCTION(gearman_worker_set_id) {
 /* {{{ proto bool gearman_worker_add_server(object worker [, string host [, int port ]])
    Add a job server to a worker. This goes into a list of servers than can be used to run tasks. No socket I/O happens here, it is just added to a list. */
 PHP_FUNCTION(gearman_worker_add_server) {
-
 	zval *zobj;
 	gearman_worker_obj *obj;
 	char *host = NULL;
@@ -3319,9 +3327,13 @@ PHP_FUNCTION(gearman_worker_add_server) {
 		RETURN_FALSE;
 	}
 
+
+/*
+TODO wgallego - come back to this
 	if (! gearman_worker_set_server_option(&(obj->worker), "exceptions", (sizeof("exceptions") - 1))) {
 		GEARMAN_EXCEPTION("Failed to set exception option", 0);
 	}
+*/
 
 	RETURN_TRUE;
 }
@@ -3345,9 +3357,12 @@ PHP_FUNCTION(gearman_worker_add_servers) {
 		RETURN_FALSE;
 	}
 
+/*
+TODO wgallego - come back to this
 	if (! gearman_worker_set_server_option(&(obj->worker), "exceptions", (sizeof("exceptions") - 1))) {
 		GEARMAN_EXCEPTION("Failed to set exception option", 0);
 	}
+*/
 
 	RETURN_TRUE;
 }
@@ -3478,100 +3493,96 @@ PHP_FUNCTION(gearman_worker_grab_job) {
 
 /* *job is passed in via gearman, need to convert that into a zval that
  * is accessable in the user_defined php callback function */
-/*
-wgallego - hiding for now
-static void *_php_worker_function_callback(gearman_job_st *job, void *context,
-										   size_t *result_size,
-										   gearman_return_t *ret_ptr) {
+static void *_php_worker_function_callback(gearman_job_st *job,
+						void *context,
+						size_t *result_size,
+						gearman_return_t *ret_ptr) {
 	zval *zjob, *message = NULL;
 	gearman_job_obj *jobj;
-	gearman_worker_cb *worker_cb= (gearman_worker_cb *)context;
-	char *result;
+	gearman_worker_cb *worker_cb = (gearman_worker_cb *)context;
+	zend_string *result;
 
 	/* cb vars */
-/*
-wgallego - hiding for now
-	zval **argv[2];
-	zval *zret_ptr= NULL;
+	zval argv[2];
+	zval *retval, *exception_rv;
+	zend_object *exception_zo;
 	zend_fcall_info fci;
-	zend_fcall_info_cache fcic= empty_fcall_info_cache;
-    TSRMLS_FETCH();
+	zend_fcall_info_cache fcic = empty_fcall_info_cache;
 
 	/* first create our job object that will be passed to the callback */
-/*
-wgallego - hiding for now
-	MAKE_STD_ZVAL(zjob);
-	Z_TYPE_P(zjob)= IS_OBJECT;
-	object_init_ex(zjob, gearman_job_ce);
-	jobj= zend_object_store_get_object(zjob TSRMLS_CC);
-	jobj->job= job;
+        if (object_init_ex(zjob, gearman_job_ce) != SUCCESS) {
+                php_error_docref(NULL, E_WARNING, "Failed to create gearman_job_ce object."); 
+                return;
+        }
 
-	argv[0]= &zjob;
+	jobj = (gearman_job_obj *) Z_OBJ_P(zjob);
+	jobj->job = job;
+
+	argv[0] = *zjob;
 	if (worker_cb->zdata == NULL) {
-		fci.param_count= 1;
+		fci.param_count = 1;
 	} else {
-		argv[1]= &(worker_cb->zdata);
-		fci.param_count= 2;
+		argv[1] = *(worker_cb->zdata);
+		fci.param_count = 2;
 	}
 	
-	fci.size= sizeof(fci);
-	fci.function_table= EG(function_table);
-	fci.function_name= worker_cb->zcall;
-	fci.symbol_table= NULL;
-	fci.retval_ptr_ptr= &zret_ptr;
-	fci.params= argv;
-	/* XXX Not sure if there is a better way to do this. jluedke */
-/*
-wgallego - eliminate?
-#if PHP_VERSION_ID < 50300 /* PHP <= 5.2 */
-/*
-	fci.object_pp= NULL;
-#else
-	fci.object_ptr= NULL;
-#endif
-*/
+	fci.size = sizeof(fci);
+	fci.function_table = EG(function_table);
+	ZVAL_STRINGL(&fci.function_name, worker_cb->call->val, worker_cb->call->len);
+	fci.object = NULL;
+	fci.retval = retval;
+	fci.symbol_table = NULL;
+	fci.params = argv;
+	fci.no_separation = 0;
 
-/*
-wgallego - hiding for now
-	fci.no_separation= 0;
-
-	jobj->ret= GEARMAN_SUCCESS;
-	if (zend_call_function(&fci, &fcic TSRMLS_CC) == FAILURE) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
-						 "Could not call the function %s", 
-						 worker_cb->zcall->value.str.val ? 
-						 worker_cb->zcall->value.str.val : "[undefined]");
-		*ret_ptr= GEARMAN_WORK_FAIL;
+	jobj->ret = GEARMAN_SUCCESS;
+	if (zend_call_function(&fci, &fcic) == FAILURE) {
+		php_error_docref(NULL,
+				E_WARNING, 
+				"Could not call the function %s", 
+				(worker_cb->call != NULL ? worker_cb->call : (zend_string *) "[undefined]")
+				);
+		*ret_ptr = GEARMAN_WORK_FAIL;
 	}
-	*ret_ptr= jobj->ret;
+	*ret_ptr = jobj->ret;
 
 	if (EG(exception)) {
 		*ret_ptr = GEARMAN_WORK_EXCEPTION;
 
-		message = zend_read_property(Z_OBJCE_P(EG(exception)), EG(exception), "message", sizeof("message") - 1, 1 TSRMLS_CC);
+		exception_zo = EG(exception);
+
+		message = zend_read_property(exception_zo->ce,
+						exception_zo->properties_table,
+						"message",
+						sizeof("message") - 1,
+						IS_TRUE,
+						exception_rv);
 
 		jobj->ret = gearman_job_send_exception(jobj->job, Z_STRVAL_P(message), Z_STRLEN_P(message));
+		EG(exception) = NULL;
+
 		if (jobj->ret != GEARMAN_SUCCESS && jobj->ret != GEARMAN_IO_WAIT) {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
+			php_error_docref(NULL, E_WARNING,  "Unable to add worker function: %s",
 					gearman_job_error(jobj->job));
 		}
 	}
 
-	if (zret_ptr == NULL || Z_TYPE_P(zret_ptr) == IS_NULL) {
-		result= NULL;
-	} else {
-		if (Z_TYPE_P(zret_ptr) != IS_STRING) {
-			convert_to_string(zret_ptr);
+	if (!Z_ISUNDEF_P(retval)) {
+		if (Z_TYPE_P(retval) != IS_STRING) {
+			convert_to_string(retval);
 		}
-                result = estrndup(Z_STRVAL_P(zret_ptr),  Z_STRLEN_P(zret_ptr));
-		*result_size= Z_STRLEN_P(zret_ptr);
-	}
-
-	if (zret_ptr != NULL) {
-		GEARMAN_ZVAL_DONE(zret_ptr);
+		result = zval_get_string(retval);
+		*result_size = result->len;
 	}
 
 	GEARMAN_ZVAL_DONE(zjob);
+
+	if (&argv[0] != NULL) {
+		zval_ptr_dtor(&argv[0]);
+	}
+	if (&argv[1] != NULL) {
+		zval_ptr_dtor(&argv[1]);
+	}
 
 	return result;
 }
@@ -3579,75 +3590,62 @@ wgallego - hiding for now
 
 /* {{{ proto bool gearman_worker_add_function(object worker, zval function_name, zval callback [, zval data [, int timeout]])
    Register and add callback function for worker. */
-/*
-wgallego - hiding for now
 PHP_FUNCTION(gearman_worker_add_function) {
 	zval *zobj;
 	gearman_worker_obj *obj;
 	gearman_worker_cb *worker_cb;
 
-	zval *zname;
-	zval *zcall;
-	zval *zdata= NULL;
+	zval *zname, *zcall, *zdata = NULL;
 	long timeout = 0;
 
-	char *callable= NULL;
+	zend_string *callable = NULL;
 
-	GEARMAN_ZPMP(RETURN_NULL(), "zz|zl", &zobj, gearman_worker_ce,
+	GEARMAN_ZPMP(gearman_worker_obj, RETURN_NULL(), "zz|zl", &zobj, gearman_worker_ce,
 				 &zname, &zcall, &zdata, &timeout)
 
         /* check that the function name is a string */
-/*
-wgallego - hiding for now
 	if (Z_TYPE_P(zname) != IS_STRING) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
-						 "function name must be a string");
+		php_error_docref(NULL, E_WARNING, "function name must be a string");
 		RETURN_FALSE;
 	}
 
 	/* check that the function can be called */
-/*
-wgallego - hiding for now
-	if (!GEARMAN_IS_CALLABLE(zcall, 0, &callable)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
-						 "function %s is not callable", callable);
-		efree(callable);
+	if (!zend_is_callable(zcall, 0, &callable)) {
+		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable);
+		zend_string_release(callable);
 		RETURN_FALSE;
 	}
-	efree(callable); 
+
+	zend_string_release(callable);
 
 	/* create a new worker cb */
-/*
-wgallego - hiding for now
-	worker_cb= emalloc(sizeof(gearman_worker_cb));
+	worker_cb = emalloc(sizeof(gearman_worker_cb));
 	memset(worker_cb, 0, sizeof(gearman_worker_cb));
 
 	/* copy over our zcall and zdata */
-/*
-wgallego - hiding for now
-	worker_cb->zname= zname;
-	Z_ADDREF_P(worker_cb->zname);
-	worker_cb->zcall= zcall;
-	Z_ADDREF_P(worker_cb->zcall);
+	worker_cb->name = zval_get_string(zname);
+	worker_cb->call = zval_get_string(zcall);
+
 	if (zdata != NULL) {
-		worker_cb->zdata= zdata;
-		Z_ADDREF_P(worker_cb->zdata);
+		worker_cb->zdata = zdata;
+		Z_TRY_ADDREF_P(worker_cb->zdata);
 	}
-	worker_cb->next= obj->cb_list;
-	obj->cb_list= worker_cb;
+
+	worker_cb->next = obj->cb_list;
+	obj->cb_list = worker_cb;
 
 	/* add the function */
 	/* NOTE: _php_worker_function_callback is a wrapper that calls
 	 * the function defined by gearman_worker_add_function */
-/*
-wgallego - hiding for now
-	obj->ret= gearman_worker_add_function(&(obj->worker), zname->value.str.val, 
-										 (uint32_t)timeout, 
-										 _php_worker_function_callback,
-										 (void *)worker_cb);
+	obj->ret = gearman_worker_add_function(&(obj->worker),
+						(char *) Z_STRVAL_P(zname),
+						(uint32_t)timeout, 
+						_php_worker_function_callback,
+						(void *)worker_cb
+						);
 	if (obj->ret != GEARMAN_SUCCESS) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
-						 gearman_worker_error(&(obj->worker)));
+		php_error_docref(NULL, E_WARNING, "Unable to add function to Gearman Worker: %s %s",
+						 gearman_worker_error(&(obj->worker)), gearman_strerror(obj->ret));
 		RETURN_FALSE;
 	}
 
@@ -3710,7 +3708,7 @@ PHP_FUNCTION(gearman_worker_echo) {
 /*
  * Methods for gearman_client
  */
-static void gearman_client_obj_free(void *object TSRMLS_DC) {
+static void gearman_client_obj_free(zend_object *object TSRMLS_DC) {
 	gearman_client_obj *client = (gearman_client_obj *) object;
 
 	if (client->flags & GEARMAN_CLIENT_OBJ_CREATED) {
@@ -3760,13 +3758,9 @@ static zend_object *gearman_client_obj_new(zend_class_entry *class_type TSRMLS_D
 
 /* {{{ proto object gearman_worker_ctor()
    Initialize a worker object.  */
-static void gearman_worker_ctor(INTERNAL_FUNCTION_PARAMETERS) {
-	gearman_worker_obj *worker;
-
-	worker = (gearman_worker_obj *) Z_OBJ_P(return_value TSRMLS_CC);
-
+// TODO wgallego - would like to keep consitent in this ext how I using __construct. Keep in parity with gearman_client_ctor
+static void gearman_worker_ctor(gearman_worker_obj *worker, INTERNAL_FUNCTION_PARAMETERS) {
 	if (gearman_worker_create(&(worker->worker)) == NULL) {
-		zval_dtor(return_value);
 		GEARMAN_EXCEPTION("Memory allocation failure", 0);
 	}
 
@@ -3779,13 +3773,17 @@ static void gearman_worker_ctor(INTERNAL_FUNCTION_PARAMETERS) {
 /* {{{ proto object gearman_worker_create()
    Returns a worker object */
 PHP_FUNCTION(gearman_worker_create) {
-	if (object_init_ex(return_value, gearman_worker_ce) != SUCCESS) {
+	gearman_worker_obj *worker;
+	zval *obj;
+	if (object_init_ex(obj, gearman_worker_ce) != SUCCESS) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, 
 						 "GearmanWorker Object creation failure.");
 		RETURN_FALSE;
 	}
 
-	gearman_worker_ctor(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+	worker = (gearman_worker_obj *) Z_OBJ_P(obj);
+
+	gearman_worker_ctor(worker, INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 /* }}} */
 
@@ -3793,12 +3791,14 @@ PHP_FUNCTION(gearman_worker_create) {
    Returns a worker object */
 ZEND_METHOD(GearmanWorker, __construct)
 {
-	return_value = getThis();
-	gearman_worker_ctor(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+	gearman_worker_obj *worker;
+	worker = (gearman_worker_obj *) Z_OBJ_P(getThis());
+
+	gearman_worker_ctor(worker, INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 /* }}} */
 
-static void gearman_worker_obj_free(void *object TSRMLS_DC) {
+static void gearman_worker_obj_free(zend_object *object TSRMLS_DC) {
 	gearman_worker_obj *worker = (gearman_worker_obj *)object;
 	gearman_worker_cb *next_cb = NULL;
 
@@ -3808,9 +3808,18 @@ static void gearman_worker_obj_free(void *object TSRMLS_DC) {
 
 	while (worker->cb_list) {
 		next_cb= worker->cb_list->next;
-		GEARMAN_ZVAL_DONE(worker->cb_list->zname)
-		GEARMAN_ZVAL_DONE(worker->cb_list->zcall)
-		GEARMAN_ZVAL_DONE(worker->cb_list->zdata)
+		if (worker->cb_list->name != NULL) {
+			zend_string_release(worker->cb_list->name);
+		}
+
+		if (worker->cb_list->call != NULL) {
+			zend_string_release(worker->cb_list->call);
+		}
+
+		if (worker->cb_list->zdata != NULL) {
+			GEARMAN_ZVAL_DONE(worker->cb_list->zdata)
+		}
+
 		efree(worker->cb_list);
 		worker->cb_list = next_cb;
 	}
@@ -3845,7 +3854,7 @@ static zend_object *gearman_worker_obj_new(zend_class_entry *class_type TSRMLS_D
 
 /*
 wgallego - hiding for now
-static void gearman_job_obj_free(void *object TSRMLS_DC) {
+static void gearman_job_obj_free(zend_object *object TSRMLS_DC) {
 	gearman_job_obj *job= (gearman_job_obj *)object;
 
 	if (job->flags & GEARMAN_JOB_OBJ_CREATED) {
@@ -3911,7 +3920,7 @@ gearman_job_obj_new(zend_class_entry *class_type TSRMLS_DC) {
 /*
  * Methods Task object
  */
-static void gearman_task_obj_free(void *object TSRMLS_DC) {
+static void gearman_task_obj_free(zend_object *object TSRMLS_DC) {
 	gearman_task_obj *task = (gearman_task_obj *)object;
 
 	/* We don't call gearman_task_free here since the
@@ -3933,9 +3942,7 @@ static void gearman_task_obj_free(void *object TSRMLS_DC) {
 
 static inline zend_object *gearman_task_obj_new_ex(zend_class_entry *class_type,
 						gearman_task_obj **gearman_task_ptr TSRMLS_DC) {
-	gearman_task_obj *task;
-
-	task = emalloc(sizeof(gearman_task_obj));
+	gearman_task_obj *task = emalloc(sizeof(gearman_task_obj));
 	memset(task, 0, sizeof(gearman_task_obj));
 
 	if (gearman_task_ptr) {
@@ -4156,9 +4163,9 @@ wgallego - hiding for now
 	PHP_FE(gearman_worker_unregister_all, arginfo_gearman_worker_unregister_all)
 	PHP_FE(gearman_worker_grab_job, arginfo_gearman_worker_grab_job)
 	/* PHP_FE(gearman_worker_job_free_all, arginfo_gearman_worker_job_free_all) */
+	PHP_FE(gearman_worker_add_function, arginfo_gearman_worker_add_function)
 /*
 wgallego - hiding for now
-	PHP_FE(gearman_worker_add_function, arginfo_gearman_worker_add_function)
 	PHP_FE(gearman_worker_work, arginfo_gearman_worker_work)
 	PHP_FE(gearman_worker_echo, arginfo_gearman_worker_echo)
 
@@ -4350,9 +4357,9 @@ zend_function_entry gearman_worker_methods[]= {
 	PHP_ME_MAPPING(unregisterAll, gearman_worker_unregister_all, arginfo_oo_gearman_worker_unregister_all, 0)
 	PHP_ME_MAPPING(grabJob, gearman_worker_grab_job, arginfo_oo_gearman_worker_grab_job, 0)
 	/* PHP_ME_MAPPING(jobFreeAll, gearman_worker_job_free_all, arginfo_oo_gearman_worker_job_free_all, 0) */
+	PHP_ME_MAPPING(addFunction, gearman_worker_add_function, arginfo_oo_gearman_worker_add_function, 0)
 /*
 wgallego - hiding for now
-	PHP_ME_MAPPING(addFunction, gearman_worker_add_function, arginfo_oo_gearman_worker_add_function, 0)
 	PHP_ME_MAPPING(work, gearman_worker_work, arginfo_oo_gearman_worker_work, 0)
 	PHP_ME_MAPPING(echo, gearman_worker_echo, arginfo_oo_gearman_worker_echo, 0)
 */
@@ -4425,8 +4432,7 @@ wgallego - hiding for now
 	memcpy(&gearman_client_obj_handlers, zend_get_std_object_handlers(),
 		sizeof(zend_object_handlers));
 	gearman_client_obj_handlers.clone_obj = NULL; /* use our clone method */
-	gearman_client_obj_handlers.dtor_obj = zend_objects_destroy_object;
-	//gearman_client_obj_handlers.free_obj = gearman_client_obj_free;
+	gearman_client_obj_handlers.free_obj = gearman_client_obj_free;
 
 	INIT_CLASS_ENTRY(ce, "GearmanTask", gearman_task_methods);
 	ce.create_object = gearman_task_obj_new;
@@ -4434,8 +4440,7 @@ wgallego - hiding for now
 	memcpy(&gearman_task_obj_handlers, zend_get_std_object_handlers(),
 		sizeof(zend_object_handlers));
 	gearman_task_obj_handlers.clone_obj = NULL; /* use our clone method */
-	gearman_task_obj_handlers.dtor_obj = zend_objects_destroy_object;
-	//gearman_task_obj_handlers.free_obj = gearman_task_obj_free;
+	gearman_task_obj_handlers.free_obj = gearman_task_obj_free;
 
 	INIT_CLASS_ENTRY(ce, "GearmanWorker", gearman_worker_methods);
 	ce.create_object = gearman_worker_obj_new;
@@ -4443,8 +4448,7 @@ wgallego - hiding for now
 	memcpy(&gearman_worker_obj_handlers, zend_get_std_object_handlers(),
 		sizeof(zend_object_handlers));
 	gearman_worker_obj_handlers.clone_obj = NULL; /* use our clone method */
-	gearman_worker_obj_handlers.dtor_obj = zend_objects_destroy_object;
-	//gearman_worker_obj_handlers.free_obj = gearman_worker_obj_free;
+	gearman_worker_obj_handlers.free_obj = gearman_worker_obj_free;
 
 /*
 wgallego - hiding for now
