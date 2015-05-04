@@ -842,7 +842,7 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_timeout, 0, 0, 0)
 ZEND_END_ARG_INFO()
-
+*/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_set_timeout, 0, 0, 2)
 	ZEND_ARG_INFO(0, worker_object)
 	ZEND_ARG_INFO(0, timeout)
@@ -851,7 +851,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_set_timeout, 0, 0, 1)
 	ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
-
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_set_id, 0, 0, 2)
 	ZEND_ARG_INFO(0, worker_object)
 	ZEND_ARG_INFO(0, id)
@@ -938,14 +938,14 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_add_function, 0, 0, 2)
 	ZEND_ARG_INFO(0, data)
 	ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
-/*
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_work, 0, 0, 1)
 	ZEND_ARG_INFO(0, worker_object)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_work, 0, 0, 0)
 ZEND_END_ARG_INFO()
-
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_echo, 0, 0, 2)
 	ZEND_ARG_INFO(0, worker_object)
 	ZEND_ARG_INFO(0, workload)
@@ -3274,14 +3274,12 @@ PHP_FUNCTION(gearman_worker_timeout) {
 
 /* {{{ proto void gearman_worker_set_timeout(object worker, constant timeout)
    Set timeout for a worker structure. */
-/*
-wgallego - hiding for now
 PHP_FUNCTION(gearman_worker_set_timeout) {
 	zval *zobj;
 	gearman_worker_obj *obj;
 	long timeout;
 
-	GEARMAN_ZPMP(RETURN_NULL(), "l", &zobj, gearman_worker_ce, &timeout)
+	GEARMAN_ZPMP(gearman_worker_obj, RETURN_NULL(), "l", &zobj, gearman_worker_ce, &timeout)
 
 	gearman_worker_set_timeout(&(obj->worker), timeout);
 	RETURN_TRUE;
@@ -3655,15 +3653,14 @@ PHP_FUNCTION(gearman_worker_add_function) {
 
 /* {{{ proto int gearman_worker_work(object worker)
     Wait for a job and call the appropriate callback function when it gets one. */
-/*
-wgallego - hiding for now
 PHP_FUNCTION(gearman_worker_work) {
 	zval *zobj;
 	gearman_worker_obj *obj;
 
-	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_worker_ce)
+	GEARMAN_ZPMP(gearman_worker_obj, RETURN_NULL(), "", &zobj, gearman_worker_ce)
 
-	obj->ret= gearman_worker_work(&(obj->worker));
+	obj->ret = gearman_worker_work(&(obj->worker));
+
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT &&
 			obj->ret != GEARMAN_WORK_FAIL && obj->ret != GEARMAN_TIMEOUT &&
 			obj->ret != GEARMAN_WORK_EXCEPTION && obj->ret != GEARMAN_NO_JOBS) {
@@ -3672,7 +3669,7 @@ PHP_FUNCTION(gearman_worker_work) {
 		RETURN_FALSE;
 	}
 
-	if(obj->ret != GEARMAN_SUCCESS) {
+	if (obj->ret != GEARMAN_SUCCESS) {
 		RETURN_FALSE;
 	}
 
@@ -4142,7 +4139,9 @@ wgallego - hiding for now
 	PHP_FE(gearman_worker_add_options, arginfo_gearman_worker_add_options)
 	PHP_FE(gearman_worker_remove_options, arginfo_gearman_worker_remove_options)
 	PHP_FE(gearman_worker_timeout, arginfo_gearman_worker_timeout)
+*/
 	PHP_FE(gearman_worker_set_timeout, arginfo_gearman_worker_set_timeout)
+/*
 	PHP_FE(gearman_worker_set_id, arginfo_gearman_worker_set_id)
 #if jluedke_0
 	PHP_FE(gearman_worker_context, arginfo_gearman_worker_context)
@@ -4164,9 +4163,9 @@ wgallego - hiding for now
 	PHP_FE(gearman_worker_grab_job, arginfo_gearman_worker_grab_job)
 	/* PHP_FE(gearman_worker_job_free_all, arginfo_gearman_worker_job_free_all) */
 	PHP_FE(gearman_worker_add_function, arginfo_gearman_worker_add_function)
+	PHP_FE(gearman_worker_work, arginfo_gearman_worker_work)
 /*
 wgallego - hiding for now
-	PHP_FE(gearman_worker_work, arginfo_gearman_worker_work)
 	PHP_FE(gearman_worker_echo, arginfo_gearman_worker_echo)
 
 	/* Functions from job.h */
@@ -4336,7 +4335,9 @@ zend_function_entry gearman_worker_methods[]= {
 	PHP_ME_MAPPING(addOptions, gearman_worker_add_options, arginfo_oo_gearman_worker_add_options, 0)
 	PHP_ME_MAPPING(removeOptions, gearman_worker_remove_options, arginfo_oo_gearman_worker_remove_options, 0)
 	PHP_ME_MAPPING(timeout, gearman_worker_timeout, arginfo_oo_gearman_worker_timeout, 0)
+*/
 	PHP_ME_MAPPING(setTimeout, gearman_worker_set_timeout, arginfo_oo_gearman_worker_set_timeout, 0)
+/*
 	PHP_ME_MAPPING(setId, gearman_worker_set_id, arginfo_oo_gearman_worker_set_id, 0)
 #if jluedke_0
 	PHP_ME_MAPPING(context, gearman_worker_context, arginfo_oo_gearman_worker_context, 0)
@@ -4358,9 +4359,9 @@ zend_function_entry gearman_worker_methods[]= {
 	PHP_ME_MAPPING(grabJob, gearman_worker_grab_job, arginfo_oo_gearman_worker_grab_job, 0)
 	/* PHP_ME_MAPPING(jobFreeAll, gearman_worker_job_free_all, arginfo_oo_gearman_worker_job_free_all, 0) */
 	PHP_ME_MAPPING(addFunction, gearman_worker_add_function, arginfo_oo_gearman_worker_add_function, 0)
+	PHP_ME_MAPPING(work, gearman_worker_work, arginfo_oo_gearman_worker_work, 0)
 /*
 wgallego - hiding for now
-	PHP_ME_MAPPING(work, gearman_worker_work, arginfo_oo_gearman_worker_work, 0)
 	PHP_ME_MAPPING(echo, gearman_worker_echo, arginfo_oo_gearman_worker_echo, 0)
 */
 
