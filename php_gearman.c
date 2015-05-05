@@ -1096,9 +1096,12 @@ wgallego -  hiding for now
 
 /*
 TODO - I think I can eliminate this for just zval_dtor
+TODO #2 - I can see value in this, but getting rid of READY_TO_DESTROY
 */
 #define GEARMAN_ZVAL_DONE(__zval) { \
-	zval_dtor(__zval); \
+	if ((__zval) != NULL) { \
+		zval_dtor(__zval); \
+	} \
 }
 /*
   if ((__zval) != NULL) { \
@@ -3705,13 +3708,31 @@ PHP_FUNCTION(gearman_worker_echo) {
 /*
  * Methods for gearman_client
  */
+/*
+typedef struct {
+	zend_object std;
+	gearman_return_t ret;
+	gearman_client_obj_flags_t flags;
+	gearman_client_st client;
+	zval *zclient;
+
+	// used for keeping track of task interface callbacks
+	zval *zworkload_fn;
+	zval *zcreated_fn;
+	zval *zdata_fn;
+	zval *zwarning_fn;
+	zval *zstatus_fn;
+	zval *zcomplete_fn;
+	zval *zexception_fn;
+	zval *zfail_fn;
+} gearman_client_obj;
+*/
 static void gearman_client_obj_free(zend_object *object TSRMLS_DC) {
 	gearman_client_obj *client = (gearman_client_obj *) object;
 
 	if (client->flags & GEARMAN_CLIENT_OBJ_CREATED) {
 		gearman_client_free(&(client->client));
 	}
-
 	GEARMAN_ZVAL_DONE(client->zworkload_fn)
 	GEARMAN_ZVAL_DONE(client->zcreated_fn)
 	GEARMAN_ZVAL_DONE(client->zdata_fn)
