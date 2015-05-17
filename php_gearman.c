@@ -3469,7 +3469,7 @@ static void *_php_worker_function_callback(gearman_job_st *job,
 	zval *zjob, *message = NULL;
 	gearman_job_obj *jobj;
 	gearman_worker_cb *worker_cb = (gearman_worker_cb *)context;
-	zend_string *result;
+	char *result;
 
 	/* cb vars */
 	zval argv[2], retval, *exception_rv;
@@ -3487,6 +3487,7 @@ static void *_php_worker_function_callback(gearman_job_st *job,
 	jobj->job = job;
 
 	argv[0] = *zjob;
+
 	if (worker_cb->zdata == NULL) {
 		fci.param_count = 1;
 	} else {
@@ -3496,6 +3497,7 @@ static void *_php_worker_function_callback(gearman_job_st *job,
 
 	fci.size = sizeof(fci);
 	fci.function_table = EG(function_table);
+
 	ZVAL_STRINGL(&fci.function_name, worker_cb->call->val, worker_cb->call->len);
 	fci.object = NULL;
 	fci.retval = &retval;
@@ -3535,15 +3537,17 @@ static void *_php_worker_function_callback(gearman_job_st *job,
 		}
 	}
 
-	if (!Z_ISUNDEF(retval)) {
+	if (Z_ISUNDEF(retval)) {
+		result = NULL;
+		*result_size = 0;
+	} else {
 		if (Z_TYPE(retval) != IS_STRING) {
 			convert_to_string(&retval);
 		}
-		result = zval_get_string(&retval);
-		*result_size = result->len;
+		result = estrndup(Z_STRVAL(retval), Z_STRLEN(retval));
+		*result_size= Z_STRLEN(retval);
+		GEARMAN_ZVAL_DONE(&retval);
 	}
-
-	GEARMAN_ZVAL_DONE(zjob);
 
 	if (&argv[0] != NULL) {
 		zval_ptr_dtor(&argv[0]);
@@ -3624,7 +3628,7 @@ PHP_FUNCTION(gearman_worker_add_function) {
 /* {{{ proto int gearman_worker_work(object worker)
     Wait for a job and call the appropriate callback function when it gets one. */
 PHP_FUNCTION(gearman_worker_work) {
-	zval *zobj;
+	zval *zobj = NULL;
 	gearman_worker_obj *obj;
 
 	GEARMAN_ZPMP(gearman_worker_obj, RETURN_NULL(), "", &zobj, gearman_worker_ce)
@@ -3675,25 +3679,6 @@ PHP_FUNCTION(gearman_worker_echo) {
 /*
  * Methods for gearman_client
  */
-/*
-typedef struct {
-	zend_object std;
-	gearman_return_t ret;
-	gearman_client_obj_flags_t flags;
-	gearman_client_st client;
-	zval *zclient;
-
-	// used for keeping track of task interface callbacks
-	zval *zworkload_fn;
-	zval *zcreated_fn;
-	zval *zdata_fn;
-	zval *zwarning_fn;
-	zval *zstatus_fn;
-	zval *zcomplete_fn;
-	zval *zexception_fn;
-	zval *zfail_fn;
-} gearman_client_obj;
-*/
 static void gearman_client_obj_free(zend_object *object TSRMLS_DC) {
 	gearman_client_obj *client = (gearman_client_obj *) object;
 
@@ -3713,8 +3698,6 @@ static void gearman_client_obj_free(zend_object *object TSRMLS_DC) {
 	efree(object);
 }
 
-// I think GearmanClient memory leaks springing from here
-// I bet it's because I'm not calling gearman_client_obj_free
 static inline zend_object *gearman_client_obj_new_ex(zend_class_entry *class_type,
 						  gearman_client_obj **gearman_client_ptr TSRMLS_DC) {
 	gearman_client_obj *client;
