@@ -3549,6 +3549,8 @@ static void *_php_worker_function_callback(gearman_job_st *job,
 		GEARMAN_ZVAL_DONE(&retval);
 	}
 
+	GEARMAN_ZVAL_DONE(&fci.function_name);
+
 	if (&argv[0] != NULL) {
 		zval_ptr_dtor(&argv[0]);
 	}
