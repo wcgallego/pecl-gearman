@@ -987,9 +987,9 @@ typedef struct {
 
 typedef struct _gearman_worker_cb gearman_worker_cb;
 struct _gearman_worker_cb {
-	zend_string *name; /* name associated with callback */
-	zend_string *call; /* name of callback */
-	zval *zdata; /* data passed to callback via worker */
+	zval zname; /* name associated with callback */
+	zval zcall; /* name of callback */
+	zval zdata; /* data passed to callback via worker */
 	gearman_worker_cb *next;
 };
 
@@ -3297,12 +3297,9 @@ PHP_FUNCTION(gearman_worker_add_server) {
 	}
 
 
-/*
-TODO wgallego - come back to this
 	if (! gearman_worker_set_server_option(&(obj->worker), "exceptions", (sizeof("exceptions") - 1))) {
 		GEARMAN_EXCEPTION("Failed to set exception option", 0);
 	}
-*/
 
 	RETURN_TRUE;
 }
@@ -3326,12 +3323,9 @@ PHP_FUNCTION(gearman_worker_add_servers) {
 		RETURN_FALSE;
 	}
 
-/*
-TODO wgallego - come back to this
 	if (! gearman_worker_set_server_option(&(obj->worker), "exceptions", (sizeof("exceptions") - 1))) {
 		GEARMAN_EXCEPTION("Failed to set exception option", 0);
 	}
-*/
 
 	RETURN_TRUE;
 }
@@ -3466,7 +3460,7 @@ static void *_php_worker_function_callback(gearman_job_st *job,
 						void *context,
 						size_t *result_size,
 						gearman_return_t *ret_ptr) {
-	zval *zjob, *message = NULL;
+	zval zjob, *message = NULL;
 	gearman_job_obj *jobj;
 	gearman_worker_cb *worker_cb = (gearman_worker_cb *)context;
 	char *result;
@@ -3478,27 +3472,27 @@ static void *_php_worker_function_callback(gearman_job_st *job,
 	zend_fcall_info_cache fcic = empty_fcall_info_cache;
 
 	/* first create our job object that will be passed to the callback */
-        if (object_init_ex(zjob, gearman_job_ce) != SUCCESS) {
+        if (object_init_ex(&zjob, gearman_job_ce) != SUCCESS) {
                 php_error_docref(NULL, E_WARNING, "Failed to create gearman_job_ce object."); 
                 return;
         }
 
-	jobj = (gearman_job_obj *) Z_OBJ_P(zjob);
+	jobj = (gearman_job_obj *) Z_OBJ(zjob);
 	jobj->job = job;
 
-	argv[0] = *zjob;
+	argv[0] = zjob;
 
-	if (worker_cb->zdata == NULL) {
+	if (Z_ISUNDEF(worker_cb->zdata)) {
 		fci.param_count = 1;
 	} else {
-		argv[1] = *(worker_cb->zdata);
+		argv[1] = worker_cb->zdata;
 		fci.param_count = 2;
 	}
 
 	fci.size = sizeof(fci);
 	fci.function_table = EG(function_table);
 
-	ZVAL_STRINGL(&fci.function_name, worker_cb->call->val, worker_cb->call->len);
+	ZVAL_DUP(&fci.function_name, &(worker_cb->zcall) );
 	fci.object = NULL;
 	fci.retval = &retval;
 	fci.symbol_table = NULL;
@@ -3506,11 +3500,12 @@ static void *_php_worker_function_callback(gearman_job_st *job,
 	fci.no_separation = 0;
 
 	jobj->ret = GEARMAN_SUCCESS;
+
 	if (zend_call_function(&fci, &fcic) == FAILURE) {
 		php_error_docref(NULL,
 				E_WARNING, 
 				"Could not call the function %s", 
-				(worker_cb->call != NULL ? worker_cb->call : (zend_string *) "[undefined]")
+				( Z_ISUNDEF(worker_cb->zcall)  ? "[undefined]" : Z_STRVAL(worker_cb->zcall) )
 				);
 		*ret_ptr = GEARMAN_WORK_FAIL;
 	}
@@ -3545,18 +3540,14 @@ static void *_php_worker_function_callback(gearman_job_st *job,
 			convert_to_string(&retval);
 		}
 		result = estrndup(Z_STRVAL(retval), Z_STRLEN(retval));
-		*result_size= Z_STRLEN(retval);
+		*result_size = Z_STRLEN(retval);
 		GEARMAN_ZVAL_DONE(&retval);
 	}
 
 	GEARMAN_ZVAL_DONE(&fci.function_name);
 
-	if (&argv[0] != NULL) {
-		zval_ptr_dtor(&argv[0]);
-	}
-	if (&argv[1] != NULL) {
-		zval_ptr_dtor(&argv[1]);
-	}
+	zval_ptr_dtor(&argv[0]);
+	zval_ptr_dtor(&argv[1]);
 
 	return result;
 }
@@ -3565,7 +3556,7 @@ static void *_php_worker_function_callback(gearman_job_st *job,
 /* {{{ proto bool gearman_worker_add_function(object worker, zval function_name, zval callback [, zval data [, int timeout]])
    Register and add callback function for worker. */
 PHP_FUNCTION(gearman_worker_add_function) {
-	zval *zobj;
+	zval *zobj = NULL;
 	gearman_worker_obj *obj;
 	gearman_worker_cb *worker_cb;
 
@@ -3596,13 +3587,12 @@ PHP_FUNCTION(gearman_worker_add_function) {
 	worker_cb = emalloc(sizeof(gearman_worker_cb));
 	memset(worker_cb, 0, sizeof(gearman_worker_cb));
 
-	/* copy over our zcall and zdata */
-	worker_cb->name = zval_get_string(zname);
-	worker_cb->call = zval_get_string(zcall);
+	/* copy over zname, zcall and zdata */
+	worker_cb->zname = *zname;
+	worker_cb->zcall = *zcall;
 
 	if (zdata != NULL) {
-		worker_cb->zdata = zdata;
-		Z_TRY_ADDREF_P(worker_cb->zdata);
+		worker_cb->zdata = *zdata;
 	}
 
 	worker_cb->next = obj->cb_list;
@@ -3612,7 +3602,7 @@ PHP_FUNCTION(gearman_worker_add_function) {
 	/* NOTE: _php_worker_function_callback is a wrapper that calls
 	 * the function defined by gearman_worker_add_function */
 	obj->ret = gearman_worker_add_function(&(obj->worker),
-						(char *) Z_STRVAL_P(zname),
+						Z_STRVAL(worker_cb->zname),
 						(uint32_t)timeout, 
 						_php_worker_function_callback,
 						(void *)worker_cb
@@ -3774,18 +3764,11 @@ static void gearman_worker_obj_free(zend_object *object TSRMLS_DC) {
 	}
 
 	while (worker->cb_list) {
-		next_cb= worker->cb_list->next;
-		if (worker->cb_list->name != NULL) {
-			zend_string_release(worker->cb_list->name);
-		}
+		next_cb = worker->cb_list->next;
 
-		if (worker->cb_list->call != NULL) {
-			zend_string_release(worker->cb_list->call);
-		}
-
-		if (worker->cb_list->zdata != NULL) {
-			GEARMAN_ZVAL_DONE(worker->cb_list->zdata)
-		}
+		zval_dtor(&(worker->cb_list->zname));
+		zval_dtor(&(worker->cb_list->zcall));
+		zval_dtor(&(worker->cb_list->zdata));
 
 		efree(worker->cb_list);
 		worker->cb_list = next_cb;
