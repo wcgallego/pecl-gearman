@@ -2012,12 +2012,9 @@ PHP_FUNCTION(gearman_client_add_server) {
 		RETURN_FALSE;
 	}
 
-/*
-TODO wgallego - come back to this
 	if (!gearman_client_set_server_option(&(obj->client), "exceptions", (sizeof("exceptions") - 1))) {
 	    GEARMAN_EXCEPTION("Failed to set exception option", 0);
 	}
-*/
 
 	RETURN_TRUE;
 }
@@ -2041,12 +2038,9 @@ PHP_FUNCTION(gearman_client_add_servers) {
 		RETURN_FALSE;
 	}
 
-/*
-TODO wgallego - come back to this
 	if (!gearman_client_set_server_option(&(obj->client), "exceptions", (sizeof("exceptions") - 1))) {
 	    GEARMAN_EXCEPTION("Failed to set exception option", 0);
 	}
-*/
 
 	RETURN_TRUE;
 }
