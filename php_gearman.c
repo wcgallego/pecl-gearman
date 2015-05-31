@@ -1175,12 +1175,17 @@ PHP_FUNCTION(gearman_bugreport) {
 
 /* {{{ proto string gearman_verbose_name(constant verbose)
    Returns string with the name of the given verbose level */
-// TODO - passing in negative values here produces a seg fault
 PHP_FUNCTION(gearman_verbose_name) {
 	long verbose;
 
-  	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l",
+  	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l",
 		&verbose) == FAILURE) {
+		php_error_docref(NULL, E_WARNING, "Unable to parse parameters.");
+		RETURN_NULL();
+	}
+
+	if (verbose < 0) {
+		php_error_docref(NULL, E_WARNING, "Input must be an integer greater than 0.");
 		RETURN_NULL();
 	}
 
