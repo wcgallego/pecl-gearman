@@ -94,27 +94,24 @@ ZEND_END_ARG_INFO()
 
 /* TODO: so looks like I may have implemented this incorrectly for
  * now no oo interface exist. I will need to come back to this later */
-/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_task_context, 0, 0, 1)
 	ZEND_ARG_INFO(0, task_object)
 ZEND_END_ARG_INFO()
-*/
 
-/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_task_function_name, 0, 0, 1)
 	ZEND_ARG_INFO(0, task_object)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_task_function_name, 0, 0, 0)
 ZEND_END_ARG_INFO()
-*/
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_task_unique, 0, 0, 1)
 	ZEND_ARG_INFO(0, task_object)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_task_unique, 0, 0, 0)
 ZEND_END_ARG_INFO()
-/*
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_task_job_handle, 0, 0, 1)
 	ZEND_ARG_INFO(0, task_object)
 ZEND_END_ARG_INFO()
@@ -181,7 +178,6 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_task_recv_data, 0, 0, 1)
 	ZEND_ARG_INFO(0, data_len)
 ZEND_END_ARG_INFO()
-*/
 
 
 /* 
@@ -1319,13 +1315,9 @@ PHP_FUNCTION(gearman_task_return_code)
 /* }}} */
 
 
-/*
-wgallego -  hiding for now.
 #if jluedke_0
 /* {{{ proto string gearman_task_context(object task) 
    Set callback function argument for a task. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_task_context) {
 	zval *zobj;
 	gearman_task_obj *obj;
@@ -1335,20 +1327,16 @@ PHP_FUNCTION(gearman_task_context) {
 				   (long) obj->zdata->value.str.len, 1);
 }
 /* }}} */
-/*
-wgallego -  hiding for now.
 #endif
 
 /* {{{ proto string gearman_task_function_name(object task)
    Returns function name associated with a task. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_task_function_name) {
 	zval *zobj;
 	gearman_task_obj *obj;
-	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_task_ce)
+	GEARMAN_ZPMP(gearman_task_obj, RETURN_NULL(), "", &zobj, gearman_task_ce)
 	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
-		RETURN_STRING((char *)gearman_task_function_name(obj->task), 1);
+		RETURN_STRING((char *)gearman_task_function_name(obj->task));
 	}
 	RETURN_FALSE;
 }
@@ -1369,14 +1357,12 @@ PHP_FUNCTION(gearman_task_unique) {
 
 /* {{{ proto string gearman_task_job_handle(object task)
    Returns job handle for a task. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_task_job_handle) {
 	zval *zobj;
 	gearman_task_obj *obj;
-	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_task_ce)
+	GEARMAN_ZPMP(gearman_task_obj, RETURN_NULL(), "", &zobj, gearman_task_ce)
 	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
-		RETURN_STRING((char *)gearman_task_job_handle(obj->task), 1);
+		RETURN_STRING((char *)gearman_task_job_handle(obj->task));
 	}
 	RETURN_FALSE;
 }
@@ -1384,12 +1370,10 @@ PHP_FUNCTION(gearman_task_job_handle) {
 
 /* {{{ proto bool gearman_task_is_known(object task)
    Get status on whether a task is known or not */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_task_is_known) {
 	zval *zobj;
 	gearman_task_obj *obj;
-	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_task_ce)
+	GEARMAN_ZPMP(gearman_task_obj, RETURN_NULL(), "", &zobj, gearman_task_ce)
 	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
 		RETURN_BOOL(gearman_task_is_known(obj->task));
 	}
@@ -1400,12 +1384,10 @@ PHP_FUNCTION(gearman_task_is_known) {
 
 /* {{{ proto bool gearman_task_is_running(object task)
    Get status on whether a task is running or not */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_task_is_running) {
 	zval *zobj;
 	gearman_task_obj *obj;
-	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_task_ce)
+	GEARMAN_ZPMP(gearman_task_obj, RETURN_NULL(), "", &zobj, gearman_task_ce)
 	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
 		RETURN_BOOL(gearman_task_is_running(obj->task));
 	}
@@ -1416,12 +1398,10 @@ PHP_FUNCTION(gearman_task_is_running) {
 
 /* {{{ proto int gearman_task_numerator(object task)
    Returns the numerator of percentage complete for a task. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_task_numerator) {
 	zval *zobj;
 	gearman_task_obj *obj;
-	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_task_ce)
+	GEARMAN_ZPMP(gearman_task_obj, RETURN_NULL(), "", &zobj, gearman_task_ce)
 	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
 		RETURN_LONG(gearman_task_numerator(obj->task));
 	}
@@ -1432,12 +1412,10 @@ PHP_FUNCTION(gearman_task_numerator) {
 
 /* {{{ proto int gearman_task_denominator(object task)
    Returns the denominator of percentage complete for a task. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_task_denominator) {
 	zval *zobj;
 	gearman_task_obj *obj;
-	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_task_ce)
+	GEARMAN_ZPMP(gearman_task_obj, RETURN_NULL(), "", &zobj, gearman_task_ce)
 	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
 		RETURN_LONG(gearman_task_denominator(obj->task));
 	}
@@ -1448,21 +1426,19 @@ PHP_FUNCTION(gearman_task_denominator) {
 
 /* {{{ proto string gearman_task_data(object task)
    Get data being returned for a task. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_task_data) {
 	zval *zobj;
 	gearman_task_obj *obj;
 	const uint8_t *data;
 	size_t data_len;
 
-	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_task_ce)
+	GEARMAN_ZPMP(gearman_task_obj, RETURN_NULL(), "", &zobj, gearman_task_ce)
 
 	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
-		data= gearman_task_data(obj->task);
-		data_len= gearman_task_data_size(obj->task);
+		data = gearman_task_data(obj->task);
+		data_len = gearman_task_data_size(obj->task);
 	
-		RETURN_STRINGL((char *)data, (long) data_len, 1);
+		RETURN_STRINGL((char *)data, (long) data_len);
 	}
 	RETURN_FALSE;
 }
@@ -1471,12 +1447,10 @@ PHP_FUNCTION(gearman_task_data) {
 
 /* {{{ proto int gearman_task_data_size(object task)
    Get data size being returned for a task. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_task_data_size) {
 	zval *zobj;
 	gearman_task_obj *obj;
-	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_task_ce)
+	GEARMAN_ZPMP(gearman_task_obj, RETURN_NULL(), "", &zobj, gearman_task_ce)
 	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
 		RETURN_LONG(gearman_task_data_size(obj->task));
 	}
@@ -1487,15 +1461,13 @@ PHP_FUNCTION(gearman_task_data_size) {
 
 /* {{{ proto int gearman_task_send_workload(object task, string data)
    NOT-TESTED Send packet data for a task. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_task_send_workload) {
 	zval *zobj;
 	gearman_task_obj *obj;
 	const uint8_t *data;
 	size_t data_len;
 
-	GEARMAN_ZPMP(RETURN_NULL(), "s", &zobj, gearman_task_ce,
+	GEARMAN_ZPMP(gearman_task_obj, RETURN_NULL(), "s", &zobj, gearman_task_ce,
 				 &data, &data_len)
 
 	if (!(obj->flags & GEARMAN_TASK_OBJ_CREATED)) {
@@ -1503,9 +1475,7 @@ PHP_FUNCTION(gearman_task_send_workload) {
 	}
 
 	/* XXX verify that i am doing this correctly */
-/*
-wgallego -  hiding for now.
-	data_len= gearman_task_send_workload(obj->task, data, data_len, &obj->ret);
+	data_len = gearman_task_send_workload(obj->task, data, data_len, &obj->ret);
 	if (obj->ret != GEARMAN_SUCCESS)
 	{
 		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
@@ -1520,16 +1490,14 @@ wgallego -  hiding for now.
 
 /* {{{ proto array gearman_task_recv_data(object task, long buffer_size)
    NOT-TESTED Read work or result data into a buffer for a task. */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_task_recv_data) {
 	zval *zobj;
 	gearman_task_obj *obj;
 	char *data_buffer;
-	long data_buffer_size;
+	size_t data_buffer_size;
 	size_t data_len;
 
-	GEARMAN_ZPMP(RETURN_NULL(), "l", &zobj, gearman_job_ce, &data_buffer_size)
+	GEARMAN_ZPMP(gearman_task_obj, RETURN_NULL(), "l", &zobj, gearman_job_ce, &data_buffer_size)
 
 	if (!(obj->flags & GEARMAN_TASK_OBJ_CREATED)) {
 		RETURN_FALSE;
@@ -1548,7 +1516,7 @@ PHP_FUNCTION(gearman_task_recv_data) {
 	array_init(return_value);
 	add_next_index_long(return_value, (long)data_len);
 	add_next_index_stringl(return_value, (char *)data_buffer, 
-						  (long)data_len, 0);
+						  (long)data_len);
 }
 /* }}} */
 
@@ -3993,23 +3961,20 @@ wgallego - hiding for now
 
 	/* Functions from task.h */
 	PHP_FE(gearman_task_return_code, arginfo_gearman_task_return_code)
-/*
 #if jluedke_0
 	PHP_FE(gearman_task_context, arginfo_gearman_task_context)
 	PHP_FE(gearman_task_set_context, arginfo_gearman_task_set_context)
 #endif
 	PHP_FE(gearman_task_function_name, arginfo_gearman_task_function_name)
-*/
 	PHP_FE(gearman_task_unique, arginfo_gearman_task_unique)
-/*
 	PHP_FE(gearman_task_job_handle, arginfo_gearman_task_job_handle)
 	PHP_FE(gearman_task_is_known, arginfo_gearman_task_is_known)
 	PHP_FE(gearman_task_is_running, arginfo_gearman_task_is_running)
 	PHP_FE(gearman_task_numerator, arginfo_gearman_task_numerator)
 	PHP_FE(gearman_task_denominator, arginfo_gearman_task_denominator)
-	PHP_FE(gearman_task_send_workload, arginfo_gearman_task_send_workload)
 	PHP_FE(gearman_task_data, arginfo_gearman_task_data)
 	PHP_FE(gearman_task_data_size, arginfo_gearman_task_data_size)
+	PHP_FE(gearman_task_send_workload, arginfo_gearman_task_send_workload)
 	PHP_FE(gearman_task_recv_data, arginfo_gearman_task_recv_data)
 
 	/* Functions from worker.h */
@@ -4180,15 +4145,12 @@ static const zend_function_entry gearman_client_methods[]= {
 
 zend_function_entry gearman_task_methods[]= {
 	PHP_ME_MAPPING(returnCode, gearman_task_return_code, arginfo_oo_gearman_task_return_code, 0)
-/*
 #if jluedke_0
 	PHP_ME_MAPPING(context, gearman_task_context, arginfo_oo_gearman_task_context, 0)
 	PHP_ME_MAPPING(setContext, gearman_task_set_context, arginfo_oo_gearman_task_set_context, 0)
 #endif
 	PHP_ME_MAPPING(functionName, gearman_task_function_name, arginfo_oo_gearman_task_function_name, 0)
-*/
 	PHP_ME_MAPPING(unique, gearman_task_unique, arginfo_oo_gearman_task_unique, 0)
-/*
 	PHP_ME_MAPPING(jobHandle, gearman_task_job_handle, arginfo_oo_gearman_task_job_handle, 0)
 	PHP_ME_MAPPING(isKnown, gearman_task_is_known, arginfo_oo_gearman_task_is_known, 0)
 	PHP_ME_MAPPING(isRunning, gearman_task_is_running, arginfo_oo_gearman_task_is_running, 0)
@@ -4198,7 +4160,6 @@ zend_function_entry gearman_task_methods[]= {
 	PHP_ME_MAPPING(data, gearman_task_data, arginfo_oo_gearman_task_data, 0)
 	PHP_ME_MAPPING(dataSize, gearman_task_data_size, arginfo_oo_gearman_task_data_size, 0)
 	PHP_ME_MAPPING(recvData, gearman_task_recv_data, arginfo_oo_gearman_task_recv_data, 0)
-*/
 
 	{NULL, NULL, NULL}
 };
