@@ -764,14 +764,13 @@ ZEND_END_ARG_INFO()
  * Gearman Worker arginfo
  */
 
-/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_return_code, 0, 0, 1)
 	ZEND_ARG_INFO(0, worker_object)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_return_code, 0, 0, 0)
 ZEND_END_ARG_INFO()
-*/
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_create, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
@@ -3093,13 +3092,11 @@ PHP_FUNCTION(gearman_client_run_tasks) {
 
 /* {{{ proto int gearman_worker_return_code()
    get last gearman_return_t */
-/*
-wgallego - hiding for now
 PHP_FUNCTION(gearman_worker_return_code)
 {
 	zval *zobj;
 	gearman_worker_obj *obj;
-	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_worker_ce)
+	GEARMAN_ZPMP(gearman_worker_obj, RETURN_NULL(), "", &zobj, gearman_worker_ce)
 	RETURN_LONG(obj->ret);
 }
 /* }}} */
@@ -4049,10 +4046,7 @@ wgallego - hiding for now
 	PHP_FE(gearman_task_recv_data, arginfo_gearman_task_recv_data)
 
 	/* Functions from worker.h */
-/*
-wgallego - hiding for now
 	PHP_FE(gearman_worker_return_code, arginfo_gearman_worker_return_code)
-*/
 	PHP_FE(gearman_worker_create, arginfo_gearman_worker_create)
 	PHP_FE(gearman_worker_clone, arginfo_gearman_worker_clone)
 /*
@@ -4248,8 +4242,8 @@ zend_function_entry gearman_task_methods[]= {
 
 zend_function_entry gearman_worker_methods[]= {
 	PHP_ME(GearmanWorker, __construct, arginfo_oo_gearman_worker_construct, ZEND_ACC_CTOR | ZEND_ACC_PUBLIC)
-/*
 	PHP_ME_MAPPING(returnCode, gearman_worker_return_code, arginfo_oo_gearman_worker_return_code, 0)
+/*
 	PHP_ME_MAPPING(clone, gearman_worker_clone, arginfo_oo_gearman_worker_clone, 0)
 	PHP_ME_MAPPING(error, gearman_worker_error, arginfo_oo_gearman_worker_error, 0)
 	PHP_ME_MAPPING(getErrno, gearman_worker_errno, arginfo_oo_gearman_worker_errno, 0)
