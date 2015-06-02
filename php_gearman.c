@@ -781,10 +781,9 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_clone, 0, 0, 1)
 	ZEND_ARG_INFO(0, worker_object)
 ZEND_END_ARG_INFO()
 
-/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_clone, 0, 0, 0)
 ZEND_END_ARG_INFO()
-/*
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_error, 0, 0, 1)
 	ZEND_ARG_INFO(0, worker_object)
 ZEND_END_ARG_INFO()
@@ -839,7 +838,7 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_timeout, 0, 0, 0)
 ZEND_END_ARG_INFO()
-*/
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_set_timeout, 0, 0, 2)
 	ZEND_ARG_INFO(0, worker_object)
 	ZEND_ARG_INFO(0, timeout)
@@ -942,16 +941,16 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_work, 0, 0, 0)
 ZEND_END_ARG_INFO()
-/*
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_echo, 0, 0, 2)
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_ping, 0, 0, 2)
 	ZEND_ARG_INFO(0, worker_object)
 	ZEND_ARG_INFO(0, workload)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_echo, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_ping, 0, 0, 1)
 	ZEND_ARG_INFO(0, workload)
 ZEND_END_ARG_INFO()
-*/
+
 
 /* }}} end arginfo */
 
@@ -3131,18 +3130,16 @@ PHP_FUNCTION(gearman_worker_clone) {
 
 /* {{{ proto string gearman_worker_error(object worker)
    Return an error string for the last error encountered. */
-/*
-wgallego - hiding for now
 PHP_FUNCTION(gearman_worker_error) {
 	zval *zobj;
 	gearman_worker_obj *obj;
         char *error;
 
-	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_worker_ce)
+	GEARMAN_ZPMP(gearman_worker_obj, RETURN_NULL(), "", &zobj, gearman_worker_ce)
 
         error = (char *)gearman_worker_error(&(obj->worker));
         if (error) {
-            RETURN_STRING(error, 1);
+            RETURN_STRING(error);
         }
 
         RETURN_FALSE;
@@ -3151,13 +3148,11 @@ PHP_FUNCTION(gearman_worker_error) {
 
 /* {{{ proto int gearman_worker_errno(object worker)
    Value of errno in the case of a GEARMAN_ERRNO return value. */
-/*
-wgallego - hiding for now
 PHP_FUNCTION(gearman_worker_errno) {
 	zval *zobj;
 	gearman_worker_obj *obj;
 
-	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_worker_ce)
+	GEARMAN_ZPMP(gearman_worker_obj, RETURN_NULL(), "", &zobj, gearman_worker_ce)
 
 	RETURN_LONG(gearman_worker_errno(&(obj->worker)))
 }
@@ -3165,13 +3160,11 @@ PHP_FUNCTION(gearman_worker_errno) {
 
 /* {{{ proto int gearman_worker_options(object worker)
    Get options for a worker structure. */
-/*
-wgallego - hiding for now
 PHP_FUNCTION(gearman_worker_options) {
 	zval *zobj;
 	gearman_worker_obj *obj;
 
-	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_worker_ce)
+	GEARMAN_ZPMP(gearman_worker_obj, RETURN_NULL(), "", &zobj, gearman_worker_ce)
 
 	RETURN_LONG(gearman_worker_options(&(obj->worker)))
 }
@@ -3179,14 +3172,12 @@ PHP_FUNCTION(gearman_worker_options) {
 
 /* {{{ proto void gearman_worker_set_options(object worker, constant option)
    Set options for a worker structure. */
-/*
-wgallego - hiding for now
 PHP_FUNCTION(gearman_worker_set_options) {
 	zval *zobj;
 	gearman_worker_obj *obj;
 	long options;
 
-	GEARMAN_ZPMP(RETURN_NULL(), "l", &zobj, gearman_worker_ce, &options)
+	GEARMAN_ZPMP(gearman_worker_obj, RETURN_NULL(), "l", &zobj, gearman_worker_ce, &options)
 
 	gearman_worker_set_options(&(obj->worker), options);
 	RETURN_TRUE;
@@ -3195,14 +3186,12 @@ PHP_FUNCTION(gearman_worker_set_options) {
 
 /* {{{ proto void gearman_worker_add_options(object worker, constant option)
    Set options for a worker structure. */
-/*
-wgallego - hiding for now
 PHP_FUNCTION(gearman_worker_add_options) {
 	zval *zobj;
 	gearman_worker_obj *obj;
 	long options;
 
-	GEARMAN_ZPMP(RETURN_NULL(), "l", &zobj, gearman_worker_ce, &options)
+	GEARMAN_ZPMP(gearman_worker_obj, RETURN_NULL(), "l", &zobj, gearman_worker_ce, &options)
 
 	gearman_worker_add_options(&(obj->worker), options);
 	RETURN_TRUE;
@@ -3211,14 +3200,12 @@ PHP_FUNCTION(gearman_worker_add_options) {
 
 /* {{{ proto void gearman_worker_remove_options(object worker, constant option)
    Set options for a worker structure. */
-/*
-wgallego - hiding for now
 PHP_FUNCTION(gearman_worker_remove_options) {
 	zval *zobj;
 	gearman_worker_obj *obj;
 	long options;
 
-	GEARMAN_ZPMP(RETURN_NULL(), "l", &zobj, gearman_worker_ce, &options)
+	GEARMAN_ZPMP(gearman_worker_obj, RETURN_NULL(), "l", &zobj, gearman_worker_ce, &options)
 
 	gearman_worker_remove_options(&(obj->worker), options);
 	RETURN_TRUE;
@@ -3227,13 +3214,11 @@ PHP_FUNCTION(gearman_worker_remove_options) {
 
 /* {{{ proto int gearman_worker_timeout(object worker)
    Get timeout for a worker structure. */
-/*
-wgallego - hiding for now
 PHP_FUNCTION(gearman_worker_timeout) {
 	zval *zobj;
 	gearman_worker_obj *obj;
 
-	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_worker_ce)
+	GEARMAN_ZPMP(gearman_worker_obj, RETURN_NULL(), "", &zobj, gearman_worker_ce)
 
 	RETURN_LONG(gearman_worker_timeout(&(obj->worker)))
 }
@@ -3639,20 +3624,19 @@ PHP_FUNCTION(gearman_worker_work) {
 }
 /* }}} */
 
-/* {{{ proto bool gearman_worker_echo(object worker, string data)
+/* {{{ proto bool gearman_worker_ping(object worker, string data)
    Send data to all job servers to see if they echo it back. */
-/*
-wgallego - hiding for now
-PHP_FUNCTION(gearman_worker_echo) {
+// TODO - looks like this function was broken before the PHP7 migration. need to fix
+PHP_FUNCTION(gearman_worker_ping) {
 	zval *zobj;
 	gearman_worker_obj *obj;
 	char *workload;
-	int workload_len;
+	size_t workload_len;
 
-	GEARMAN_ZPMP(RETURN_NULL(), "s", &zobj, gearman_worker_ce, 
+	GEARMAN_ZPMP(gearman_worker_obj, RETURN_NULL(), "s", &zobj, gearman_worker_ce, 
 				 &workload, &workload_len)
 
-	obj->ret= gearman_worker_echo(&(obj->worker), workload, 
+	obj->ret = gearman_worker_echo(&(obj->worker), workload, 
 								 (size_t)workload_len);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
@@ -4049,7 +4033,6 @@ wgallego - hiding for now
 	PHP_FE(gearman_worker_return_code, arginfo_gearman_worker_return_code)
 	PHP_FE(gearman_worker_create, arginfo_gearman_worker_create)
 	PHP_FE(gearman_worker_clone, arginfo_gearman_worker_clone)
-/*
 	PHP_FE(gearman_worker_error, arginfo_gearman_worker_error)
 	PHP_FE(gearman_worker_errno, arginfo_gearman_worker_errno)
 	PHP_FE(gearman_worker_options, arginfo_gearman_worker_options)
@@ -4057,7 +4040,6 @@ wgallego - hiding for now
 	PHP_FE(gearman_worker_add_options, arginfo_gearman_worker_add_options)
 	PHP_FE(gearman_worker_remove_options, arginfo_gearman_worker_remove_options)
 	PHP_FE(gearman_worker_timeout, arginfo_gearman_worker_timeout)
-*/
 	PHP_FE(gearman_worker_set_timeout, arginfo_gearman_worker_set_timeout)
 /*
 	PHP_FE(gearman_worker_set_id, arginfo_gearman_worker_set_id)
@@ -4082,9 +4064,7 @@ wgallego - hiding for now
 	/* PHP_FE(gearman_worker_job_free_all, arginfo_gearman_worker_job_free_all) */
 	PHP_FE(gearman_worker_add_function, arginfo_gearman_worker_add_function)
 	PHP_FE(gearman_worker_work, arginfo_gearman_worker_work)
-/*
-wgallego - hiding for now
-	PHP_FE(gearman_worker_echo, arginfo_gearman_worker_echo)
+	PHP_FE(gearman_worker_ping, arginfo_gearman_worker_ping)
 
 	/* Functions from job.h */
 	PHP_FE(gearman_job_return_code, arginfo_gearman_job_return_code)
@@ -4243,7 +4223,6 @@ zend_function_entry gearman_task_methods[]= {
 zend_function_entry gearman_worker_methods[]= {
 	PHP_ME(GearmanWorker, __construct, arginfo_oo_gearman_worker_construct, ZEND_ACC_CTOR | ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(returnCode, gearman_worker_return_code, arginfo_oo_gearman_worker_return_code, 0)
-/*
 	PHP_ME_MAPPING(clone, gearman_worker_clone, arginfo_oo_gearman_worker_clone, 0)
 	PHP_ME_MAPPING(error, gearman_worker_error, arginfo_oo_gearman_worker_error, 0)
 	PHP_ME_MAPPING(getErrno, gearman_worker_errno, arginfo_oo_gearman_worker_errno, 0)
@@ -4252,7 +4231,6 @@ zend_function_entry gearman_worker_methods[]= {
 	PHP_ME_MAPPING(addOptions, gearman_worker_add_options, arginfo_oo_gearman_worker_add_options, 0)
 	PHP_ME_MAPPING(removeOptions, gearman_worker_remove_options, arginfo_oo_gearman_worker_remove_options, 0)
 	PHP_ME_MAPPING(timeout, gearman_worker_timeout, arginfo_oo_gearman_worker_timeout, 0)
-*/
 	PHP_ME_MAPPING(setTimeout, gearman_worker_set_timeout, arginfo_oo_gearman_worker_set_timeout, 0)
 /*
 	PHP_ME_MAPPING(setId, gearman_worker_set_id, arginfo_oo_gearman_worker_set_id, 0)
@@ -4277,10 +4255,7 @@ zend_function_entry gearman_worker_methods[]= {
 	/* PHP_ME_MAPPING(jobFreeAll, gearman_worker_job_free_all, arginfo_oo_gearman_worker_job_free_all, 0) */
 	PHP_ME_MAPPING(addFunction, gearman_worker_add_function, arginfo_oo_gearman_worker_add_function, 0)
 	PHP_ME_MAPPING(work, gearman_worker_work, arginfo_oo_gearman_worker_work, 0)
-/*
-wgallego - hiding for now
-	PHP_ME_MAPPING(echo, gearman_worker_echo, arginfo_oo_gearman_worker_echo, 0)
-*/
+	PHP_ME_MAPPING(echo, gearman_worker_ping, arginfo_oo_gearman_worker_ping, 0)
 
 	{NULL, NULL, NULL}
 };
