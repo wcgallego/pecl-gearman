@@ -85,16 +85,12 @@ ZEND_END_ARG_INFO()
 /*
  * Gearman Task arginfo
  */
-
-/*
-wgallego - hiding task info to start
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_task_return_code, 0, 0, 1)
 	ZEND_ARG_INFO(0, task_object)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_task_return_code, 0, 0, 0)
 ZEND_END_ARG_INFO()
-*/
 
 /* TODO: so looks like I may have implemented this incorrectly for
  * now no oo interface exist. I will need to come back to this later */
@@ -735,7 +731,7 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_clear_fn, 0, 0, 0)
 ZEND_END_ARG_INFO()
-
+*/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_context, 0, 0, 1)
 	ZEND_ARG_INFO(0, client_object)
 ZEND_END_ARG_INFO()
@@ -751,7 +747,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_set_context, 0, 0, 1)
 	ZEND_ARG_INFO(0, context)
 ZEND_END_ARG_INFO()
-
+/*
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_run_tasks, 0, 0, 1)
 	ZEND_ARG_INFO(0, data)
 ZEND_END_ARG_INFO()
@@ -847,7 +843,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_set_timeout, 0, 0, 1)
 	ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
-/*
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_set_id, 0, 0, 2)
 	ZEND_ARG_INFO(0, worker_object)
 	ZEND_ARG_INFO(0, id)
@@ -857,7 +853,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_set_id, 0, 0, 1)
 	ZEND_ARG_INFO(0, id)
 ZEND_END_ARG_INFO()
 
-*/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_add_server, 0, 0, 1)
 	ZEND_ARG_INFO(0, worker_object)
 	ZEND_ARG_INFO(0, host)
@@ -1314,13 +1309,11 @@ wgallego -  hiding for now.
 
 /* {{{ proto int gearman_task_return_code()
    get last gearman_return_t */
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_task_return_code)
 {
 	zval *zobj;
 	gearman_task_obj *obj;
-	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_task_ce)
+	GEARMAN_ZPMP(gearman_task_obj, RETURN_NULL(), "", &zobj, gearman_task_ce)
 	RETURN_LONG(obj->ret);
 }
 /* }}} */
@@ -3025,33 +3018,29 @@ PHP_FUNCTION(gearman_client_clear_fn) {
 
 /* {{{ proto string gearman_client_context(object client)
    Get the application data */
-/*
-wgallego - hiding for now
 PHP_FUNCTION(gearman_client_context) {
 	zval *zobj;
 	gearman_client_obj *obj;
 	const uint8_t *data;
 
-	GEARMAN_ZPMP(RETURN_NULL(), "", &zobj, gearman_client_ce)
+	GEARMAN_ZPMP(gearman_client_obj, RETURN_NULL(), "", &zobj, gearman_client_ce)
 
-	data= gearman_client_context(&(obj->client));
+	data = gearman_client_context(&(obj->client));
 	
-	RETURN_STRINGL((char *)data, (long) sizeof(data), 1);
+	RETURN_STRINGL((char *)data, (long) sizeof(data));
 }
 /* }}} */
 
 /* {{{ proto bool gearman_client_set_context(object client, string data)
    Set the application data */
-/*
-wgallego - hiding for now
 PHP_FUNCTION(gearman_client_set_context) {
 	zval *zobj;
 	gearman_client_obj *obj;
 
 	char *data;
-	int data_len= 0;
+	size_t data_len = 0;
 
-	GEARMAN_ZPMP(RETURN_NULL(), "s", &zobj, gearman_client_ce, 
+	GEARMAN_ZPMP(gearman_client_obj, RETURN_NULL(), "s", &zobj, gearman_client_ce, 
 				 &data, &data_len)
 
 	gearman_client_set_context(&(obj->client), (void *)data);
@@ -3237,15 +3226,13 @@ PHP_FUNCTION(gearman_worker_set_timeout) {
 
 /* {{{ proto void gearman_worker_set_id(object worker, string id)
    Set id for a worker structure. */
-/*
-wgallego - hiding for now
 PHP_FUNCTION(gearman_worker_set_id) {
 	zval *zobj;
 	gearman_worker_obj *obj;
 	char *id;
-	int id_len;
+	size_t id_len;
 
-	GEARMAN_ZPMP(RETURN_NULL(), "s", &zobj, gearman_worker_ce, &id, &id_len)
+	GEARMAN_ZPMP(gearman_worker_obj, RETURN_NULL(), "s", &zobj, gearman_worker_ce, &id, &id_len)
 
 	if(gearman_failed(gearman_worker_set_identifier(&(obj->worker), id, id_len))) {
 		RETURN_FALSE;
@@ -3948,9 +3935,9 @@ wgallego - hiding for now
 	PHP_FE(gearman_client_remove_options, arginfo_gearman_client_remove_options)
 	PHP_FE(gearman_client_timeout, arginfo_gearman_client_timeout)
 	PHP_FE(gearman_client_set_timeout, arginfo_gearman_client_set_timeout)
-/*
 	PHP_FE(gearman_client_context, arginfo_gearman_client_context)
 	PHP_FE(gearman_client_set_context, arginfo_gearman_client_set_context)
+/*
 #if jluedke_0
 	PHP_FE(gearman_client_set_log_fn, arginfo_gearman_client_set_log_fn)
 	PHP_FE(gearman_client_set_event_watch_fn, arginfo_gearman_client_set_event_watch_fn)
@@ -4005,9 +3992,8 @@ wgallego - hiding for now
 	PHP_FE(gearman_client_run_tasks, arginfo_gearman_client_run_tasks)
 
 	/* Functions from task.h */
-/*
-wgallego - hiding for now
 	PHP_FE(gearman_task_return_code, arginfo_gearman_task_return_code)
+/*
 #if jluedke_0
 	PHP_FE(gearman_task_context, arginfo_gearman_task_context)
 	PHP_FE(gearman_task_set_context, arginfo_gearman_task_set_context)
@@ -4038,8 +4024,8 @@ wgallego - hiding for now
 	PHP_FE(gearman_worker_remove_options, arginfo_gearman_worker_remove_options)
 	PHP_FE(gearman_worker_timeout, arginfo_gearman_worker_timeout)
 	PHP_FE(gearman_worker_set_timeout, arginfo_gearman_worker_set_timeout)
-/*
 	PHP_FE(gearman_worker_set_id, arginfo_gearman_worker_set_id)
+/*
 #if jluedke_0
 	PHP_FE(gearman_worker_context, arginfo_gearman_worker_context)
 	PHP_FE(gearman_worker_set_context, arginfo_gearman_worker_set_context)
@@ -4134,9 +4120,9 @@ static const zend_function_entry gearman_client_methods[]= {
 	PHP_ME_MAPPING(removeOptions, gearman_client_remove_options, arginfo_oo_gearman_client_remove_options, 0)
 	PHP_ME_MAPPING(timeout, gearman_client_timeout, arginfo_oo_gearman_client_timeout, 0)
 	PHP_ME_MAPPING(setTimeout, gearman_client_set_timeout, arginfo_oo_gearman_client_set_timeout, 0)
-/*
 	PHP_ME_MAPPING(context, gearman_client_context, arginfo_oo_gearman_client_context, 0)
 	PHP_ME_MAPPING(setContext, gearman_client_set_context, arginfo_oo_gearman_client_set_context, 0)
+/*
 #if jluedke_0
 	PHP_ME_MAPPING(setLogCallback, gearman_client_set_log_callback, arginfo_oo_gearman_client_set_log_callback, 0)
 	PHP_ME_MAPPING(setEventWatchCallback, gearman_client_set_event_watch_callback, arginfo_oo_gearman_client_set_event_watch_callback, 0)
@@ -4193,8 +4179,8 @@ static const zend_function_entry gearman_client_methods[]= {
 };
 
 zend_function_entry gearman_task_methods[]= {
-/*
 	PHP_ME_MAPPING(returnCode, gearman_task_return_code, arginfo_oo_gearman_task_return_code, 0)
+/*
 #if jluedke_0
 	PHP_ME_MAPPING(context, gearman_task_context, arginfo_oo_gearman_task_context, 0)
 	PHP_ME_MAPPING(setContext, gearman_task_set_context, arginfo_oo_gearman_task_set_context, 0)
@@ -4229,8 +4215,8 @@ zend_function_entry gearman_worker_methods[]= {
 	PHP_ME_MAPPING(removeOptions, gearman_worker_remove_options, arginfo_oo_gearman_worker_remove_options, 0)
 	PHP_ME_MAPPING(timeout, gearman_worker_timeout, arginfo_oo_gearman_worker_timeout, 0)
 	PHP_ME_MAPPING(setTimeout, gearman_worker_set_timeout, arginfo_oo_gearman_worker_set_timeout, 0)
-/*
 	PHP_ME_MAPPING(setId, gearman_worker_set_id, arginfo_oo_gearman_worker_set_id, 0)
+/*
 #if jluedke_0
 	PHP_ME_MAPPING(context, gearman_worker_context, arginfo_oo_gearman_worker_context, 0)
 	PHP_ME_MAPPING(setContext, gearman_worker_set_context, arginfo_oo_gearman_worker_set_context, 0)
