@@ -1027,10 +1027,10 @@ typedef struct {
 	zend_object *value;
 	gearman_task_obj_flags_t flags;
 	gearman_task_st *task;
-	zval *zclient;
+	zval zclient;
 	gearman_client_st *client;
-	zval *zdata;
-	zval *zworkload;
+	zval zdata;
+	zval zworkload;
 	int workload_len;
 } gearman_task_obj;
 
@@ -1145,8 +1145,8 @@ void _php_task_free(gearman_task_st *task, void *context) {
 	gearman_task_obj *obj = (gearman_task_obj *)context;
 
 	if (obj->flags & GEARMAN_TASK_OBJ_DEAD) {
-		GEARMAN_ZVAL_DONE(obj->zdata)
-		GEARMAN_ZVAL_DONE(obj->zworkload)
+		zval_dtor(&(obj->zdata));
+		zval_dtor(&(obj->zworkload));
 		efree(obj);
 	} else {
 		obj->flags &= ~GEARMAN_TASK_OBJ_CREATED;
@@ -2385,17 +2385,14 @@ static void gearman_client_add_task_handler(gearman_task_st* (*add_task_func)(
 	if (zdata) {
 		/* add zdata to the task object and pass the task object via context
 		 * task->client = zobj; */
-		task->zdata = zdata;
-		Z_TRY_ADDREF_P(zdata);
+		task->zdata = *zdata;
 	}
 
 	/* store our workload and add ref so it wont go away on us */
-	task->zworkload = zworkload;
-	Z_TRY_ADDREF_P(zworkload);
+	task->zworkload = *zworkload;
 
 	/* need to store a ref to the client for later access to cb's */
-	task->zclient = zobj;
-	Z_TRY_ADDREF_P(zobj);
+	task->zclient = *zobj;
 
 	task->client = &obj->client;
 
@@ -3834,8 +3831,8 @@ static void gearman_task_obj_free(zend_object *object TSRMLS_DC) {
 	if (task->flags & GEARMAN_TASK_OBJ_CREATED) {
 		task->flags |= GEARMAN_TASK_OBJ_DEAD;
 	} else {
-		GEARMAN_ZVAL_DONE(task->zworkload)
-		GEARMAN_ZVAL_DONE(task->zdata)
+		zval_dtor(&(task->zworkload));
+		zval_dtor(&(task->zdata));
 		efree(object);
 	}
 }
