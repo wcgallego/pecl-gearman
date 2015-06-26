@@ -336,38 +336,23 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_removeOptions, 0, 0, 1)
 	ZEND_ARG_INFO(0, option)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_timeout, 0, 0, 1)
-	ZEND_ARG_INFO(0, client_object)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_timeout, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_timeout, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_set_timeout, 0, 0, 2)
-	ZEND_ARG_INFO(0, client_object)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_setTimeout, 0, 0, 1)
 	ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_set_timeout, 0, 0, 1)
-	ZEND_ARG_INFO(0, timeout)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_addServer, 0, 0, 3)
-	ZEND_ARG_INFO(0, client_object)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_addServer, 0, 0, 2)
 	ZEND_ARG_INFO(0, host)
 	ZEND_ARG_INFO(0, port)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_addServers, 0, 0, 2)
-	ZEND_ARG_INFO(0, client_object)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_addServers, 0, 0, 1)
 	ZEND_ARG_INFO(0, servers)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_wait, 0, 0, 1)
-	ZEND_ARG_INFO(0, client_object)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_wait, 0, 0, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_wait, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_do, 0, 0, 3)
@@ -701,19 +686,11 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_clear_fn, 0, 0, 0)
 ZEND_END_ARG_INFO()
 */
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_context, 0, 0, 1)
-	ZEND_ARG_INFO(0, client_object)
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_context, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_context, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_set_context, 0, 0, 2)
-	ZEND_ARG_INFO(0, client_object)
-	ZEND_ARG_INFO(0, context)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_set_context, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_setContext, 0, 0, 1)
 	ZEND_ARG_INFO(0, context)
 ZEND_END_ARG_INFO()
 
@@ -1903,26 +1880,26 @@ static ZEND_METHOD(GearmanClient, removeOptions) {
 }
 /* }}} */
 
-/* {{{ proto int gearman_client_timeout(object client)
+/* {{{ proto int GearmanClient::timeout()
    Get timeout for a client structure. */
-PHP_FUNCTION(gearman_client_timeout) {
-	zval *zobj;
-	gearman_client_obj *obj;
-
-	GEARMAN_ZPMP(gearman_client_obj, RETURN_NULL(), "", &zobj, gearman_client_ce)
+static ZEND_METHOD(GearmanClient, timeout) {
+	gearman_client_obj *obj = Z_GEARMAN_CLIENT_P(getThis());
 
 	RETURN_LONG(gearman_client_timeout(&(obj->client)))
 }
 /* }}} */
 
-/* {{{ proto void gearman_client_set_timeout(object client, constant timeout)
+/* {{{ proto void GearmanClient::setTimeout(constant timeout)
    Set timeout for a client structure. */
-PHP_FUNCTION(gearman_client_set_timeout) {
-	zval *zobj;
-	gearman_client_obj *obj;
+static ZEND_METHOD(GearmanClient, setTimeout) {
 	long timeout;
 
-	GEARMAN_ZPMP(gearman_client_obj, RETURN_NULL(), "l", &zobj, gearman_client_ce, &timeout)
+	gearman_client_obj *obj = Z_GEARMAN_CLIENT_P(getThis());
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &timeout) == FAILURE) {
+		RETURN_FALSE;
+	}
+
 
 	gearman_client_set_timeout(&(obj->client), timeout);
 	RETURN_TRUE;
@@ -1984,19 +1961,16 @@ static ZEND_METHOD(GearmanClient, addServers) {
 }
 /* }}} */
 
-/* {{{ proto bool gearman_client_wait(object client)
+/* {{{ proto bool GearmanClient::wait()
    Wait for I/O activity on all connections in a client. */
 // TODO wgallego - need to confirm this is actually working
-PHP_FUNCTION(gearman_client_wait) {
-	zval *zobj;
-	gearman_client_obj *obj;
-
-	GEARMAN_ZPMP(gearman_client_obj, RETURN_NULL(), "", &zobj, gearman_client_ce)
+static ZEND_METHOD(GearmanClient, wait) {
+	gearman_client_obj *obj = Z_GEARMAN_CLIENT_P(getThis());
 
 	obj->ret = gearman_client_wait(&(obj->client));
 
 	if (! PHP_GEARMAN_CLIENT_RET_OK(obj->ret)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
+		php_error_docref(NULL, E_WARNING, "%s",
 			gearman_client_error(&(obj->client)));
 		RETURN_FALSE;
 	}
@@ -2720,9 +2694,9 @@ wgallego - hiding for now
 }
 /* }}} */
 
-/* {{{ proto bool gearman_client_set_status_fn(object client, callback function)
+/* {{{ proto bool GearmanClient::setStatusCallback(callback function)
    Callback function when there is a status packet for a task. */
-ZEND_METHOD(GearmanClient, setStatusCallback) {
+static ZEND_METHOD(GearmanClient, setStatusCallback) {
 	zval *zstatus_fn;
 	zend_string *callable = NULL;
 
@@ -2901,14 +2875,12 @@ PHP_FUNCTION(gearman_client_clear_fn) {
 }
 /* }}} */
 
-/* {{{ proto string gearman_client_context(object client)
+/* {{{ proto string GearmanClient::context()
    Get the application data */
-PHP_FUNCTION(gearman_client_context) {
-	zval *zobj;
-	gearman_client_obj *obj;
+static ZEND_METHOD(GearmanClient, context) {
 	const uint8_t *data;
 
-	GEARMAN_ZPMP(gearman_client_obj, RETURN_NULL(), "", &zobj, gearman_client_ce)
+	gearman_client_obj *obj = Z_GEARMAN_CLIENT_P(getThis());
 
 	data = gearman_client_context(&(obj->client));
 	
@@ -2916,17 +2888,17 @@ PHP_FUNCTION(gearman_client_context) {
 }
 /* }}} */
 
-/* {{{ proto bool gearman_client_set_context(object client, string data)
+/* {{{ proto bool GearmanClient::setContext(string data)
    Set the application data */
-PHP_FUNCTION(gearman_client_set_context) {
-	zval *zobj;
-	gearman_client_obj *obj;
-
+static ZEND_METHOD(GearmanClient, setContext) {
 	char *data;
 	size_t data_len = 0;
 
-	GEARMAN_ZPMP(gearman_client_obj, RETURN_NULL(), "s", &zobj, gearman_client_ce, 
-				 &data, &data_len)
+	gearman_client_obj *obj = Z_GEARMAN_CLIENT_P(getThis());
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "s", &data, &data_len) == FAILURE) {
+		RETURN_FALSE;
+	}
 
 	gearman_client_set_context(&(obj->client), (void *)data);
 	RETURN_TRUE;
@@ -3838,6 +3810,8 @@ wgallego - hiding for now
 	PHP_FE(gearman_client_remove_servers, arginfo_gearman_client_remove_servers)
 #endif
 */
+
+/*
 	PHP_FE(gearman_client_wait, arginfo_gearman_client_wait)
 	PHP_FE(gearman_client_do, arginfo_gearman_client_do)
 	PHP_FE(gearman_client_do_normal, arginfo_gearman_client_do_normal)
@@ -3851,6 +3825,7 @@ wgallego - hiding for now
 	PHP_FE(gearman_client_job_status_by_unique_key, arginfo_gearman_client_job_status_by_unique_key)
 	PHP_FE(gearman_client_echo, arginfo_gearman_client_echo)
 	PHP_FE(gearman_client_ping, arginfo_gearman_client_ping)
+*/
 /*
 #if jluedke_0
 	PHP_FE(gearman_client_task_free_all, arginfo_gearman_client_task_free_all)
@@ -4005,11 +3980,10 @@ static zend_function_entry gearman_client_methods[]= {
 	PHP_ME(GearmanClient, setOptions, arginfo_gearman_client_setOptions, ZEND_ACC_PUBLIC)
 	PHP_ME(GearmanClient, addOptions, arginfo_gearman_client_addOptions, ZEND_ACC_PUBLIC)
 	PHP_ME(GearmanClient, removeOptions, arginfo_gearman_client_removeOptions, ZEND_ACC_PUBLIC)
-
-	PHP_ME_MAPPING(timeout, gearman_client_timeout, arginfo_oo_gearman_client_timeout, 0)
-	PHP_ME_MAPPING(setTimeout, gearman_client_set_timeout, arginfo_oo_gearman_client_set_timeout, 0)
-	PHP_ME_MAPPING(context, gearman_client_context, arginfo_oo_gearman_client_context, 0)
-	PHP_ME_MAPPING(setContext, gearman_client_set_context, arginfo_oo_gearman_client_set_context, 0)
+	PHP_ME(GearmanClient, timeout, arginfo_gearman_client_timeout, ZEND_ACC_PUBLIC)
+	PHP_ME(GearmanClient, setTimeout, arginfo_gearman_client_setTimeout, ZEND_ACC_PUBLIC)
+	PHP_ME(GearmanClient, context, arginfo_gearman_client_context, ZEND_ACC_PUBLIC)
+	PHP_ME(GearmanClient, setContext, arginfo_gearman_client_setContext, ZEND_ACC_PUBLIC)
 /*
 #if jluedke_0
 	PHP_ME_MAPPING(setLogCallback, gearman_client_set_log_callback, arginfo_oo_gearman_client_set_log_callback, 0)
@@ -4023,15 +3997,13 @@ static zend_function_entry gearman_client_methods[]= {
 	PHP_ME_MAPPING(removeServers, gearman_client_remove_servers, arginfo_oo_gearman_client_remove_servers, 0)
 #endif
 */
-	PHP_ME_MAPPING(wait, gearman_client_wait, arginfo_oo_gearman_client_wait, 0)
+	PHP_ME(GearmanClient, wait, arginfo_gearman_client_wait, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(do, gearman_client_do, arginfo_oo_gearman_client_do, 0)
 	PHP_ME_MAPPING(doNormal, gearman_client_do_normal, arginfo_oo_gearman_client_do_normal, 0)
 	PHP_ME_MAPPING(doHigh, gearman_client_do_high, arginfo_oo_gearman_client_do_high, 0)
 	PHP_ME_MAPPING(doLow, gearman_client_do_low, arginfo_oo_gearman_client_do_low, 0)
 	PHP_ME_MAPPING(doJobHandle, gearman_client_do_job_handle, arginfo_oo_gearman_client_do_job_handle, 0)
 	PHP_ME_MAPPING(doStatus, gearman_client_do_status, arginfo_oo_gearman_client_do_status, 0)
-	//PHP_ME_MAPPING(doBackground, gearman_client_do_background, arginfo_oo_gearman_client_do_background, 0)
-	//PHP_ME(GearmanClient, addServer, arginfo_oo_gearman_client_addServer, ZEND_ACC_PUBLIC)
 	PHP_ME(GearmanClient, doBackground, arginfo_gearman_client_doBackground, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(doHighBackground, gearman_client_do_high_background, arginfo_oo_gearman_client_do_high_background, 0)
 	PHP_ME_MAPPING(doLowBackground, gearman_client_do_low_background, arginfo_oo_gearman_client_do_low_background, 0)
