@@ -355,53 +355,37 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_wait, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_do, 0, 0, 3)
-	ZEND_ARG_INFO(0, client_object)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_doNormal, 0, 0, 3)
 	ZEND_ARG_INFO(0, function_name)
 	ZEND_ARG_INFO(0, workload)
 	ZEND_ARG_INFO(0, unique)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_do, 0, 0, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_doHigh, 0, 0, 2)
 	ZEND_ARG_INFO(0, function_name)
 	ZEND_ARG_INFO(0, workload)
 	ZEND_ARG_INFO(0, unique)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_do_normal, 0, 0, 3)
-	ZEND_ARG_INFO(0, client_object)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_doLow, 0, 0, 3)
 	ZEND_ARG_INFO(0, function_name)
 	ZEND_ARG_INFO(0, workload)
 	ZEND_ARG_INFO(0, unique)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_do_normal, 0, 0, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_doBackground, 0, 0, 3)
 	ZEND_ARG_INFO(0, function_name)
 	ZEND_ARG_INFO(0, workload)
 	ZEND_ARG_INFO(0, unique)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_do_high, 0, 0, 3)
-	ZEND_ARG_INFO(0, client_object)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_doHighBackground, 0, 0, 3)
 	ZEND_ARG_INFO(0, function_name)
 	ZEND_ARG_INFO(0, workload)
 	ZEND_ARG_INFO(0, unique)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_do_high, 0, 0, 2)
-	ZEND_ARG_INFO(0, function_name)
-	ZEND_ARG_INFO(0, workload)
-	ZEND_ARG_INFO(0, unique)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_do_low, 0, 0, 3)
-	ZEND_ARG_INFO(0, client_object)
-	ZEND_ARG_INFO(0, function_name)
-	ZEND_ARG_INFO(0, workload)
-	ZEND_ARG_INFO(0, unique)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_do_low, 0, 0, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_doLowBackground, 0, 0, 3)
 	ZEND_ARG_INFO(0, function_name)
 	ZEND_ARG_INFO(0, workload)
 	ZEND_ARG_INFO(0, unique)
@@ -419,46 +403,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_do_status, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_do_status, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_doBackground, 0, 0, 3)
-	ZEND_ARG_INFO(0, client_object)
-	ZEND_ARG_INFO(0, function_name)
-	ZEND_ARG_INFO(0, workload)
-	ZEND_ARG_INFO(0, unique)
-ZEND_END_ARG_INFO()
-/*
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_do_background, 0, 0, 2)
-	ZEND_ARG_INFO(0, function_name)
-	ZEND_ARG_INFO(0, workload)
-	ZEND_ARG_INFO(0, unique)
-ZEND_END_ARG_INFO()
-*/
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_do_high_background, 0, 0, 3)
-	ZEND_ARG_INFO(0, client_object)
-	ZEND_ARG_INFO(0, function_name)
-	ZEND_ARG_INFO(0, workload)
-	ZEND_ARG_INFO(0, unique)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_do_high_background, 0, 0, 2)
-	ZEND_ARG_INFO(0, function_name)
-	ZEND_ARG_INFO(0, workload)
-	ZEND_ARG_INFO(0, unique)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_do_low_background, 0, 0, 3)
-	ZEND_ARG_INFO(0, client_object)
-	ZEND_ARG_INFO(0, function_name)
-	ZEND_ARG_INFO(0, workload)
-	ZEND_ARG_INFO(0, unique)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_do_low_background, 0, 0, 2)
-	ZEND_ARG_INFO(0, function_name)
-	ZEND_ARG_INFO(0, workload)
-	ZEND_ARG_INFO(0, unique)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_job_status, 0, 0, 2)
@@ -1990,8 +1934,8 @@ static void gearman_client_do_work_handler(void* (*do_work_func)(
 								gearman_return_t *ret_ptr
 					),
 					INTERNAL_FUNCTION_PARAMETERS) {
-	zval *zobj;
-	gearman_client_obj *obj;
+	//zval *zobj;
+	//gearman_client_obj *obj;
 	char *function_name;
 	size_t function_name_len;
 	char *workload;
@@ -2001,9 +1945,19 @@ static void gearman_client_do_work_handler(void* (*do_work_func)(
 	void *result;
 	size_t result_size = 0;
 
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "ss|s", &function_name, &function_name_len,
+							&workload, &workload_len,
+							&unique, &unique_len) == FAILURE) {
+		RETURN_FALSE;
+	}
+
+	gearman_client_obj *obj = Z_GEARMAN_CLIENT_P(getThis());
+
+/*
 	GEARMAN_ZPMP(gearman_client_obj, RETURN_NULL(), "ss|s", &zobj, gearman_client_ce, 
 				 &function_name, &function_name_len, 
 				 &workload, &workload_len, &unique, &unique_len)
+*/
 
 	result = (char *)(*do_work_func)(
 						&(obj->client),
@@ -2016,8 +1970,7 @@ static void gearman_client_do_work_handler(void* (*do_work_func)(
 					);
 
 	if (! PHP_GEARMAN_CLIENT_RET_OK(obj->ret)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
-						 gearman_client_error(&(obj->client)));
+		php_error_docref(NULL, E_WARNING, "%s", gearman_client_error(&(obj->client)));
 		RETURN_EMPTY_STRING();
 	}
 
@@ -2030,64 +1983,24 @@ static void gearman_client_do_work_handler(void* (*do_work_func)(
 }
 /* }}} */
 
-/* {{{ proto string gearman_client_do_normal(object client, string function, string workload [, string unique ])
+/* {{{ proto string GearmanClient::doNormal(string function, string workload [, string unique ])
    Run a single task and return an allocated result. */
-PHP_FUNCTION(gearman_client_do_normal) {
+static ZEND_METHOD(GearmanClient, doNormal) {
 	gearman_client_do_work_handler(gearman_client_do, INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 /* }}} */
 
-/* {{{ proto string gearman_client_do(object client, string function, string workload [, string unique ])
-   Run a single task and return an allocated result. */
-PHP_FUNCTION(gearman_client_do) {
-	php_error_docref(NULL TSRMLS_CC, E_DEPRECATED, "Use GearmanClient::doNormal()");
-
-	return PHP_FN(gearman_client_do_normal)(INTERNAL_FUNCTION_PARAM_PASSTHRU);
-}
-/* }}} */
-
-/* {{{ proto string gearman_client_do_high(object client, string function, string workload [, string unique ])
+/* {{{ proto string GearmanClient::doHigh(object client, string function, string workload [, string unique ])
    Run a high priority task and return an allocated result. */
-PHP_FUNCTION(gearman_client_do_high) {
+static ZEND_METHOD(GearmanClient, doHigh) {
 	gearman_client_do_work_handler(gearman_client_do_high, INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 /* }}} */
 
-/* {{{ proto array gearman_client_do_low(object client, string function, string workload [, string unique ])
+/* {{{ proto array GearmanClient::doLow(object client, string function, string workload [, string unique ])
    Run a low priority task and return an allocated result. */
-PHP_FUNCTION(gearman_client_do_low) {
+static ZEND_METHOD(GearmanClient, doLow) {
 	gearman_client_do_work_handler(gearman_client_do_low, INTERNAL_FUNCTION_PARAM_PASSTHRU);
-}
-/* }}} */
-
-
-/* {{{ proto string gearman_client_do_job_handle(object client)
-   Get the job handle for the running task. This should be used between repeated gearman_client_do() and gearman_client_do_high() calls to get information. */
-PHP_FUNCTION(gearman_client_do_job_handle) {
-	zval *zobj;
-	gearman_client_obj *obj;
-
-	GEARMAN_ZPMP(gearman_client_obj, RETURN_NULL(), "", &zobj, gearman_client_ce)
-
-	RETURN_STRING((char *)gearman_client_do_job_handle(&(obj->client)))
-}
-/* }}} */
-
-/* {{{ proto array gearman_client_do_status(object client)
-   Get the status for the running task. This should be used between repeated gearman_client_do() and gearman_client_do_high() calls to get information. */
-PHP_FUNCTION(gearman_client_do_status) {
-	zval *zobj;
-	gearman_client_obj *obj;
-	uint32_t numerator;
-	uint32_t denominator;
-
-	GEARMAN_ZPMP(gearman_client_obj, RETURN_NULL(), "", &zobj, gearman_client_ce)
-
-	gearman_client_do_status(&(obj->client), &numerator, &denominator);
-	
-	array_init(return_value);
-	add_next_index_long(return_value, (long) numerator);
-	add_next_index_long(return_value, (long) denominator);
 }
 /* }}} */
 
@@ -2128,8 +2041,9 @@ static void gearman_client_do_background_work_handler(gearman_return_t (*do_back
 						(size_t)workload_len,
 						job_handle->val
 					);
+
 	if (! PHP_GEARMAN_CLIENT_RET_OK(obj->ret)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
+		php_error_docref(NULL, E_WARNING, "%s",
 						 gearman_client_error(&(obj->client)));
 		zend_string_release(job_handle);
 		RETURN_EMPTY_STRING();
@@ -2153,15 +2067,45 @@ static ZEND_METHOD(GearmanClient, doBackground) {
 
 /* {{{ proto string gearman_client_do_high_background(object client, string function, string workload [, string unique ])
    Run a high priority task in the background. */
-PHP_FUNCTION(gearman_client_do_high_background) {
+static ZEND_METHOD(GearmanClient, doHighBackground) {
 	gearman_client_do_background_work_handler(gearman_client_do_high_background, INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 /* }}} */
 
 /* {{{ proto string gearman_client_do_low_background(object client, string function, string workload [, string unique ])
    Run a low priority task in the background. */
-PHP_FUNCTION(gearman_client_do_low_background) {
+static ZEND_METHOD(GearmanClient, doLowBackground) {
 	gearman_client_do_background_work_handler(gearman_client_do_low_background, INTERNAL_FUNCTION_PARAM_PASSTHRU);
+}
+/* }}} */
+
+/* {{{ proto string gearman_client_do_job_handle(object client)
+   Get the job handle for the running task. This should be used between repeated gearman_client_do() and gearman_client_do_high() calls to get information. */
+PHP_FUNCTION(gearman_client_do_job_handle) {
+	zval *zobj;
+	gearman_client_obj *obj;
+
+	GEARMAN_ZPMP(gearman_client_obj, RETURN_NULL(), "", &zobj, gearman_client_ce)
+
+	RETURN_STRING((char *)gearman_client_do_job_handle(&(obj->client)))
+}
+/* }}} */
+
+/* {{{ proto array gearman_client_do_status(object client)
+   Get the status for the running task. This should be used between repeated gearman_client_do() and gearman_client_do_high() calls to get information. */
+PHP_FUNCTION(gearman_client_do_status) {
+	zval *zobj;
+	gearman_client_obj *obj;
+	uint32_t numerator;
+	uint32_t denominator;
+
+	GEARMAN_ZPMP(gearman_client_obj, RETURN_NULL(), "", &zobj, gearman_client_ce)
+
+	gearman_client_do_status(&(obj->client), &numerator, &denominator);
+	
+	array_init(return_value);
+	add_next_index_long(return_value, (long) numerator);
+	add_next_index_long(return_value, (long) denominator);
 }
 /* }}} */
 
@@ -3998,15 +3942,15 @@ static zend_function_entry gearman_client_methods[]= {
 #endif
 */
 	PHP_ME(GearmanClient, wait, arginfo_gearman_client_wait, ZEND_ACC_PUBLIC)
-	PHP_ME_MAPPING(do, gearman_client_do, arginfo_oo_gearman_client_do, 0)
-	PHP_ME_MAPPING(doNormal, gearman_client_do_normal, arginfo_oo_gearman_client_do_normal, 0)
-	PHP_ME_MAPPING(doHigh, gearman_client_do_high, arginfo_oo_gearman_client_do_high, 0)
-	PHP_ME_MAPPING(doLow, gearman_client_do_low, arginfo_oo_gearman_client_do_low, 0)
+	PHP_ME(GearmanClient, doNormal, arginfo_gearman_client_doNormal, ZEND_ACC_PUBLIC)
+	PHP_ME(GearmanClient, doHigh, arginfo_gearman_client_doHigh, ZEND_ACC_PUBLIC)
+	PHP_ME(GearmanClient, doLow, arginfo_gearman_client_doLow, ZEND_ACC_PUBLIC)
+	PHP_ME(GearmanClient, doBackground, arginfo_gearman_client_doBackground, ZEND_ACC_PUBLIC)
+	PHP_ME(GearmanClient, doHighBackground, arginfo_gearman_client_doHighBackground, ZEND_ACC_PUBLIC)
+	PHP_ME(GearmanClient, doLowBackground, arginfo_gearman_client_doLowBackground, ZEND_ACC_PUBLIC)
+
 	PHP_ME_MAPPING(doJobHandle, gearman_client_do_job_handle, arginfo_oo_gearman_client_do_job_handle, 0)
 	PHP_ME_MAPPING(doStatus, gearman_client_do_status, arginfo_oo_gearman_client_do_status, 0)
-	PHP_ME(GearmanClient, doBackground, arginfo_gearman_client_doBackground, ZEND_ACC_PUBLIC)
-	PHP_ME_MAPPING(doHighBackground, gearman_client_do_high_background, arginfo_oo_gearman_client_do_high_background, 0)
-	PHP_ME_MAPPING(doLowBackground, gearman_client_do_low_background, arginfo_oo_gearman_client_do_low_background, 0)
 	PHP_ME_MAPPING(jobStatus, gearman_client_job_status, arginfo_oo_gearman_client_job_status, 0)
 	PHP_ME_MAPPING(jobStatusByUniqueKey, gearman_client_job_status_by_unique_key, arginfo_oo_gearman_client_job_status_by_unique_key, 0)
 	PHP_ME_MAPPING(echo, gearman_client_echo, arginfo_oo_gearman_client_echo, 0)
