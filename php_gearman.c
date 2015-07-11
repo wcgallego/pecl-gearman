@@ -919,12 +919,12 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_work, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_ping, 0, 0, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_echo, 0, 0, 2)
 	ZEND_ARG_INFO(0, worker_object)
 	ZEND_ARG_INFO(0, workload)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_ping, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_echo, 0, 0, 1)
 	ZEND_ARG_INFO(0, workload)
 ZEND_END_ARG_INFO()
 
@@ -3637,9 +3637,9 @@ PHP_FUNCTION(gearman_worker_work) {
 }
 /* }}} */
 
-/* {{{ proto bool gearman_worker_ping(object worker, string data)
+/* {{{ proto bool gearman_worker_echo(object worker, string data)
    Send data to all job servers to see if they echo it back. */
-PHP_FUNCTION(gearman_worker_ping) {
+PHP_FUNCTION(gearman_worker_echo) {
 	zval *zobj;
 	gearman_worker_obj *obj;
 	char *workload;
@@ -4062,7 +4062,7 @@ wgallego - hiding for now
 	/* PHP_FE(gearman_worker_job_free_all, arginfo_gearman_worker_job_free_all) */
 	PHP_FE(gearman_worker_add_function, arginfo_gearman_worker_add_function)
 	PHP_FE(gearman_worker_work, arginfo_gearman_worker_work)
-	PHP_FE(gearman_worker_ping, arginfo_gearman_worker_ping)
+	PHP_FE(gearman_worker_echo, arginfo_gearman_worker_echo)
 
 	/* Functions from job.h */
 	PHP_FE(gearman_job_return_code, arginfo_gearman_job_return_code)
@@ -4246,7 +4246,7 @@ zend_function_entry gearman_worker_methods[]= {
 	/* PHP_ME_MAPPING(jobFreeAll, gearman_worker_job_free_all, arginfo_oo_gearman_worker_job_free_all, 0) */
 	PHP_ME_MAPPING(addFunction, gearman_worker_add_function, arginfo_oo_gearman_worker_add_function, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(work, gearman_worker_work, arginfo_oo_gearman_worker_work, ZEND_ACC_PUBLIC)
-	PHP_ME_MAPPING(echo, gearman_worker_ping, arginfo_oo_gearman_worker_ping, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(echo, gearman_worker_echo, arginfo_oo_gearman_worker_echo, ZEND_ACC_PUBLIC)
 
 	{NULL, NULL, NULL}
 };
