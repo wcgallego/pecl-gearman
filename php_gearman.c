@@ -2362,6 +2362,8 @@ ZEND_FUNCTION(gearman_client_job_status_by_unique_key) {
 
 /* {{{ proto bool GearmanClient::ping(string workload)
    Send data to all job servers to see if they echo it back. */
+// TODO - GearmanClient has echo (deprecated) and ping. GearmanWorker only has echo
+// That said, the underlying lib is called gearman_client_echo. Seems like that sould be the paradigm
 ZEND_FUNCTION(gearman_client_ping) {
 	char *workload;
 	size_t workload_len;
@@ -4335,11 +4337,10 @@ wgallego - hiding for now
 	gearman_job_obj_handlers.free_obj = gearman_job_obj_free;
 
 	/* XXX exception class */
-	// TODO - need to rework all of these class inits
 	INIT_CLASS_ENTRY(ce, "GearmanException", gearman_exception_methods)
-	gearman_exception_ce = zend_register_internal_class_ex(&ce, NULL TSRMLS_CC);
+	gearman_exception_ce = zend_register_internal_class_ex(&ce, zend_exception_get_default());
 	gearman_exception_ce->ce_flags |= ZEND_ACC_FINAL;
-	zend_declare_property_long(gearman_exception_ce, "code", sizeof("code")-1, 0, ZEND_ACC_PUBLIC TSRMLS_CC);
+	zend_declare_property_long(gearman_exception_ce, "code", sizeof("code")-1, 0, ZEND_ACC_PUBLIC);
 
 	/* These are automatically generated from gearman_constants.h using
 	const_gen.sh. Do not remove the CONST_GEN_* comments, this is how the
