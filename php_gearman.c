@@ -32,12 +32,8 @@ static inline zend_object *gearman_task_obj_new(zend_class_entry *ce);
 static inline zend_object *gearman_worker_obj_new(zend_class_entry *ce);
 static inline zend_object *gearman_job_obj_new(zend_class_entry *ce);
 
-// TODO, wgallego - I think I can eliminate this macro
-#if (PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 3)
-#   define GEARMAN_IS_CALLABLE(callable, check_flags, callable_name) zend_is_callable(callable, check_flags, callable_name)
-#else
-#   define GEARMAN_IS_CALLABLE(callable, check_flags, callable_name) zend_is_callable(callable, check_flags, callable_name TSRMLS_CC)
-#endif
+// TODO - move this somewhere...
+static void gearman_task_obj_free(zend_object *object);
 
 /* {{{ arginfo */
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_version, 0, 0, 0)
@@ -970,8 +966,6 @@ typedef enum {
 typedef struct {
 	gearman_return_t ret;
 	gearman_job_obj_flags_t flags;
-// TODO - why a pointer to gearman_job_st here?
-// Why not the struct itself, much like client in gearman_client_obj?
 	gearman_job_st *job;
 	zval *worker;
 	zval *zworkload;
@@ -1061,9 +1055,6 @@ zend_class_entry *gearman_task_ce;
 static zend_object_handlers gearman_task_obj_handlers;
 
 zend_class_entry *gearman_exception_ce;
-
-// TODO - move this somewhere...
-static void gearman_task_obj_free(zend_object *object);
 
 /*
  * Helper macros.
@@ -1622,7 +1613,6 @@ PHP_FUNCTION(gearman_job_send_warning) {
 
 /* {{{ proto bool gearman_job_send_status(object job, int numerator, int denominator)
    Send status information for a running job. */
-// TODO - add this to php.net docs
 PHP_FUNCTION(gearman_job_send_status) {
 	zval *zobj;
 	gearman_job_obj *obj;
@@ -1847,8 +1837,6 @@ PHP_FUNCTION(gearman_job_set_return) {
  * Functions from client.h
  */
 
-// TODO - probably move this closer to top of php_gearman_client.c
-// On second though, I think I can just eliminate this
 #define GEARMAN_CLIENT_FETCH_OBJECT \
 	gearman_client_obj *client;  \
 	zval *object = getThis();  \
@@ -1909,9 +1897,14 @@ ZEND_METHOD(GearmanClient, __construct)
 /* {{{ proto object gearman_client_clone(object client)
    Clone a client object */
 ZEND_FUNCTION(gearman_client_clone) {
+	gearman_client_obj *obj;
 	gearman_client_obj *new;
+	zval *zobj;
 
-	GEARMAN_CLIENT_FETCH_OBJECT
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_client_ce) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_CLIENT_P(zobj);
 
 	if (object_init_ex(return_value, gearman_client_ce) != SUCCESS) {
 		php_error_docref(NULL, E_WARNING, "Object creation failure."); 
@@ -1920,7 +1913,7 @@ ZEND_FUNCTION(gearman_client_clone) {
 
 	new = Z_GEARMAN_CLIENT_P(return_value);
 
-	if (gearman_client_clone(&(new->client), &(client->client)) == NULL) {
+	if (gearman_client_clone(&(new->client), &(obj->client)) == NULL) {
 		php_error_docref(NULL, E_WARNING, "Memory allocation failure."); 
 		zval_dtor(return_value);
 		RETURN_FALSE;
@@ -1934,8 +1927,15 @@ ZEND_FUNCTION(gearman_client_clone) {
    get last gearman_return_t */
 ZEND_FUNCTION(gearman_client_return_code)
 {
-	GEARMAN_CLIENT_FETCH_OBJECT
-	RETURN_LONG(client->ret);
+	gearman_client_obj *obj;
+	zval *zobj;
+
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_client_ce) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_CLIENT_P(zobj);
+
+	RETURN_LONG(obj->ret);
 }
 /* }}} */
 
@@ -1943,10 +1943,15 @@ ZEND_FUNCTION(gearman_client_return_code)
    Return an error string for the last error encountered. */
 ZEND_FUNCTION(gearman_client_error) {
 	char *error = NULL;
+	gearman_client_obj *obj;
+	zval *zobj;
 
-	GEARMAN_CLIENT_FETCH_OBJECT
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_client_ce) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_CLIENT_P(zobj);
 
-	error = (char *)gearman_client_error(&(client->client));
+	error = (char *)gearman_client_error(&(obj->client));
 	if (error) {
 		RETURN_STRING(error)
 	} 
@@ -1957,8 +1962,15 @@ ZEND_FUNCTION(gearman_client_error) {
 /* {{{ proto int gearman_client_get_errno()
    Value of errno in the case of a GEARMAN_ERRNO return value. */
 ZEND_FUNCTION(gearman_client_get_errno) {
-	GEARMAN_CLIENT_FETCH_OBJECT
-	RETURN_LONG(gearman_client_errno(&(client->client)))
+	gearman_client_obj *obj;
+	zval *zobj;
+
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_client_ce) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_CLIENT_P(zobj);
+
+	RETURN_LONG(gearman_client_errno(&(obj->client)))
 }
 /* }}} */
 
@@ -2738,7 +2750,7 @@ ZEND_FUNCTION(gearman_client_set_workload_callback) {
 	obj = Z_GEARMAN_CLIENT_P(zobj);
 
 	/* check that the function is callable */
-	if (! GEARMAN_IS_CALLABLE(zworkload_fn, 0, &callable)) {
+	if (! zend_is_callable(zworkload_fn, 0, &callable)) {
 		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable); 
 		zend_string_release(callable);
 		RETURN_FALSE;
@@ -2772,7 +2784,7 @@ ZEND_FUNCTION(gearman_client_set_created_callback) {
 	obj = Z_GEARMAN_CLIENT_P(zobj);
 
 	/* check that the function is callable */
-	if (! GEARMAN_IS_CALLABLE(zcreated_fn, 0, &callable)) {
+	if (! zend_is_callable(zcreated_fn, 0, &callable)) {
 		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable); 
 		zend_string_release(callable);
 		RETURN_FALSE;
@@ -2806,7 +2818,7 @@ ZEND_FUNCTION(gearman_client_set_data_callback) {
 	obj = Z_GEARMAN_CLIENT_P(zobj);
 
 	/* check that the function is callable */
-	if (! GEARMAN_IS_CALLABLE(zdata_fn, 0, &callable)) {
+	if (! zend_is_callable(zdata_fn, 0, &callable)) {
 		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable); 
 		zend_string_release(callable);
 		RETURN_FALSE;
@@ -2840,7 +2852,7 @@ ZEND_FUNCTION(gearman_client_set_warning_callback) {
 	obj = Z_GEARMAN_CLIENT_P(zobj);
 
 	/* check that the function is callable */
-	if (! GEARMAN_IS_CALLABLE(zwarning_fn, 0, &callable)) {
+	if (! zend_is_callable(zwarning_fn, 0, &callable)) {
 		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable); 
 		zend_string_release(callable);
 		RETURN_FALSE;
@@ -2909,7 +2921,7 @@ ZEND_FUNCTION(gearman_client_set_complete_callback) {
 	obj = Z_GEARMAN_CLIENT_P(zobj);
 
 	/* check that the function is callable */
-	if (! GEARMAN_IS_CALLABLE(zcomplete_fn, 0, &callable)) {
+	if (! zend_is_callable(zcomplete_fn, 0, &callable)) {
 		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable); 
 		zend_string_release(callable);
 		RETURN_FALSE;
@@ -2943,7 +2955,7 @@ ZEND_FUNCTION(gearman_client_set_exception_callback) {
 	obj = Z_GEARMAN_CLIENT_P(zobj);
 
 	/* check that the function is callable */
-	if (! GEARMAN_IS_CALLABLE(zexception_fn, 0, &callable)) {
+	if (! zend_is_callable(zexception_fn, 0, &callable)) {
 		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable); 
 		zend_string_release(callable);
 		RETURN_FALSE;
@@ -2977,7 +2989,7 @@ ZEND_FUNCTION(gearman_client_set_fail_callback) {
 	obj = Z_GEARMAN_CLIENT_P(zobj);
 
 	/* check that the function is callable */
-	if (! GEARMAN_IS_CALLABLE(zfail_fn, 0, &callable)) {
+	if (! zend_is_callable(zfail_fn, 0, &callable)) {
 		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable); 
 		zend_string_release(callable);
 		RETURN_FALSE;
