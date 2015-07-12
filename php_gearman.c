@@ -1837,21 +1837,6 @@ PHP_FUNCTION(gearman_job_set_return) {
  * Functions from client.h
  */
 
-#define GEARMAN_CLIENT_FETCH_OBJECT \
-	gearman_client_obj *client;  \
-	zval *object = getThis();  \
-	if (object) {   \
-		if (zend_parse_parameters_none() == FAILURE) {  \
-			return; \
-		}   \
-	} else {    \
-		if (zend_parse_method_parameters(ZEND_NUM_ARGS() TSRMLS_CC, NULL, "O", &object, gearman_client_ce) == FAILURE) { \
-			RETURN_FALSE;   \
-		}   \
-	}   \
-	client = Z_GEARMAN_CLIENT_P(object);  \
-
-
 static void gearman_client_ctor(INTERNAL_FUNCTION_PARAMETERS) {
 	gearman_client_obj *client;
 
@@ -1875,7 +1860,7 @@ static void gearman_client_ctor(INTERNAL_FUNCTION_PARAMETERS) {
 
 /* {{{ proto object gearman_client_create()
    Returns a GearmanClient object */
-ZEND_FUNCTION(gearman_client_create) {
+PHP_FUNCTION(gearman_client_create) {
 	if (object_init_ex(return_value, gearman_client_ce) != SUCCESS) {
 		php_error_docref(NULL, E_WARNING, "Object creation failure."); 
 		RETURN_FALSE;
@@ -1886,7 +1871,7 @@ ZEND_FUNCTION(gearman_client_create) {
 
 /* {{{ proto object GearmanClient::__construct()
    Returns a GearmanClient object */
-ZEND_METHOD(GearmanClient, __construct)
+PHP_METHOD(GearmanClient, __construct)
 {
 	return_value = getThis();
 	gearman_client_ctor(INTERNAL_FUNCTION_PARAM_PASSTHRU);
@@ -1896,7 +1881,7 @@ ZEND_METHOD(GearmanClient, __construct)
 
 /* {{{ proto object gearman_client_clone(object client)
    Clone a client object */
-ZEND_FUNCTION(gearman_client_clone) {
+PHP_FUNCTION(gearman_client_clone) {
 	gearman_client_obj *obj;
 	gearman_client_obj *new;
 	zval *zobj;
@@ -1925,7 +1910,7 @@ ZEND_FUNCTION(gearman_client_clone) {
 
 /* {{{ proto int gearman_client_return_code()
    get last gearman_return_t */
-ZEND_FUNCTION(gearman_client_return_code)
+PHP_FUNCTION(gearman_client_return_code)
 {
 	gearman_client_obj *obj;
 	zval *zobj;
@@ -1941,7 +1926,7 @@ ZEND_FUNCTION(gearman_client_return_code)
 
 /* {{{ proto string gearman_client_error()
    Return an error string for the last error encountered. */
-ZEND_FUNCTION(gearman_client_error) {
+PHP_FUNCTION(gearman_client_error) {
 	char *error = NULL;
 	gearman_client_obj *obj;
 	zval *zobj;
@@ -1961,7 +1946,7 @@ ZEND_FUNCTION(gearman_client_error) {
 
 /* {{{ proto int gearman_client_get_errno()
    Value of errno in the case of a GEARMAN_ERRNO return value. */
-ZEND_FUNCTION(gearman_client_get_errno) {
+PHP_FUNCTION(gearman_client_get_errno) {
 	gearman_client_obj *obj;
 	zval *zobj;
 
@@ -1976,7 +1961,7 @@ ZEND_FUNCTION(gearman_client_get_errno) {
 
 /* {{{ proto int gearman_client_options()
    Get options for a client structure. */
-ZEND_FUNCTION(gearman_client_options) {
+PHP_FUNCTION(gearman_client_options) {
 	gearman_client_obj *obj;
 	zval *zobj;
 
@@ -1991,7 +1976,7 @@ ZEND_FUNCTION(gearman_client_options) {
 
 /* {{{ proto void gearman_client_set_options(constant option)
    Set options for a client structure. */
-ZEND_FUNCTION(gearman_client_set_options) {
+PHP_FUNCTION(gearman_client_set_options) {
 	long options;
 
 	gearman_client_obj *obj;
@@ -2009,7 +1994,7 @@ ZEND_FUNCTION(gearman_client_set_options) {
 
 /* {{{ proto void GearmanClient::addOptions(constant option)
    Set options for a client structure. */
-ZEND_FUNCTION(gearman_client_add_options) {
+PHP_FUNCTION(gearman_client_add_options) {
 	long options;
 
 	gearman_client_obj *obj;
@@ -2027,7 +2012,7 @@ ZEND_FUNCTION(gearman_client_add_options) {
 
 /* {{{ proto void GearmanClient::removeOptions(constant option)
    Set options for a client structure. */
-ZEND_FUNCTION(gearman_client_remove_options) {
+PHP_FUNCTION(gearman_client_remove_options) {
 	long options;
 
 	gearman_client_obj *obj;
@@ -2045,7 +2030,7 @@ ZEND_FUNCTION(gearman_client_remove_options) {
 
 /* {{{ proto int gearman_client_timeout(object)
    Get timeout for a client structure. */
-ZEND_FUNCTION(gearman_client_timeout) {
+PHP_FUNCTION(gearman_client_timeout) {
 	gearman_client_obj *obj;
 	zval *zobj;
 
@@ -2060,7 +2045,7 @@ ZEND_FUNCTION(gearman_client_timeout) {
 
 /* {{{ proto void gearman_client_set_timeout(object, constant timeout)
    Set timeout for a client structure. */
-ZEND_FUNCTION(gearman_client_set_timeout) {
+PHP_FUNCTION(gearman_client_set_timeout) {
 	long timeout;
 
 	gearman_client_obj *obj;
@@ -2078,7 +2063,7 @@ ZEND_FUNCTION(gearman_client_set_timeout) {
 
 /* {{{ proto bool gearman_client_add_server(object client [, string host [, int port]])
    Add a job server to a client. This goes into a list of servers than can be used to run tasks. No socket I/O happens here, it is just added to a list. */
-ZEND_FUNCTION(gearman_client_add_server) {
+PHP_FUNCTION(gearman_client_add_server) {
 	char *host = NULL;
 	size_t host_len = 0;
 	long port = 0;
@@ -2108,7 +2093,7 @@ ZEND_FUNCTION(gearman_client_add_server) {
 
 /* {{{ proto bool gearman_client_add_servers(object client [, string servers])
    Add a list of job servers to a client. This goes into a list of servers that can be used to run tasks. No socket I/O happens here, it is just added to a list. */
-ZEND_FUNCTION(gearman_client_add_servers) {
+PHP_FUNCTION(gearman_client_add_servers) {
 	char *servers = NULL;
 	size_t servers_len = 0;
 
@@ -2137,8 +2122,7 @@ ZEND_FUNCTION(gearman_client_add_servers) {
 
 /* {{{ proto bool GearmanClient::wait()
    Wait for I/O activity on all connections in a client. */
-// TODO wgallego - need to confirm this is actually working
-ZEND_FUNCTION(gearman_client_wait) {
+PHP_FUNCTION(gearman_client_wait) {
 	gearman_client_obj *obj;
 	zval *zobj;
 
@@ -2216,21 +2200,21 @@ static void gearman_client_do_work_handler(void* (*do_work_func)(
 
 /* {{{ proto string GearmanClient::doNormal(string function, string workload [, string unique ])
    Run a single task and return an allocated result. */
-ZEND_FUNCTION(gearman_client_do_normal) {
+PHP_FUNCTION(gearman_client_do_normal) {
 	gearman_client_do_work_handler(gearman_client_do, INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 /* }}} */
 
 /* {{{ proto string GearmanClient::doHigh(object client, string function, string workload [, string unique ])
    Run a high priority task and return an allocated result. */
-ZEND_FUNCTION(gearman_client_do_high) {
+PHP_FUNCTION(gearman_client_do_high) {
 	gearman_client_do_work_handler(gearman_client_do_high, INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 /* }}} */
 
 /* {{{ proto array GearmanClient::doLow(object client, string function, string workload [, string unique ])
    Run a low priority task and return an allocated result. */
-ZEND_FUNCTION(gearman_client_do_low) {
+PHP_FUNCTION(gearman_client_do_low) {
 	gearman_client_do_work_handler(gearman_client_do_low, INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 /* }}} */
@@ -2294,28 +2278,28 @@ static void gearman_client_do_background_work_handler(gearman_return_t (*do_back
 
 /* {{{ proto string GearmanClient::doBackground(string function, string workload [, string unique ])
    Run a task in the background. */
-ZEND_FUNCTION(gearman_client_do_background) {
+PHP_FUNCTION(gearman_client_do_background) {
 	gearman_client_do_background_work_handler(gearman_client_do_background, INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 /* }}} */
 
 /* {{{ proto string GearmanClient::doHighBackground(string function, string workload [, string unique ])
    Run a high priority task in the background. */
-ZEND_FUNCTION(gearman_client_do_high_background) {
+PHP_FUNCTION(gearman_client_do_high_background) {
 	gearman_client_do_background_work_handler(gearman_client_do_high_background, INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 /* }}} */
 
 /* {{{ proto string GearmanClient::doLowBackground(string function, string workload [, string unique ])
    Run a low priority task in the background. */
-ZEND_FUNCTION(gearman_client_do_low_background) {
+PHP_FUNCTION(gearman_client_do_low_background) {
 	gearman_client_do_background_work_handler(gearman_client_do_low_background, INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 /* }}} */
 
 /* {{{ proto string GearmanClient::doJobHandle()
    Get the job handle for the running task. This should be used between repeated gearman_client_do() and gearman_client_do_high() calls to get information. */
-ZEND_FUNCTION(gearman_client_do_job_handle) {
+PHP_FUNCTION(gearman_client_do_job_handle) {
 	gearman_client_obj *obj;
 	zval *zobj;
 
@@ -2331,7 +2315,7 @@ ZEND_FUNCTION(gearman_client_do_job_handle) {
 
 /* {{{ proto array GearmanClient::doStatus()
    Get the status for the running task. This should be used between repeated gearman_client_do() and gearman_client_do_high() calls to get information. */
-ZEND_FUNCTION(gearman_client_do_status) {
+PHP_FUNCTION(gearman_client_do_status) {
 	uint32_t numerator;
 	uint32_t denominator;
 
@@ -2353,7 +2337,7 @@ ZEND_FUNCTION(gearman_client_do_status) {
 
 /* {{{ proto array GearmanClient::jobStatus(string job_handle)
    Get the status for a backgound job. */
-ZEND_FUNCTION(gearman_client_job_status) {
+PHP_FUNCTION(gearman_client_job_status) {
 	char *job_handle;
 	size_t job_handle_len;
 	bool is_known;
@@ -2388,7 +2372,7 @@ ZEND_FUNCTION(gearman_client_job_status) {
 
 /* {{{ proto array GearmanClient::jobStatusByUniqueKey(string unique_key)
    Get the status for a backgound job using the unique key passed in during job submission, rather than job handle. */
-ZEND_FUNCTION(gearman_client_job_status_by_unique_key) {
+PHP_FUNCTION(gearman_client_job_status_by_unique_key) {
 	char *unique_key;
 	size_t unique_key_len;
 	gearman_client_obj *obj;
@@ -2420,7 +2404,7 @@ ZEND_FUNCTION(gearman_client_job_status_by_unique_key) {
    Send data to all job servers to see if they echo it back. */
 // TODO - GearmanClient has echo (deprecated) and ping. GearmanWorker only has echo
 // That said, the underlying lib is called gearman_client_echo. Seems like that sould be the paradigm
-ZEND_FUNCTION(gearman_client_ping) {
+PHP_FUNCTION(gearman_client_ping) {
 	char *workload;
 	size_t workload_len;
 	gearman_client_obj *obj;
@@ -2523,41 +2507,41 @@ static void gearman_client_add_task_handler(gearman_task_st* (*add_task_func)(
 
 /* {{{ proto object GearmanClient::addTask(string function, zval workload [, string unique ])
    Add a task to be run in parallel. */
-ZEND_FUNCTION(gearman_client_add_task) {
+PHP_FUNCTION(gearman_client_add_task) {
 	gearman_client_add_task_handler(gearman_client_add_task, INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 
 /* {{{ proto object GearmanClient::addTaskHigh(string function, zval workload [, string unique ])
    Add a high priority task to be run in parallel. */
-ZEND_FUNCTION(gearman_client_add_task_high) {
+PHP_FUNCTION(gearman_client_add_task_high) {
 	gearman_client_add_task_handler(gearman_client_add_task_high, INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 /* }}} */
 
 /* {{{ proto object GearmanClient::addTaskLow(string function, zval workload [, string unique ])
    Add a low priority task to be run in parallel. */
-ZEND_FUNCTION(gearman_client_add_task_low) {
+PHP_FUNCTION(gearman_client_add_task_low) {
 	gearman_client_add_task_handler(gearman_client_add_task_low, INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 /* }}} */
 
 /* {{{ proto object GearmanClient(string function, zval workload [, string unique ])
    Add a background task to be run in parallel. */
-ZEND_FUNCTION(gearman_client_add_task_background) {
+PHP_FUNCTION(gearman_client_add_task_background) {
 	gearman_client_add_task_handler(gearman_client_add_task_background, INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 /* }}} */
 
 /* {{{ proto object GearmanClient::addTaskHighBackground(string function, zval workload [, string unique ])
    Add a high priority background task to be run in parallel. */
-ZEND_FUNCTION(gearman_client_add_task_high_background) {
+PHP_FUNCTION(gearman_client_add_task_high_background) {
 	gearman_client_add_task_handler(gearman_client_add_task_high_background, INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 /* }}} */
 
 /* {{{ proto object GearmanClient::addTaskLowBackground(string function, zval workload [, string unique ])
    Add a low priority background task to be run in parallel. */
-ZEND_FUNCTION(gearman_client_add_task_low_background) {
+PHP_FUNCTION(gearman_client_add_task_low_background) {
 	gearman_client_add_task_handler(gearman_client_add_task_low_background, INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 /* }}} */
@@ -2567,7 +2551,7 @@ ZEND_FUNCTION(gearman_client_add_task_low_background) {
  * zdata/context to it */
 /* {{{ proto object gearman_client_add_task_status(object client, string job_handle [, zval data])
    Add task to get the status for a backgound task in parallel. */
-ZEND_FUNCTION(gearman_client_add_task_status) {
+PHP_FUNCTION(gearman_client_add_task_status) {
 	zval *zdata = NULL;
 
 	char *job_handle;
@@ -2735,7 +2719,7 @@ static gearman_return_t _php_task_fail_fn(gearman_task_st *task) {
 
 /* {{{ proto bool GearmanClient::setWorkloadCallback(callback function)
    Callback function when workload data needs to be sent for a task. */
-ZEND_FUNCTION(gearman_client_set_workload_callback) {
+PHP_FUNCTION(gearman_client_set_workload_callback) {
 	zval *zworkload_fn;
 	zend_string *callable = NULL;
 
@@ -2769,7 +2753,7 @@ ZEND_FUNCTION(gearman_client_set_workload_callback) {
 
 /* {{{ proto bool GearmanClient::setCreatedCallback(callback function)
    Callback function when workload data needs to be sent for a task. */
-ZEND_FUNCTION(gearman_client_set_created_callback) {
+PHP_FUNCTION(gearman_client_set_created_callback) {
 	zval *zcreated_fn;
 	zend_string *callable = NULL;
 
@@ -2803,7 +2787,7 @@ ZEND_FUNCTION(gearman_client_set_created_callback) {
 
 /* {{{ proto bool GearmanClient::setDataCallback(callback function)
    Callback function when there is a data packet for a task. */
-ZEND_FUNCTION(gearman_client_set_data_callback) {
+PHP_FUNCTION(gearman_client_set_data_callback) {
 	zval *zdata_fn;
 	zend_string *callable = NULL;
 
@@ -2837,7 +2821,7 @@ ZEND_FUNCTION(gearman_client_set_data_callback) {
 
 /* {{{ proto bool GearmanClient::setWarningCallback(callback function)
    Callback function when there is a warning packet for a task. */
-ZEND_FUNCTION(gearman_client_set_warning_callback) {
+PHP_FUNCTION(gearman_client_set_warning_callback) {
 	zval *zwarning_fn;
 	zend_string *callable = NULL;
 
@@ -2871,7 +2855,7 @@ ZEND_FUNCTION(gearman_client_set_warning_callback) {
 
 /* {{{ proto bool GearmanClient::setStatusCallback(callback function)
    Callback function when there is a status packet for a task. */
-ZEND_FUNCTION(gearman_client_set_status_callback) {
+PHP_FUNCTION(gearman_client_set_status_callback) {
 	zval *zstatus_fn;
 	zend_string *callable = NULL;
 
@@ -2906,7 +2890,7 @@ ZEND_FUNCTION(gearman_client_set_status_callback) {
 
 /* {{{ proto bool GearmanClient::setCompleteCallback(callback function)
    Callback function when there is a status packet for a task. */
-ZEND_FUNCTION(gearman_client_set_complete_callback) {
+PHP_FUNCTION(gearman_client_set_complete_callback) {
 	zval *zcomplete_fn;
 	zend_string *callable = NULL;
 
@@ -2940,7 +2924,7 @@ ZEND_FUNCTION(gearman_client_set_complete_callback) {
 
 /* {{{ proto bool GearmanClient::setExceptionCallback(callback function)
    Callback function when there is a exception packet for a task. */
-ZEND_FUNCTION(gearman_client_set_exception_callback) {
+PHP_FUNCTION(gearman_client_set_exception_callback) {
 	zval *zexception_fn;
 	zend_string *callable = NULL;
 
@@ -2974,7 +2958,7 @@ ZEND_FUNCTION(gearman_client_set_exception_callback) {
 
 /* {{{ proto bool GearmanClient::setFailCallback(callback function)
    Callback function when there is a fail packet for a task. */
-ZEND_FUNCTION(gearman_client_set_fail_callback) {
+PHP_FUNCTION(gearman_client_set_fail_callback) {
 	zval *zfail_fn;
 	zend_string *callable = NULL;
 
@@ -3008,7 +2992,7 @@ ZEND_FUNCTION(gearman_client_set_fail_callback) {
 
 /* {{{ proto void GearmanClient::clearCallbacks()
    Clear all task callback functions. */
-ZEND_FUNCTION(gearman_client_clear_callbacks) {
+PHP_FUNCTION(gearman_client_clear_callbacks) {
 	gearman_client_obj *obj;
 	zval *zobj;
 
@@ -3034,7 +3018,7 @@ ZEND_FUNCTION(gearman_client_clear_callbacks) {
 
 /* {{{ proto string GearmanClient::context()
    Get the application data */
-ZEND_FUNCTION(gearman_client_context) {
+PHP_FUNCTION(gearman_client_context) {
 	const uint8_t *data;
 
 	gearman_client_obj *obj;
@@ -3053,7 +3037,7 @@ ZEND_FUNCTION(gearman_client_context) {
 
 /* {{{ proto bool GearmanClient::setContext(string data)
    Set the application data */
-ZEND_FUNCTION(gearman_client_set_context) {
+PHP_FUNCTION(gearman_client_set_context) {
 	char *data;
 	size_t data_len = 0;
 
@@ -3072,7 +3056,7 @@ ZEND_FUNCTION(gearman_client_set_context) {
 
 /* {{{ proto bool gearman_client_run_tasks(object client)
    Run tasks that have been added in parallel */
-ZEND_FUNCTION(gearman_client_run_tasks) {
+PHP_FUNCTION(gearman_client_run_tasks) {
 	gearman_client_obj *obj;
 	zval *zobj;
 
@@ -3811,7 +3795,7 @@ PHP_FUNCTION(gearman_worker_create) {
 
 /* {{{ proto object GearmanWorker::__construct()
    Returns a worker object */
-ZEND_METHOD(GearmanWorker, __construct)
+PHP_METHOD(GearmanWorker, __construct)
 {
 	return_value = getThis();
 	gearman_worker_ctor(INTERNAL_FUNCTION_PARAM_PASSTHRU);
@@ -3904,7 +3888,7 @@ static void gearman_task_obj_free(zend_object *object) {
 	zend_object_std_dtor(&intern->std);
 }
 
-static ZEND_METHOD(GearmanTask, __construct) {
+static PHP_METHOD(GearmanTask, __construct) {
 }
 
 static inline zend_object *gearman_task_obj_new(zend_class_entry *ce) {
