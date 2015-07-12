@@ -1096,26 +1096,6 @@ static void gearman_task_obj_free(zend_object *object);
  */
 
 /*
-wgallego -  hiding for now
-#define GEARMAN_ZPP(__return, __args, ...) { \
-  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O" __args, \
-                            __VA_ARGS__) == FAILURE) { \
-    __return; \
-  } \
-  obj= zend_object_store_get_object(zobj TSRMLS_CC); \
-}
-*/
-
-#define GEARMAN_ZPMP(__obj_type, __return, __args, ...) { \
-  if (zend_parse_method_parameters(ZEND_NUM_ARGS() TSRMLS_CC, getThis(), \
-                                   "O" __args, __VA_ARGS__) == FAILURE) { \
-    __return; \
-  } \
-  obj = (__obj_type *)(char*)(Z_OBJ_P((zobj)) - XtOffsetOf(__obj_type, std)); \
-}
-  //obj = (__obj_type *) Z_OBJ_P(zobj TSRMLS_CC); \
-
-/*
 TODO - I think I can eliminate this for just zval_dtor
 TODO #2 - I can see value in this, but getting rid of READY_TO_DESTROY
 */
@@ -1342,7 +1322,12 @@ PHP_FUNCTION(gearman_task_return_code)
 {
 	zval *zobj;
 	gearman_task_obj *obj;
-	GEARMAN_ZPMP(gearman_task_obj, RETURN_NULL(), "", &zobj, gearman_task_ce)
+
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_task_ce) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_TASK_P(zobj);
+
 	RETURN_LONG(obj->ret);
 }
 /* }}} */
@@ -1355,7 +1340,11 @@ PHP_FUNCTION(gearman_task_context) {
 	zval *zobj;
 	gearman_task_obj *obj;
 
-	GEARMAN_ZPP(RETURN_NULL(), "O", &zobj, gearman_task_ce)
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_task_ce) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_TASK_P(zobj);
+
 	RETURN_STRINGL((char *)obj->zdata->value.str.val, 
 				   (long) obj->zdata->value.str.len, 1);
 }
@@ -1367,7 +1356,11 @@ PHP_FUNCTION(gearman_task_context) {
 PHP_FUNCTION(gearman_task_function_name) {
 	zval *zobj;
 	gearman_task_obj *obj;
-	GEARMAN_ZPMP(gearman_task_obj, RETURN_NULL(), "", &zobj, gearman_task_ce)
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_task_ce) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_TASK_P(zobj);
+
 	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
 		RETURN_STRING((char *)gearman_task_function_name(obj->task));
 	}
@@ -1380,7 +1373,11 @@ PHP_FUNCTION(gearman_task_function_name) {
 PHP_FUNCTION(gearman_task_unique) {
 	zval *zobj;
 	gearman_task_obj *obj;
-	GEARMAN_ZPMP(gearman_task_obj, RETURN_NULL(), "", &zobj, gearman_task_ce)
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_task_ce) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_TASK_P(zobj);
+
 	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
 		RETURN_STRING((char *)gearman_task_unique(obj->task));
 	}
@@ -1393,7 +1390,11 @@ PHP_FUNCTION(gearman_task_unique) {
 PHP_FUNCTION(gearman_task_job_handle) {
 	zval *zobj;
 	gearman_task_obj *obj;
-	GEARMAN_ZPMP(gearman_task_obj, RETURN_NULL(), "", &zobj, gearman_task_ce)
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_task_ce) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_TASK_P(zobj);
+
 	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
 		RETURN_STRING((char *)gearman_task_job_handle(obj->task));
 	}
@@ -1406,7 +1407,11 @@ PHP_FUNCTION(gearman_task_job_handle) {
 PHP_FUNCTION(gearman_task_is_known) {
 	zval *zobj;
 	gearman_task_obj *obj;
-	GEARMAN_ZPMP(gearman_task_obj, RETURN_NULL(), "", &zobj, gearman_task_ce)
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_task_ce) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_TASK_P(zobj);
+
 	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
 		RETURN_BOOL(gearman_task_is_known(obj->task));
 	}
@@ -1420,7 +1425,11 @@ PHP_FUNCTION(gearman_task_is_known) {
 PHP_FUNCTION(gearman_task_is_running) {
 	zval *zobj;
 	gearman_task_obj *obj;
-	GEARMAN_ZPMP(gearman_task_obj, RETURN_NULL(), "", &zobj, gearman_task_ce)
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_task_ce) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_TASK_P(zobj);
+
 	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
 		RETURN_BOOL(gearman_task_is_running(obj->task));
 	}
@@ -1434,7 +1443,11 @@ PHP_FUNCTION(gearman_task_is_running) {
 PHP_FUNCTION(gearman_task_numerator) {
 	zval *zobj;
 	gearman_task_obj *obj;
-	GEARMAN_ZPMP(gearman_task_obj, RETURN_NULL(), "", &zobj, gearman_task_ce)
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_task_ce) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_TASK_P(zobj);
+
 	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
 		RETURN_LONG(gearman_task_numerator(obj->task));
 	}
@@ -1448,7 +1461,11 @@ PHP_FUNCTION(gearman_task_numerator) {
 PHP_FUNCTION(gearman_task_denominator) {
 	zval *zobj;
 	gearman_task_obj *obj;
-	GEARMAN_ZPMP(gearman_task_obj, RETURN_NULL(), "", &zobj, gearman_task_ce)
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_task_ce) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_TASK_P(zobj);
+
 	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
 		RETURN_LONG(gearman_task_denominator(obj->task));
 	}
@@ -1465,7 +1482,10 @@ PHP_FUNCTION(gearman_task_data) {
 	const uint8_t *data;
 	size_t data_len;
 
-	GEARMAN_ZPMP(gearman_task_obj, RETURN_NULL(), "", &zobj, gearman_task_ce)
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_task_ce) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_TASK_P(zobj);
 
 	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
 		data = gearman_task_data(obj->task);
@@ -1483,7 +1503,11 @@ PHP_FUNCTION(gearman_task_data) {
 PHP_FUNCTION(gearman_task_data_size) {
 	zval *zobj;
 	gearman_task_obj *obj;
-	GEARMAN_ZPMP(gearman_task_obj, RETURN_NULL(), "", &zobj, gearman_task_ce)
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_task_ce) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_TASK_P(zobj);
+
 	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
 		RETURN_LONG(gearman_task_data_size(obj->task));
 	}
@@ -1500,8 +1524,12 @@ PHP_FUNCTION(gearman_task_send_workload) {
 	const uint8_t *data;
 	size_t data_len;
 
-	GEARMAN_ZPMP(gearman_task_obj, RETURN_NULL(), "s", &zobj, gearman_task_ce,
-				 &data, &data_len)
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &zobj, gearman_task_ce,
+								&data, &data_len) == FAILURE) {
+		RETURN_FALSE;
+	}
+	obj = Z_GEARMAN_TASK_P(zobj);
+
 
 	if (!(obj->flags & GEARMAN_TASK_OBJ_CREATED)) {
 		RETURN_FALSE;
@@ -1530,7 +1558,11 @@ PHP_FUNCTION(gearman_task_recv_data) {
 	size_t data_buffer_size;
 	size_t data_len;
 
-	GEARMAN_ZPMP(gearman_task_obj, RETURN_NULL(), "l", &zobj, gearman_task_ce, &data_buffer_size)
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol", &zobj, gearman_task_ce,
+								&data_buffer_size) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_TASK_P(zobj);
 
 	if (!(obj->flags & GEARMAN_TASK_OBJ_CREATED)) {
 		RETURN_FALSE;
