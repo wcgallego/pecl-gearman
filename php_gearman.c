@@ -1075,7 +1075,7 @@ zend_class_entry *gearman_exception_ce;
                                           (__ret) == GEARMAN_WORK_FAIL)
 
 #define GEARMAN_EXCEPTION(__error, __error_code) { \
-	zend_throw_exception(gearman_exception_ce, __error, __error_code TSRMLS_CC); \
+	zend_throw_exception(gearman_exception_ce, __error, __error_code); \
     return; \
 }
 
@@ -1148,7 +1148,7 @@ PHP_FUNCTION(gearman_create) {
 	gearman= gearman_create(NULL);
 	if (gearman == NULL)
 	{
-	  php_error_docref(NULL TSRMLS_CC, E_WARNING, "Memory allocation failure.");
+	  php_error_docref(NULL, E_WARNING, "Memory allocation failure.");
 	  RETURN_NULL();
 	}
 
@@ -1165,7 +1165,7 @@ wgallego -  hiding for now.
 wgallego -  hiding for now.
 PHP_FUNCTION(gearman_clone) {
 	/* TODO
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &zfrom) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "r", &zfrom) == FAILURE)
 	  RETURN_NULL();
 
 	ZEND_FETCH_RESOURCE(from, gearman_st *, &zfrom, -1, "gearman_st",
@@ -1174,7 +1174,7 @@ PHP_FUNCTION(gearman_clone) {
 	gearman= gearman_clone(NULL, from);
 	if (gearman == NULL)
 	{
-	  php_error_docref(NULL TSRMLS_CC, E_WARNING, "Memory allocation failure.");
+	  php_error_docref(NULL, E_WARNING, "Memory allocation failure.");
 	  RETURN_NULL();
 	}
 
@@ -1189,7 +1189,7 @@ wgallego -  hiding for now.
 wgallego -  hiding for now.
 PHP_FUNCTION(gearman_error) {
 	/* TODO
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r",
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "r",
 	                          &zgearman) == FAILURE)
 	{
 	  RETURN_NULL();
@@ -1208,7 +1208,7 @@ PHP_FUNCTION(gearman_error) {
 wgallego -  hiding for now.
 PHP_FUNCTION(gearman_errno) {
 	/* TODO
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r",
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "r",
 	                          &zgearman) == FAILURE)
 	{
 	  RETURN_NULL();
@@ -1228,7 +1228,7 @@ wgallego -  hiding for now.
 wgallego -  hiding for now.
 PHP_FUNCTION(gearman_set_options) {
 	/* TODO
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rll", &zgearman,
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "rll", &zgearman,
 	                          &options, &data) == FAILURE)
 	{
 	  RETURN_FALSE;
@@ -1484,7 +1484,7 @@ PHP_FUNCTION(gearman_task_send_workload) {
 	data_len = gearman_task_send_workload(obj->task, data, data_len, &obj->ret);
 	if (obj->ret != GEARMAN_SUCCESS)
 	{
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
+		php_error_docref(NULL, E_WARNING,  "%s",
 						 gearman_client_error(obj->client));
 		RETURN_FALSE;
 	}
@@ -1518,7 +1518,7 @@ PHP_FUNCTION(gearman_task_recv_data) {
 	data_len= gearman_task_recv_data(obj->task, data_buffer, data_buffer_size, 
 									 &obj->ret);
 	if (obj->ret != GEARMAN_SUCCESS) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,  "%s",
+		php_error_docref(NULL, E_WARNING,  "%s",
 						 gearman_client_error(obj->client));
 		RETURN_FALSE;
 	}
@@ -3392,7 +3392,7 @@ PHP_FUNCTION(gearman_worker_register) {
 
 	obj->ret = gearman_worker_register(&(obj->worker), function_name, timeout);
 	if (obj->ret != GEARMAN_SUCCESS) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
+		php_error_docref(NULL, E_WARNING, "%s",
 						 gearman_worker_error(&(obj->worker)));
 		RETURN_FALSE;
 	}
@@ -3418,7 +3418,7 @@ PHP_FUNCTION(gearman_worker_unregister) {
 
 	obj->ret = gearman_worker_unregister(&(obj->worker), function_name);
 	if (obj->ret != GEARMAN_SUCCESS) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
+		php_error_docref(NULL, E_WARNING, "%s",
 						 gearman_worker_error(&(obj->worker)));
 		RETURN_FALSE;
 	}
@@ -3440,7 +3440,7 @@ PHP_FUNCTION(gearman_worker_unregister_all) {
 
 	obj->ret= gearman_worker_unregister_all(&(obj->worker));
 	if (obj->ret != GEARMAN_SUCCESS) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s",
+		php_error_docref(NULL, E_WARNING, "%s",
 						 gearman_worker_error(&(obj->worker)));
 		RETURN_FALSE;
 	}
@@ -3707,7 +3707,7 @@ PHP_FUNCTION(gearman_worker_echo) {
  * Methods for gearman_client
  */
 
-static void gearman_client_obj_free(zend_object *object TSRMLS_DC) {
+static void gearman_client_obj_free(zend_object *object) {
 	gearman_client_obj *intern = gearman_client_fetch_object(object);
 	if (!intern) {
 		return;
@@ -4321,7 +4321,7 @@ PHP_MINIT_FUNCTION(gearman) {
 #if jluedke_0
 	INIT_CLASS_ENTRY(ce, "Gearman", gearman_methods);
 	ce.create_object= gearman_obj_new;
-	gearman_ce= zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
+	gearman_ce= zend_register_internal_class_ex(&ce, NULL, NULL);
 	memcpy(&gearman_obj_handlers, zend_get_std_object_handlers(),
 		sizeof(zend_object_handlers));
 	gearman_obj_handlers.clone_obj= NULL; /* use our clone method */
@@ -4331,7 +4331,7 @@ wgallego - hiding for now
 	INIT_CLASS_ENTRY(ce, "GearmanCon", gearman_con_methods);
 	ce.create_object= gearman_con_obj_new;
 	gearman_con_ce= zend_register_internal_class_ex(&ce, NULL,
-		NULL TSRMLS_CC);
+		NULL);
 	memcpy(&gearman_con_obj_handlers, zend_get_std_object_handlers(),
 		sizeof(zend_object_handlers));
 	gearman_con_obj_handlers.clone_obj= NULL; /* use our clone method */
@@ -4341,7 +4341,7 @@ wgallego - hiding for now
 	INIT_CLASS_ENTRY(ce, "GearmanPacket", gearman_packet_methods);
 	ce.create_object= gearman_packet_obj_new;
 	gearman_packet_ce= zend_register_internal_class_ex(&ce, NULL,
-		NULL TSRMLS_CC);
+		NULL);
 	memcpy(&gearman_packet_obj_handlers, zend_get_std_object_handlers(),
 		sizeof(zend_object_handlers));
 	gearman_packet_obj_handlers.clone_obj= NULL; /* use our clone method */
