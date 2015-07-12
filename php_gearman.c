@@ -32,31 +32,6 @@ static inline zend_object *gearman_task_obj_new(zend_class_entry *ce);
 static inline zend_object *gearman_worker_obj_new(zend_class_entry *ce);
 static inline zend_object *gearman_job_obj_new(zend_class_entry *ce);
 
-/* XXX Compatibility Macros
- * If there is a better way to do this someone please let me know.
- * Also which is the prefered method now? ZVAL_ADDREF or Z_ADDREF_P ?
- * -jluedke */
- /*
- I think I can eliminate these - wgallego
-#ifndef Z_ADDREF_P
-# define Z_ADDREF_P ZVAL_ADDREF
-#endif
-#ifndef Z_DELREF_P
-# define Z_DELREF_P ZVAL_DELREF
-#endif
-*/
-
-/* XXX another hack to get around 5.1 builds */
-/*
-wgallego - I think we can eliminate this
-#ifndef READY_TO_DESTROY
-# define READY_TO_DESTROY(zv) \
-	((zv)->refcount == 1 && \
-	 (Z_TYPE_P(zv) != IS_OBJECT || \
-     (EG(objects_store).object_buckets[Z_OBJ_HANDLE_P(zv)].bucket.obj.refcount) == 1))
-#endif
-*/
-
 // TODO, wgallego - I think I can eliminate this macro
 #if (PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 3)
 #   define GEARMAN_IS_CALLABLE(callable, check_flags, callable_name) zend_is_callable(callable, check_flags, callable_name)
@@ -1086,7 +1061,6 @@ zend_class_entry *gearman_task_ce;
 static zend_object_handlers gearman_task_obj_handlers;
 
 zend_class_entry *gearman_exception_ce;
-/* static zend_object_handlers gearman_exception_obj_handlers; */
 
 // TODO - move this somewhere...
 static void gearman_task_obj_free(zend_object *object);
@@ -1094,26 +1068,6 @@ static void gearman_task_obj_free(zend_object *object);
 /*
  * Helper macros.
  */
-
-/*
-TODO - I think I can eliminate this for just zval_dtor
-TODO #2 - I can see value in this, but getting rid of READY_TO_DESTROY
-*/
-#define GEARMAN_ZVAL_DONE(__zval) { \
-	if ((__zval) != NULL) { \
-		zval_dtor(__zval); \
-	} \
-}
-/*
-  if ((__zval) != NULL) { \
-    if (READY_TO_DESTROY(__zval)) { \
-      zval_dtor(__zval); \
-      ZVAL_NULL(__zval); \
-    } else \
-      Z_DELREF_P(__zval); \
-  } \
-}
-*/
 
 /* NOTE: It seems kinda weird that GEARMAN_WORK_FAIL is a valid
  * return code, however it is required for a worker to pass status
@@ -3615,11 +3569,11 @@ static void *_php_worker_function_callback(gearman_job_st *job,
 		}
 		result = estrndup(Z_STRVAL(retval), Z_STRLEN(retval));
 		*result_size = Z_STRLEN(retval);
-		GEARMAN_ZVAL_DONE(&retval);
+		zval_dtor(&retval);
 	}
 
-	zval_ptr_dtor(&argv[0]);
-	zval_ptr_dtor(&argv[1]);
+	zval_dtor(&argv[0]);
+	zval_dtor(&argv[1]);
 
 	return result;
 }
