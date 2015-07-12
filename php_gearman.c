@@ -3737,6 +3737,8 @@ static void gearman_client_obj_free(zend_object *object) {
 
 		// Task clean up
 		gearman_task_obj_free(&task_to_delete->std);
+
+		efree(task_to_delete);
 	}
 
 	zend_object_std_dtor(&intern->std);
