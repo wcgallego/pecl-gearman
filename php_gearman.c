@@ -2652,7 +2652,6 @@ static gearman_return_t _php_task_cb_fn(gearman_task_obj *task, gearman_client_o
 		ret = Z_LVAL(retval);
 	}
 
-
 	return ret;
 }
 
@@ -3567,9 +3566,6 @@ static void *_php_worker_function_callback(gearman_job_st *job,
 		*result_size = Z_STRLEN(retval);
 		zval_dtor(&retval);
 	}
-
-	zval_dtor(&argv[0]);
-	zval_dtor(&argv[1]);
 
 	return result;
 }
