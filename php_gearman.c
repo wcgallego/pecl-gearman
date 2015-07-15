@@ -3449,7 +3449,8 @@ PHP_FUNCTION(gearman_worker_unregister_all) {
 /* }}} */
 
 /* {{{ proto object gearman_worker_grab_job(obect worker)
-   Get a job from one of the job servers. */
+   Get a job from one of the job servers.
+   Note: This is undocumented on php.net and needs a test*/
 PHP_FUNCTION(gearman_worker_grab_job) {
 	zval *zobj;
 	gearman_worker_obj *obj;
@@ -4077,30 +4078,26 @@ wgallego - hiding for now
 	PHP_FE(gearman_worker_timeout, arginfo_gearman_worker_timeout)
 	PHP_FE(gearman_worker_set_timeout, arginfo_gearman_worker_set_timeout)
 	PHP_FE(gearman_worker_set_id, arginfo_gearman_worker_set_id)
+	PHP_FE(gearman_worker_add_server, arginfo_gearman_worker_add_server)
+	PHP_FE(gearman_worker_add_servers, arginfo_gearman_worker_add_servers)
+	PHP_FE(gearman_worker_wait, arginfo_gearman_worker_wait)
+	PHP_FE(gearman_worker_register, arginfo_gearman_worker_register)
+	PHP_FE(gearman_worker_unregister, arginfo_gearman_worker_unregister)
+	PHP_FE(gearman_worker_unregister_all, arginfo_gearman_worker_unregister_all)
+	PHP_FE(gearman_worker_grab_job, arginfo_gearman_worker_grab_job)
+	PHP_FE(gearman_worker_add_function, arginfo_gearman_worker_add_function)
+	PHP_FE(gearman_worker_work, arginfo_gearman_worker_work)
+	PHP_FE(gearman_worker_echo, arginfo_gearman_worker_echo)
 /*
 #if jluedke_0
 	PHP_FE(gearman_worker_context, arginfo_gearman_worker_context)
 	PHP_FE(gearman_worker_set_context, arginfo_gearman_worker_set_context)
 	PHP_FE(gearman_worker_set_log_fn, arginfo_gearman_worker_set_log_fn)
 	PHP_FE(gearman_worker_set_event_watch_fn, arginfo_gearman_worker_set_event_watch_fn)
-#endif
-*/
-	PHP_FE(gearman_worker_add_server, arginfo_gearman_worker_add_server)
-	PHP_FE(gearman_worker_add_servers, arginfo_gearman_worker_add_servers)
-/*
-#if jluedke_0
 	PHP_FE(gearman_worker_remove_servers, arginfo_gearman_worker_remove_servers)
+	PHP_FE(gearman_worker_job_free_all, arginfo_gearman_worker_job_free_all)
 #endif
 */
-	PHP_FE(gearman_worker_wait, arginfo_gearman_worker_wait)
-	PHP_FE(gearman_worker_register, arginfo_gearman_worker_register)
-	PHP_FE(gearman_worker_unregister, arginfo_gearman_worker_unregister)
-	PHP_FE(gearman_worker_unregister_all, arginfo_gearman_worker_unregister_all)
-	PHP_FE(gearman_worker_grab_job, arginfo_gearman_worker_grab_job)
-	/* PHP_FE(gearman_worker_job_free_all, arginfo_gearman_worker_job_free_all) */
-	PHP_FE(gearman_worker_add_function, arginfo_gearman_worker_add_function)
-	PHP_FE(gearman_worker_work, arginfo_gearman_worker_work)
-	PHP_FE(gearman_worker_echo, arginfo_gearman_worker_echo)
 
 	/* Functions from job.h */
 	PHP_FE(gearman_job_return_code, arginfo_gearman_job_return_code)
@@ -4251,8 +4248,8 @@ zend_function_entry gearman_task_methods[]= {
 
 zend_function_entry gearman_worker_methods[]= {
 	PHP_ME(GearmanWorker, __construct, arginfo_oo_gearman_worker_construct, ZEND_ACC_CTOR | ZEND_ACC_PUBLIC)
-	PHP_ME_MAPPING(returnCode, gearman_worker_return_code, arginfo_oo_gearman_worker_return_code, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(clone, gearman_worker_clone, arginfo_oo_gearman_worker_clone, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(returnCode, gearman_worker_return_code, arginfo_oo_gearman_worker_return_code, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(error, gearman_worker_error, arginfo_oo_gearman_worker_error, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(getErrno, gearman_worker_errno, arginfo_oo_gearman_worker_errno, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(options, gearman_worker_options, arginfo_oo_gearman_worker_options, ZEND_ACC_PUBLIC)
@@ -4262,30 +4259,26 @@ zend_function_entry gearman_worker_methods[]= {
 	PHP_ME_MAPPING(timeout, gearman_worker_timeout, arginfo_oo_gearman_worker_timeout, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(setTimeout, gearman_worker_set_timeout, arginfo_oo_gearman_worker_set_timeout, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(setId, gearman_worker_set_id, arginfo_oo_gearman_worker_set_id, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(addServer, gearman_worker_add_server, arginfo_oo_gearman_worker_add_server, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(addServers, gearman_worker_add_servers, arginfo_oo_gearman_worker_add_servers, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(wait, gearman_worker_wait, arginfo_oo_gearman_worker_wait, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(register, gearman_worker_register, arginfo_oo_gearman_worker_register, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(unregister, gearman_worker_unregister, arginfo_oo_gearman_worker_unregister, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(unregisterAll, gearman_worker_unregister_all, arginfo_oo_gearman_worker_unregister_all, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(grabJob, gearman_worker_grab_job, arginfo_oo_gearman_worker_grab_job, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(addFunction, gearman_worker_add_function, arginfo_oo_gearman_worker_add_function, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(work, gearman_worker_work, arginfo_oo_gearman_worker_work, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(echo, gearman_worker_echo, arginfo_oo_gearman_worker_echo, ZEND_ACC_PUBLIC)
 /*
 #if jluedke_0
 	PHP_ME_MAPPING(context, gearman_worker_context, arginfo_oo_gearman_worker_context, 0)
 	PHP_ME_MAPPING(setContext, gearman_worker_set_context, arginfo_oo_gearman_worker_set_context, 0)
 	PHP_ME_MAPPING(setLogCallback, gearman_worker_set_log_callback, arginfo_oo_gearman_worker_set_log_callback, 0)
 	PHP_ME_MAPPING(setEventWatchCallback, gearman_worker_set_event_watch_callback, arginfo_oo_gearman_worker_set_event_watch_callback, 0)
-#endif
-*/
-	PHP_ME_MAPPING(addServer, gearman_worker_add_server, arginfo_oo_gearman_worker_add_server, ZEND_ACC_PUBLIC)
-	PHP_ME_MAPPING(addServers, gearman_worker_add_servers, arginfo_oo_gearman_worker_add_servers, ZEND_ACC_PUBLIC)
-/*
-#if jluedke_0
 	PHP_ME_MAPPING(removeServers, gearman_worker_remove_servers, arginfo_oo_gearman_worker_remove_servers, 0)
+	PHP_ME_MAPPING(jobFreeAll, gearman_worker_job_free_all, arginfo_oo_gearman_worker_job_free_all, 0)
 #endif
 */
-	PHP_ME_MAPPING(wait, gearman_worker_wait, arginfo_oo_gearman_worker_wait, ZEND_ACC_PUBLIC)
-	PHP_ME_MAPPING(register, gearman_worker_register, arginfo_oo_gearman_worker_register, ZEND_ACC_PUBLIC)
-	PHP_ME_MAPPING(unregister, gearman_worker_unregister, arginfo_oo_gearman_worker_unregister, ZEND_ACC_PUBLIC)
-	PHP_ME_MAPPING(unregisterAll, gearman_worker_unregister_all, arginfo_oo_gearman_worker_unregister_all, ZEND_ACC_PUBLIC)
-	PHP_ME_MAPPING(grabJob, gearman_worker_grab_job, arginfo_oo_gearman_worker_grab_job, ZEND_ACC_PUBLIC)
-	/* PHP_ME_MAPPING(jobFreeAll, gearman_worker_job_free_all, arginfo_oo_gearman_worker_job_free_all, 0) */
-	PHP_ME_MAPPING(addFunction, gearman_worker_add_function, arginfo_oo_gearman_worker_add_function, ZEND_ACC_PUBLIC)
-	PHP_ME_MAPPING(work, gearman_worker_work, arginfo_oo_gearman_worker_work, ZEND_ACC_PUBLIC)
-	PHP_ME_MAPPING(echo, gearman_worker_echo, arginfo_oo_gearman_worker_echo, ZEND_ACC_PUBLIC)
 
 	{NULL, NULL, NULL}
 };
