@@ -3570,7 +3570,10 @@ static void *_php_worker_function_callback(gearman_job_st *job,
 	}
 
 	zval_dtor(&argv[0]);
-	zval_dtor(&argv[1]);
+
+	if (Z_ISUNDEF(worker_cb->zdata)) {
+		zval_dtor(&argv[1]);
+	}
 
 	return result;
 }
