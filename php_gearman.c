@@ -3499,19 +3499,20 @@ static void *_php_worker_function_callback(gearman_job_st *job,
 	/* first create our job object that will be passed to the callback */
         if (object_init_ex(&zjob, gearman_job_ce) != SUCCESS) {
                 php_error_docref(NULL, E_WARNING, "Failed to create gearman_job_ce object."); 
-                return;
+                return result;
         }
 	jobj = Z_GEARMAN_JOB_P(&zjob);
 	jobj->job = job;
 
-	argv[0] = zjob;
+        ZVAL_COPY_VALUE(&argv[0], &zjob);
 
-	if (Z_ISUNDEF(worker_cb->zdata)) {
-		fci.param_count = 1;
-	} else {
-		argv[1] = worker_cb->zdata;
-		fci.param_count = 2;
-	}
+        if (Z_ISUNDEF(worker_cb->zdata)) {
+                fci.param_count = 1;
+		ZVAL_NULL(&argv[1]);
+        } else {
+                ZVAL_COPY_VALUE(&argv[1], &worker_cb->zdata);
+                fci.param_count = 2;
+        }
 
 	fci.size = sizeof(fci);
 	fci.function_table = EG(function_table);
@@ -3570,10 +3571,7 @@ static void *_php_worker_function_callback(gearman_job_st *job,
 	}
 
 	zval_dtor(&argv[0]);
-
-	if (Z_ISUNDEF(worker_cb->zdata)) {
-		zval_dtor(&argv[1]);
-	}
+	zval_dtor(&argv[1]);
 
 	return result;
 }
