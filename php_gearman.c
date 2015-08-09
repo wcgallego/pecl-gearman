@@ -1029,8 +1029,6 @@ static inline gearman_job_obj *gearman_job_fetch_object(zend_object *obj) {
  * Object variables
  */
 
-/*
-wgallego -  hiding for now
 #if jluedke_0
 zend_class_entry *gearman_ce;
 static zend_object_handlers gearman_obj_handlers;
@@ -1041,7 +1039,7 @@ static zend_object_handlers gearman_con_obj_handlers;
 zend_class_entry *gearman_packet_ce;
 static zend_object_handlers gearman_packet_obj_handlers;
 #endif
-*/
+
 zend_class_entry *gearman_client_ce;
 static zend_object_handlers gearman_client_obj_handlers;
 
@@ -1140,8 +1138,6 @@ PHP_FUNCTION(gearman_verbose_name) {
 }
 /* }}} */
 
-/*
-wgallego -  hiding for now.
 #if jluedke_0
 PHP_FUNCTION(gearman_create) {
 	/* TODO
@@ -1155,14 +1151,9 @@ PHP_FUNCTION(gearman_create) {
 	ZEND_REGISTER_RESOURCE(return_value, gearman, le_gearman_st);
 	*/
 
-/*
-wgallego -  hiding for now.
 }
-*/
 /* }}} */
 
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_clone) {
 	/* TODO
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "r", &zfrom) == FAILURE)
@@ -1180,13 +1171,9 @@ PHP_FUNCTION(gearman_clone) {
 
 	ZEND_REGISTER_RESOURCE(return_value, gearman, le_gearman_st);
 	*/
-/*
-wgallego -  hiding for now.
 }
 /* }}} */
 
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_error) {
 	/* TODO
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "r",
@@ -1200,12 +1187,9 @@ PHP_FUNCTION(gearman_error) {
 
 	RETURN_STRING((char *)gearman_error(gearman), 1);
 	*/
-	/*
 }
 /* }}} */
 
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_errno) {
 	/* TODO
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "r",
@@ -1219,13 +1203,9 @@ PHP_FUNCTION(gearman_errno) {
 
 	RETURN_LONG(gearman_errno(gearman));
 	*/
-/*
-wgallego -  hiding for now.
 }
 /* }}} */
 
-/*
-wgallego -  hiding for now.
 PHP_FUNCTION(gearman_set_options) {
 	/* TODO
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "rll", &zgearman,
@@ -1241,12 +1221,8 @@ PHP_FUNCTION(gearman_set_options) {
 
 	RETURN_TRUE;
 	*/
-/*
-wgallego -  hiding for now.
 }
 /* }}} */
-/*
-wgallego -  hiding for now.
 #endif
 
 /*
@@ -3487,11 +3463,10 @@ static void *_php_worker_function_callback(gearman_job_st *job,
 	zval zjob, *message = NULL;
 	gearman_job_obj *jobj;
 	gearman_worker_cb *worker_cb = (gearman_worker_cb *)context;
-	char *result;
+	char *result = NULL;
 
 	/* cb vars */
-	zval argv[2], retval, *exception_rv;
-	zend_object *exception_zo;
+	zval argv[2], retval;
 
 	zend_fcall_info fci;
 	zend_fcall_info_cache fcic = empty_fcall_info_cache;
@@ -3540,14 +3515,7 @@ static void *_php_worker_function_callback(gearman_job_st *job,
 	if (EG(exception)) {
 		*ret_ptr = GEARMAN_WORK_EXCEPTION;
 
-		exception_zo = EG(exception);
-
-		message = zend_read_property(exception_zo->ce,
-						exception_zo->properties_table,
-						"message",
-						sizeof("message") - 1,
-						IS_TRUE,
-						exception_rv);
+		ZVAL_STRING(message, "Unable to add worker function");
 
 		jobj->ret = gearman_job_send_exception(jobj->job, Z_STRVAL_P(message), Z_STRLEN_P(message));
 		EG(exception) = NULL;
@@ -3910,16 +3878,13 @@ static inline zend_object *gearman_task_obj_new(zend_class_entry *ce) {
 /* Function list. */
 zend_function_entry gearman_functions[] = {
 	/* Functions from gearman.h */
-/*
-wgallego - hiding for now
 #if jluedke_0
         PHP_FE(gearman_return_code, arginfo_gearman_return_code)
 #endif
-*/
 	PHP_FE(gearman_version, arginfo_gearman_version)
 	PHP_FE(gearman_bugreport, arginfo_gearman_bugreport)
 	PHP_FE(gearman_verbose_name, arginfo_gearman_verbose_name)
-/*
+
 #if jluedke_0
 	PHP_FE(gearman_create, arginfo_gearman_create)
 	PHP_FE(gearman_clone, arginfo_gearman_clone)
@@ -3950,8 +3915,6 @@ wgallego - hiding for now
 #endif
 
 	/* Functions from conn.h */
-/*
-wgallego - hiding for now
 #if jluedke_0
 	PHP_FE(gearman_con_set_host, arginfo_gearman_con_set_host)
 	PHP_FE(gearman_con_set_port, arginfo_gearman_con_set_port)
@@ -3975,8 +3938,6 @@ wgallego - hiding for now
 #endif
 
 	/* Functions from packet.h */
-/*
-wgallego - hiding for now
 #if jluedke_0
 	PHP_FE(gearman_packet_add_arg, arginfo_gearman_packet_add_arg)
 	PHP_FE(gearman_packet_pack_header, arginfo_gearman_packet_pack_header)
@@ -4121,8 +4082,6 @@ wgallego - hiding for now
 
 	{NULL, NULL, NULL} /* Must be the last line in gearman_functions[] */
 };
-/*
-wgallego - hiding for now
 
 zend_function_entry gearman_methods[]= {
 #if jluedke_0
@@ -4163,7 +4122,6 @@ zend_function_entry gearman_con_methods[];
 zend_function_entry gearman_packet_methods[];
 #endif
 
-*/
 static zend_function_entry gearman_client_methods[]= {
 	ZEND_ME(GearmanClient, __construct, arginfo_gearman_client_construct, ZEND_ACC_CTOR | ZEND_ACC_PUBLIC)
 	ZEND_ME_MAPPING(clone, gearman_client_clone, arginfo_oo_gearman_client_clone, ZEND_ACC_PUBLIC)
@@ -4312,7 +4270,6 @@ zend_function_entry gearman_exception_methods[] = {
 
 PHP_MINIT_FUNCTION(gearman) {
 	zend_class_entry ce;
-/*
 
 #if jluedke_0
 	INIT_CLASS_ENTRY(ce, "Gearman", gearman_methods);
@@ -4322,8 +4279,6 @@ PHP_MINIT_FUNCTION(gearman) {
 		sizeof(zend_object_handlers));
 	gearman_obj_handlers.clone_obj= NULL; /* use our clone method */
 
-/*
-wgallego - hiding for now
 	INIT_CLASS_ENTRY(ce, "GearmanCon", gearman_con_methods);
 	ce.create_object= gearman_con_obj_new;
 	gearman_con_ce= zend_register_internal_class_ex(&ce, NULL,
@@ -4332,8 +4287,6 @@ wgallego - hiding for now
 		sizeof(zend_object_handlers));
 	gearman_con_obj_handlers.clone_obj= NULL; /* use our clone method */
 
-/*
-wgallego - hiding for now
 	INIT_CLASS_ENTRY(ce, "GearmanPacket", gearman_packet_methods);
 	ce.create_object= gearman_packet_obj_new;
 	gearman_packet_ce= zend_register_internal_class_ex(&ce, NULL,
@@ -4341,9 +4294,7 @@ wgallego - hiding for now
 	memcpy(&gearman_packet_obj_handlers, zend_get_std_object_handlers(),
 		sizeof(zend_object_handlers));
 	gearman_packet_obj_handlers.clone_obj= NULL; /* use our clone method */
-/*
 #endif
-*/
 
 	INIT_CLASS_ENTRY(ce, "GearmanClient", gearman_client_methods);
 	gearman_client_ce = zend_register_internal_class(&ce);
