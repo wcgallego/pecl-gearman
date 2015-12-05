@@ -4086,8 +4086,8 @@ zend_function_entry gearman_functions[] = {
 zend_function_entry gearman_methods[]= {
 #if jluedke_0
 	PHP_ME(gearman, __construct, NULL, ZEND_ACC_CTOR | ZEND_ACC_PUBLIC)
-	PHP_ME_MAPPING(returnCode, gearman_return_code, arginfo_oo_gearman_return_code, 0)
 	PHP_ME_MAPPING(clone, gearman_clone, arginfo_oo_gearman_clone, 0)
+	PHP_ME_MAPPING(returnCode, gearman_return_code, arginfo_oo_gearman_return_code, 0)
 	PHP_ME_MAPPING(error, gearman_error, arginfo_oo_gearman_error, 0)
 	PHP_ME_MAPPING(getErrno, gearman_errno, arginfo_oo_gearman_errno, 0)
 	PHP_ME_MAPPING(options, gearman_options, arginfo_oo_gearman_options, 0)
