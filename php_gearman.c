@@ -48,8 +48,6 @@ ZEND_END_ARG_INFO()
 #if jluedke_0
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_create)
 ZEND_END_ARG_INFO()
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_clone)
-ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_error)
 ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_errno)
@@ -279,13 +277,6 @@ ZEND_END_ARG_INFO()
 
 // Objected Oriented method for creating a GearmanClient object
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_construct, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_clone, 0, 0, 1)
-	ZEND_ARG_INFO(0, client_object)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_clone, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_return_code, 0, 0, 1)
@@ -727,13 +718,6 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_construct, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_clone, 0, 0, 1)
-	ZEND_ARG_INFO(0, worker_object)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_clone, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_error, 0, 0, 1)
 	ZEND_ARG_INFO(0, worker_object)
 ZEND_END_ARG_INFO()
@@ -890,12 +874,12 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_work, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_echo, 0, 0, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_ping, 0, 0, 2)
 	ZEND_ARG_INFO(0, worker_object)
 	ZEND_ARG_INFO(0, workload)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_echo, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_ping, 0, 0, 1)
 	ZEND_ARG_INFO(0, workload)
 ZEND_END_ARG_INFO()
 
@@ -1151,26 +1135,6 @@ PHP_FUNCTION(gearman_create) {
 	ZEND_REGISTER_RESOURCE(return_value, gearman, le_gearman_st);
 	*/
 
-}
-/* }}} */
-
-PHP_FUNCTION(gearman_clone) {
-	/* TODO
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "r", &zfrom) == FAILURE)
-	  RETURN_NULL();
-
-	ZEND_FETCH_RESOURCE(from, gearman_st *, &zfrom, -1, "gearman_st",
-	                    le_gearman_st);
-
-	gearman= gearman_clone(NULL, from);
-	if (gearman == NULL)
-	{
-	  php_error_docref(NULL, E_WARNING, "Memory allocation failure.");
-	  RETURN_NULL();
-	}
-
-	ZEND_REGISTER_RESOURCE(return_value, gearman, le_gearman_st);
-	*/
 }
 /* }}} */
 
@@ -1857,35 +1821,6 @@ PHP_METHOD(GearmanClient, __construct)
 }
 /* }}} */
 
-/* {{{ proto object gearman_client_clone(object client)
-   Clone a client object */
-PHP_FUNCTION(gearman_client_clone) {
-	gearman_client_obj *obj;
-	gearman_client_obj *new;
-	zval *zobj;
-
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_client_ce) == FAILURE) {
-		RETURN_NULL();
-	}
-	obj = Z_GEARMAN_CLIENT_P(zobj);
-
-	if (object_init_ex(return_value, gearman_client_ce) != SUCCESS) {
-		php_error_docref(NULL, E_WARNING, "Object creation failure."); 
-		RETURN_FALSE;
-	}
-
-	new = Z_GEARMAN_CLIENT_P(return_value);
-
-	if (gearman_client_clone(&(new->client), &(obj->client)) == NULL) {
-		php_error_docref(NULL, E_WARNING, "Memory allocation failure."); 
-		zval_dtor(return_value);
-		RETURN_FALSE;
-	}
-
-	new->flags |= GEARMAN_CLIENT_OBJ_CREATED;
-}
-/* }}} */
-
 /* {{{ proto int gearman_client_return_code()
    get last gearman_return_t */
 PHP_FUNCTION(gearman_client_return_code)
@@ -2278,7 +2213,7 @@ PHP_FUNCTION(gearman_client_do_low_background) {
 /* }}} */
 
 /* {{{ proto string GearmanClient::doJobHandle()
-   Get the job handle for the running task. This should be used between repeated gearman_client_do() and gearman_client_do_high() calls to get information. */
+   Get the job handle for the running task. This should be used between repeated gearman_client_do_normal() and gearman_client_do_high() calls to get information. */
 PHP_FUNCTION(gearman_client_do_job_handle) {
 	gearman_client_obj *obj;
 	zval *zobj;
@@ -2381,9 +2316,7 @@ PHP_FUNCTION(gearman_client_job_status_by_unique_key) {
 /* }}} */
 
 /* {{{ proto bool GearmanClient::ping(string workload)
-   Send data to all job servers to see if they echo it back. */
-// TODO - GearmanClient has echo (deprecated) and ping. GearmanWorker only has echo
-// That said, the underlying lib is called gearman_client_echo. Seems like that sould be the paradigm
+   Send data to all job servers to see if they send it back. */
 PHP_FUNCTION(gearman_client_ping) {
 	char *workload;
 	size_t workload_len;
@@ -3077,35 +3010,6 @@ PHP_FUNCTION(gearman_worker_return_code)
 }
 /* }}} */
 
-/* {{{ proto object gearman_worker_clone(object worker)
-   Clone a worker object */
-PHP_FUNCTION(gearman_worker_clone) {
-	zval *zobj;
-	gearman_worker_obj *obj;
-	gearman_worker_obj *new;
-
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_worker_ce) == FAILURE) {
-		RETURN_NULL();
-	}
-	obj = Z_GEARMAN_WORKER_P(zobj);
-
-	if (object_init_ex(return_value, gearman_worker_ce) != SUCCESS) {
-		php_error_docref(NULL, E_WARNING, "Failed to created gearman_worker object for GearmanWorker::clone."); 
-		RETURN_FALSE;
-	}
-
-	new = Z_GEARMAN_WORKER_P(return_value);
-
-	if (gearman_worker_clone(&(new->worker), &(obj->worker)) == NULL) {
-		php_error_docref(NULL, E_WARNING, "Memory allocation failure."); 
-		zval_dtor(return_value);
-		RETURN_FALSE;
-	}
-
-	new->flags |= GEARMAN_WORKER_OBJ_CREATED;
-}
-/* }}} */
-
 /* {{{ proto string gearman_worker_error(object worker)
    Return an error string for the last error encountered. */
 PHP_FUNCTION(gearman_worker_error) {
@@ -3651,9 +3555,9 @@ PHP_FUNCTION(gearman_worker_work) {
 }
 /* }}} */
 
-/* {{{ proto bool gearman_worker_echo(object worker, string data)
+/* {{{ proto bool gearman_worker_ping(object worker, string data)
    Send data to all job servers to see if they echo it back. */
-PHP_FUNCTION(gearman_worker_echo) {
+PHP_FUNCTION(gearman_worker_ping) {
 	zval *zobj;
 	gearman_worker_obj *obj;
 	char *workload;
@@ -3891,7 +3795,6 @@ zend_function_entry gearman_functions[] = {
 
 #if jluedke_0
 	PHP_FE(gearman_create, arginfo_gearman_create)
-	PHP_FE(gearman_clone, arginfo_gearman_clone)
 	PHP_FE(gearman_error, arginfo_gearman_error)
 	PHP_FE(gearman_errno, arginfo_gearman_errno)
 	PHP_FE(gearman_options, arginfo_gearman_options)
@@ -3905,7 +3808,6 @@ zend_function_entry gearman_functions[] = {
 
 	PHP_FE(gearman_con_create, arginfo_gearman_con_create)
 	PHP_FE(gearman_con_add, arginfo_gearman_con_add)
-	PHP_FE(gearman_con_clone, arginfo_gearman_con_clone)
 	PHP_FE(gearman_con_free_all, arginfo_gearman_con_free_all)
 	PHP_FE(gearman_con_flush_all, arginfo_gearman_con_flush_all)
 	PHP_FE(gearman_con_send_all, arginfo_gearman_con_send_all)
@@ -3953,7 +3855,6 @@ zend_function_entry gearman_functions[] = {
 	/* Functions from client.h */
 	PHP_FE(gearman_client_create, arginfo_gearman_client_create)
 	PHP_FE(gearman_client_return_code, arginfo_gearman_client_return_code)
-	PHP_FE(gearman_client_clone, arginfo_gearman_client_clone)
 	PHP_FE(gearman_client_error, arginfo_gearman_client_error)
 	PHP_FE(gearman_client_get_errno, arginfo_gearman_client_get_errno)
 	PHP_FE(gearman_client_options, arginfo_gearman_client_options)
@@ -4038,7 +3939,6 @@ zend_function_entry gearman_functions[] = {
 	/* Functions from worker.h */
 	PHP_FE(gearman_worker_return_code, arginfo_gearman_worker_return_code)
 	PHP_FE(gearman_worker_create, arginfo_gearman_worker_create)
-	PHP_FE(gearman_worker_clone, arginfo_gearman_worker_clone)
 	PHP_FE(gearman_worker_error, arginfo_gearman_worker_error)
 	PHP_FE(gearman_worker_errno, arginfo_gearman_worker_errno)
 	PHP_FE(gearman_worker_options, arginfo_gearman_worker_options)
@@ -4057,7 +3957,7 @@ zend_function_entry gearman_functions[] = {
 	PHP_FE(gearman_worker_grab_job, arginfo_gearman_worker_grab_job)
 	PHP_FE(gearman_worker_add_function, arginfo_gearman_worker_add_function)
 	PHP_FE(gearman_worker_work, arginfo_gearman_worker_work)
-	PHP_FE(gearman_worker_echo, arginfo_gearman_worker_echo)
+	PHP_FE(gearman_worker_ping, arginfo_gearman_worker_ping)
 /*
 #if jluedke_0
 	PHP_FE(gearman_worker_context, arginfo_gearman_worker_context)
@@ -4090,7 +3990,6 @@ zend_function_entry gearman_functions[] = {
 zend_function_entry gearman_methods[]= {
 #if jluedke_0
 	PHP_ME(gearman, __construct, NULL, ZEND_ACC_CTOR | ZEND_ACC_PUBLIC)
-	PHP_ME_MAPPING(clone, gearman_clone, arginfo_oo_gearman_clone, 0)
 	PHP_ME_MAPPING(returnCode, gearman_return_code, arginfo_oo_gearman_return_code, 0)
 	PHP_ME_MAPPING(error, gearman_error, arginfo_oo_gearman_error, 0)
 	PHP_ME_MAPPING(getErrno, gearman_errno, arginfo_oo_gearman_errno, 0)
@@ -4105,7 +4004,6 @@ zend_function_entry gearman_methods[]= {
 
 	PHP_ME_MAPPING(conCreate, gearman_con_create, arginfo_oo_gearman_con_create, 0)
 	PHP_ME_MAPPING(conAdd, gearman_con_add, arginfo_oo_gearman_con_add, 0)
-	PHP_ME_MAPPING(conClone, gearman_con_clone, arginfo_oo_gearman_con_clone, 0)
 	PHP_ME_MAPPING(conFreeAll, gearman_con_free_all, arginfo_oo_gearman_con_free_all, 0)
 	PHP_ME_MAPPING(conFlushAll, gearman_con_flush_all, arginfo_oo_gearman_con_flush_all, 0)
 	PHP_ME_MAPPING(conSendAll, gearman_con_send_all, arginfo_oo_gearman_con_send_all, 0)
@@ -4128,7 +4026,6 @@ zend_function_entry gearman_packet_methods[];
 
 static zend_function_entry gearman_client_methods[]= {
 	ZEND_ME(GearmanClient, __construct, arginfo_gearman_client_construct, ZEND_ACC_CTOR | ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(clone, gearman_client_clone, arginfo_oo_gearman_client_clone, ZEND_ACC_PUBLIC)
 	ZEND_ME_MAPPING(returnCode, gearman_client_return_code, arginfo_oo_gearman_client_return_code, ZEND_ACC_PUBLIC)
 	ZEND_ME_MAPPING(error, gearman_client_error, arginfo_oo_gearman_client_error, ZEND_ACC_PUBLIC)
 	ZEND_ME_MAPPING(getErrno, gearman_client_get_errno, arginfo_oo_gearman_client_get_errno, ZEND_ACC_PUBLIC)
@@ -4215,7 +4112,6 @@ zend_function_entry gearman_task_methods[]= {
 
 zend_function_entry gearman_worker_methods[]= {
 	PHP_ME(GearmanWorker, __construct, arginfo_oo_gearman_worker_construct, ZEND_ACC_CTOR | ZEND_ACC_PUBLIC)
-	PHP_ME_MAPPING(clone, gearman_worker_clone, arginfo_oo_gearman_worker_clone, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(returnCode, gearman_worker_return_code, arginfo_oo_gearman_worker_return_code, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(error, gearman_worker_error, arginfo_oo_gearman_worker_error, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(getErrno, gearman_worker_errno, arginfo_oo_gearman_worker_errno, ZEND_ACC_PUBLIC)
@@ -4235,7 +4131,7 @@ zend_function_entry gearman_worker_methods[]= {
 	PHP_ME_MAPPING(grabJob, gearman_worker_grab_job, arginfo_oo_gearman_worker_grab_job, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(addFunction, gearman_worker_add_function, arginfo_oo_gearman_worker_add_function, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(work, gearman_worker_work, arginfo_oo_gearman_worker_work, ZEND_ACC_PUBLIC)
-	PHP_ME_MAPPING(echo, gearman_worker_echo, arginfo_oo_gearman_worker_echo, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(echo, gearman_worker_ping, arginfo_oo_gearman_worker_ping, ZEND_ACC_PUBLIC)
 /*
 #if jluedke_0
 	PHP_ME_MAPPING(context, gearman_worker_context, arginfo_oo_gearman_worker_context, 0)
