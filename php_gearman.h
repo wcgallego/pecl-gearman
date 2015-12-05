@@ -15,13 +15,6 @@
 /* module version */
 #define PHP_GEARMAN_VERSION "2.0.0-dev"
 
-#ifdef ZTS
-#include "TSRM.h"
-#define GEARMAN_G(v) TSRMG(gearman_globals_id, zend_gearman_globals *, v)
-#else
-#define GEARMAN_G(v) (gearman_globals.v)
-#endif
-
 extern zend_module_entry gearman_module_entry;
 #define phpext_gearman_ptr &gearman_module_entry
 
