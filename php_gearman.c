@@ -1408,7 +1408,8 @@ PHP_FUNCTION(gearman_task_data) {
 	}
 	obj = Z_GEARMAN_TASK_P(zobj);
 
-	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
+	if (obj->flags & GEARMAN_TASK_OBJ_CREATED &&
+		!gearman_client_has_option(obj->client, GEARMAN_CLIENT_UNBUFFERED_RESULT)) {
 		data = gearman_task_data(obj->task);
 		data_len = gearman_task_data_size(obj->task);
 	
@@ -1493,7 +1494,8 @@ PHP_FUNCTION(gearman_task_recv_data) {
 
 	data_len= gearman_task_recv_data(obj->task, data_buffer, data_buffer_size, 
 									 &obj->ret);
-	if (obj->ret != GEARMAN_SUCCESS) {
+	if (obj->ret != GEARMAN_SUCCESS &&
+		!gearman_client_has_option(obj->client, GEARMAN_CLIENT_UNBUFFERED_RESULT)) {
 		php_error_docref(NULL, E_WARNING,  "%s",
 						 gearman_client_error(obj->client));
 		RETURN_FALSE;
@@ -2110,8 +2112,10 @@ PHP_FUNCTION(gearman_client_wait) {
 	obj->ret = gearman_client_wait(&(obj->client));
 
 	if (! PHP_GEARMAN_CLIENT_RET_OK(obj->ret)) {
-		php_error_docref(NULL, E_WARNING, "%s",
-			gearman_client_error(&(obj->client)));
+		if (obj->ret != GEARMAN_TIMEOUT) {
+			php_error_docref(NULL, E_WARNING, "%s",
+				gearman_client_error(&(obj->client)));
+		}
 		RETURN_FALSE;
 	}
 
