@@ -2545,11 +2545,12 @@ static gearman_return_t _php_task_cb_fn(gearman_task_obj *task, gearman_client_o
 	fci.params = argv;
 	fci.no_separation = 0;
 
+// TODO - simplify this by using call_user_function_ex instead, gets rid of a lot of complicated overhead. See _php_worker_function_callback
 	if (zend_call_function(&fci, &fcic) == FAILURE) {
 		php_error_docref(NULL,
 				E_WARNING, 
 				"Could not call the function %s", 
-				Z_STRVAL(zcall) ? Z_STRVAL(zcall) : "[undefined]");
+				( Z_ISUNDEF(zcall) || Z_TYPE(zcall) != IS_STRING)  ? "[undefined]" : Z_STRVAL(zcall) );
 	}
 
 	zval_dtor(&fci.function_name);
@@ -3372,12 +3373,10 @@ static void *_php_worker_function_callback(gearman_job_st *job,
 	gearman_job_obj *jobj;
 	gearman_worker_cb *worker_cb = (gearman_worker_cb *)context;
 	char *result = NULL;
+	uint32_t param_count;
 
 	/* cb vars */
 	zval argv[2], retval;
-
-	zend_fcall_info fci;
-	zend_fcall_info_cache fcic = empty_fcall_info_cache;
 
 	/* first create our job object that will be passed to the callback */
         if (object_init_ex(&zjob, gearman_job_ce) != SUCCESS) {
@@ -3390,32 +3389,22 @@ static void *_php_worker_function_callback(gearman_job_st *job,
         ZVAL_COPY_VALUE(&argv[0], &zjob);
 
         if (Z_ISUNDEF(worker_cb->zdata)) {
-                fci.param_count = 1;
+                param_count = 1;
 		ZVAL_NULL(&argv[1]);
         } else {
                 ZVAL_COPY_VALUE(&argv[1], &worker_cb->zdata);
-                fci.param_count = 2;
+                param_count = 2;
         }
-
-	fci.size = sizeof(fci);
-	fci.function_table = EG(function_table);
-
-	ZVAL_COPY_VALUE(&fci.function_name, &(worker_cb->zcall) );
-	fci.object = NULL;
-	fci.retval = &retval;
-	fci.symbol_table = NULL;
-	fci.params = argv;
-	fci.no_separation = 0;
 
 	jobj->ret = GEARMAN_SUCCESS;
 
-	if (zend_call_function(&fci, &fcic) == FAILURE) {
+	if (call_user_function_ex(EG(function_table), NULL, &worker_cb->zcall, &retval, param_count, argv, 0, NULL) != SUCCESS) {
 		php_error_docref(NULL,
 				E_WARNING, 
 				"Could not call the function %s", 
-				( Z_ISUNDEF(worker_cb->zcall)  ? "[undefined]" : Z_STRVAL(worker_cb->zcall) )
+				( Z_ISUNDEF(worker_cb->zcall) || Z_TYPE(worker_cb->zcall) != IS_STRING)  ? "[undefined]" : Z_STRVAL(worker_cb->zcall)
 				);
-		*ret_ptr = GEARMAN_WORK_FAIL;
+		jobj->ret = GEARMAN_WORK_FAIL;
 	}
 
 	*ret_ptr = jobj->ret;
@@ -3496,8 +3485,8 @@ PHP_FUNCTION(gearman_worker_add_function) {
 	memset(worker_cb, 0, sizeof(gearman_worker_cb));
 
 	/* copy over zname, zcall and zdata */
-	worker_cb->zname = *zname;
-	worker_cb->zcall = *zcall;
+	ZVAL_DUP(&worker_cb->zname, zname);
+	ZVAL_DUP(&worker_cb->zcall, zcall);
 
 // TODO - Z_ISUNDEF_P instead?
 	if (zdata != NULL) {
