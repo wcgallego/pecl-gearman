@@ -26,3 +26,12 @@ mkinstalldirs
 modules/
 php_gearman.lo
 run-tests.php
+*.loT
+*.lo
+*.la
+tests/*.sh
+tests/*.diff
+tests/*.exp
+tests/*.log
+tests/*.out
+tests/*.php
