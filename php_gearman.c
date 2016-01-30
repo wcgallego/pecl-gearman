@@ -2521,42 +2521,29 @@ PHP_FUNCTION(gearman_client_add_task_status) {
 static gearman_return_t _php_task_cb_fn(gearman_task_obj *task, gearman_client_obj *client, zval zcall) {
 	gearman_return_t ret;
 
-	zval argv[2], retval;
+	zval ztask, argv[2], retval;
+	uint32_t param_count;
 
-	zend_fcall_info fci;
-	zend_fcall_info_cache fcic = empty_fcall_info_cache;
+        if (object_init_ex(&ztask, gearman_task_ce) != SUCCESS) {
+                php_error_docref(NULL, E_WARNING, "Failed to create gearman_task_ce object."); 
+                return 0;
+        }
 
-	ZVAL_OBJ(&argv[0], &task->std);
+        ZVAL_OBJ(&argv[0], &task->std);
 
 	if (Z_ISUNDEF(task->zdata)) {
-		fci.param_count = 1;
+		param_count = 1;
 	} else {
-		argv[1] = task->zdata;
-		fci.param_count = 2;
+		ZVAL_COPY_VALUE(&argv[1], &task->zdata);
+		param_count = 2;
 	}
 
-	fci.size = sizeof(fci);
-	fci.function_table = EG(function_table);
-	ZVAL_COPY_VALUE(&fci.function_name, &zcall);
-	fci.object = NULL;
-	fci.retval = &retval;
-	fci.symbol_table = NULL;
-	fci.params = argv;
-	fci.no_separation = 0;
-
-// TODO - simplify this by using call_user_function_ex instead, gets rid of a lot of complicated overhead. See _php_worker_function_callback
-	if (zend_call_function(&fci, &fcic) == FAILURE) {
+	if (call_user_function_ex(EG(function_table), NULL, &zcall, &retval, param_count, argv, 0, NULL) != SUCCESS) {
 		php_error_docref(NULL,
 				E_WARNING,
 				"Could not call the function %s",
-				( Z_ISUNDEF(zcall) || Z_TYPE(zcall) != IS_STRING)  ? "[undefined]" : Z_STRVAL(zcall) );
-	}
-
-	zval_dtor(&fci.function_name);
-
-	ret = GEARMAN_SUCCESS;
-
-	if (Z_ISUNDEF(retval)) {
+				( Z_ISUNDEF(zcall) || Z_TYPE(zcall) != IS_STRING)  ? "[undefined]" : Z_STRVAL(zcall)
+				);
 		ret = 0;
 	} else {
 		if (Z_TYPE(retval) != IS_LONG) {
@@ -2565,6 +2552,7 @@ static gearman_return_t _php_task_cb_fn(gearman_task_obj *task, gearman_client_o
 		ret = Z_LVAL(retval);
 	}
 
+	zval_dtor(&ztask);
 
 	return ret;
 }
@@ -2826,7 +2814,7 @@ PHP_FUNCTION(gearman_client_set_complete_callback) {
 	zend_string_release(callable);
 
 	/* store the cb in client object */
-	ZVAL_COPY_VALUE(&obj->zcomplete_fn, zcomplete_fn);
+	ZVAL_DUP(&obj->zcomplete_fn, zcomplete_fn);
 
 	/* set the callback for php */
 	gearman_client_set_complete_fn(&(obj->client), _php_task_complete_fn);
