@@ -2524,12 +2524,8 @@ static gearman_return_t _php_task_cb_fn(gearman_task_obj *task, gearman_client_o
 	zval ztask, argv[2], retval;
 	uint32_t param_count;
 
-        if (object_init_ex(&ztask, gearman_task_ce) != SUCCESS) {
-                php_error_docref(NULL, E_WARNING, "Failed to create gearman_task_ce object."); 
-                return 0;
-        }
-
-        ZVAL_OBJ(&argv[0], &task->std);
+	ZVAL_OBJ(&ztask, &task->std);
+        ZVAL_COPY_VALUE(&argv[0], &ztask);
 
 	if (Z_ISUNDEF(task->zdata)) {
 		param_count = 1;
@@ -2546,13 +2542,15 @@ static gearman_return_t _php_task_cb_fn(gearman_task_obj *task, gearman_client_o
 				);
 		ret = 0;
 	} else {
-		if (Z_TYPE(retval) != IS_LONG) {
-			convert_to_long(&retval);
+		if (Z_ISUNDEF(retval)) {
+			ret = 0;
+		} else {
+			if (Z_TYPE(retval) != IS_LONG) {
+				convert_to_long(&retval);
+			}
+			ret = Z_LVAL(retval);
 		}
-		ret = Z_LVAL(retval);
 	}
-
-	zval_dtor(&ztask);
 
 	return ret;
 }
@@ -2643,7 +2641,7 @@ PHP_FUNCTION(gearman_client_set_workload_callback) {
 	zend_string_release(callable);
 
 	/* store the cb in client object */
-	ZVAL_COPY_VALUE(&obj->zworkload_fn, zworkload_fn);
+	ZVAL_DUP(&obj->zworkload_fn, zworkload_fn);
 
 	/* set the callback for php */
 	gearman_client_set_workload_fn(&(obj->client), _php_task_workload_fn);
@@ -2677,7 +2675,7 @@ PHP_FUNCTION(gearman_client_set_created_callback) {
 	zend_string_release(callable);
 
 	/* store the cb in client object */
-	ZVAL_COPY_VALUE(&obj->zcreated_fn, zcreated_fn);
+	ZVAL_DUP(&obj->zcreated_fn, zcreated_fn);
 
 	/* set the callback for php */
 	gearman_client_set_created_fn(&(obj->client), _php_task_created_fn);
@@ -2711,7 +2709,7 @@ PHP_FUNCTION(gearman_client_set_data_callback) {
 	zend_string_release(callable);
 
 	/* store the cb in client object */
-	ZVAL_COPY_VALUE(&obj->zdata_fn, zdata_fn);
+	ZVAL_DUP(&obj->zdata_fn, zdata_fn);
 
 	/* set the callback for php */
 	gearman_client_set_data_fn(&(obj->client), _php_task_data_fn);
@@ -2745,7 +2743,7 @@ PHP_FUNCTION(gearman_client_set_warning_callback) {
 	zend_string_release(callable);
 
 	/* store the cb in client object */
-	ZVAL_COPY_VALUE(&obj->zwarning_fn, zwarning_fn);
+	ZVAL_DUP(&obj->zwarning_fn, zwarning_fn);
 
 	/* set the callback for php */
 	gearman_client_set_warning_fn(&(obj->client), _php_task_warning_fn);
@@ -2780,7 +2778,7 @@ PHP_FUNCTION(gearman_client_set_status_callback) {
 	zend_string_release(callable);
 
 	/* store the cb in client object */
-	ZVAL_COPY_VALUE(&obj->zstatus_fn, zstatus_fn);
+	ZVAL_DUP(&obj->zstatus_fn, zstatus_fn);
 
 	/* set the callback for php */
 	gearman_client_set_status_fn(&(obj->client), _php_task_status_fn);
@@ -2848,7 +2846,7 @@ PHP_FUNCTION(gearman_client_set_exception_callback) {
 	zend_string_release(callable);
 
 	/* store the cb in client object */
-	ZVAL_COPY_VALUE(&obj->zexception_fn, zexception_fn);
+	ZVAL_DUP(&obj->zexception_fn, zexception_fn);
 
 	/* set the callback for php */
 	gearman_client_set_exception_fn(&(obj->client), _php_task_exception_fn);
@@ -2882,7 +2880,7 @@ PHP_FUNCTION(gearman_client_set_fail_callback) {
 	zend_string_release(callable);
 
 	/* store the cb in client object */
-	ZVAL_COPY_VALUE(&obj->zfail_fn, zfail_fn);
+	ZVAL_DUP(&obj->zfail_fn, zfail_fn);
 
 	/* set the callback for php */
 	gearman_client_set_fail_fn(&(obj->client), _php_task_fail_fn);
