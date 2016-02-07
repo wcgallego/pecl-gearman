@@ -15,23 +15,23 @@ $registered_func = 'registered_function';
 $worker = new GearmanWorker();
 $worker->addServer($host, $port);
 
-print "GearmanWorker::register() (OO): " . ($worker->register($registered_func) === true ? "Success" : "Failure") . "\n";
-print "GearmanWorker::unregister() (OO): " . ($worker->unregister($registered_func) === true ? "Success" : "Failure") . "\n";
-print "GearmanWorker::register() (OO): " . ($worker->register($registered_func) === true ? "Success" : "Failure") . "\n";
-print "GearmanWorker::unregisterAll() (OO): " . ($worker->unregisterAll() === true ? "Success" : "Failure") . "\n";
+print "GearmanWorker::register() (OO): " . ($worker->register($registered_func) === true ? "Success" : "Failure") . PHP_EOL;
+print "GearmanWorker::unregister() (OO): " . ($worker->unregister($registered_func) === true ? "Success" : "Failure") . PHP_EOL;
+print "GearmanWorker::register() (OO): " . ($worker->register($registered_func) === true ? "Success" : "Failure") . PHP_EOL;
+print "GearmanWorker::unregisterAll() (OO): " . ($worker->unregisterAll() === true ? "Success" : "Failure") . PHP_EOL;
 
 $worker2 = gearman_worker_create();
 gearman_worker_add_server($worker, $host, $port);
 
-print "gearman_worker_register() (Procedural): " . (gearman_worker_register($worker, $registered_func) === true ? "Success" : "Failure") . "\n";
-print "gearman_worker_unregister() (Procedural): " . (gearman_worker_unregister($worker, $registered_func) === true ? "Success" : "Failure") . "\n";
-print "gearman_worker_register() (Procedural): " . (gearman_worker_register($worker, $registered_func) === true ? "Success" : "Failure") . "\n";
-print "gearman_worker_unregister_all() (Procedural): " . (gearman_worker_unregister_all($worker) === true ? "Success" : "Failure") . "\n";
+print "gearman_worker_register() (Procedural): " . (gearman_worker_register($worker, $registered_func) === true ? "Success" : "Failure") . PHP_EOL;
+print "gearman_worker_unregister() (Procedural): " . (gearman_worker_unregister($worker, $registered_func) === true ? "Success" : "Failure") . PHP_EOL;
+print "gearman_worker_register() (Procedural): " . (gearman_worker_register($worker, $registered_func) === true ? "Success" : "Failure") . PHP_EOL;
+print "gearman_worker_unregister_all() (Procedural): " . (gearman_worker_unregister_all($worker) === true ? "Success" : "Failure") . PHP_EOL;
 
 print "OK";
 
 function registered_function() {
-	print "I'm in ".__FUNCTION__."\n";
+	print "I'm in ".__FUNCTION__.PHP_EOL;
 }
 ?>
 --EXPECT--

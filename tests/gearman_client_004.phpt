@@ -6,10 +6,10 @@ GearmanWorker::getErrno(), gearman_client_get_errno()
 <?php 
 
 $client = new GearmanClient();
-print "GearmanClient::getErrno (OO): " . $client->getErrno() . "\n";
+print "GearmanClient::getErrno (OO): " . $client->getErrno() . PHP_EOL;
 
 $client2 = gearman_client_create();
-print "gearman_client_get_errno (Procedural): " . gearman_client_get_errno($client2) . "\n";
+print "gearman_client_get_errno (Procedural): " . gearman_client_get_errno($client2) . PHP_EOL;
 
 print "OK";
 ?>

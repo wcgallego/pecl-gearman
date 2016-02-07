@@ -6,10 +6,10 @@ gearman_worker_errno()
 <?php 
 
 $worker = new GearmanWorker();
-print "GearmanWorker::getErrno (OO): " . $worker->getErrno() . "\n";
+print "GearmanWorker::getErrno (OO): " . $worker->getErrno() . PHP_EOL;
 
 $worker2 = gearman_worker_create();
-print "gearman_worker_errno (Procedural): " . gearman_worker_errno($worker2) . "\n";
+print "gearman_worker_errno (Procedural): " . gearman_worker_errno($worker2) . PHP_EOL;
 
 print "OK";
 ?>

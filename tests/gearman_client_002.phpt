@@ -6,10 +6,10 @@ GearmanWorker::returnCode(), gearman_client_return_code()
 <?php 
 
 $client = new GearmanClient();
-print "GearmanClient::returnCode (OO): " . $client->returnCode() . "\n";
+print "GearmanClient::returnCode (OO): " . $client->returnCode() . PHP_EOL;
 
 $client2 = gearman_client_create();
-print "gearman_client_return_code (Procedural): " . gearman_client_return_code($client2) . "\n";
+print "gearman_client_return_code (Procedural): " . gearman_client_return_code($client2) . PHP_EOL;
 
 print "OK";
 ?>

@@ -24,18 +24,18 @@ $worker = new GearmanWorker();
 $worker->addServer($host, $port);
 $worker->addFunction($job, $func);
 
-print "GearmanWorker::work() (OO): ".($worker->work() === true ? 'Success' : 'Failure') . "\n";
+print "GearmanWorker::work() (OO): ".($worker->work() === true ? 'Success' : 'Failure') . PHP_EOL;
 
 $worker2 = gearman_worker_create();
 gearman_worker_add_server($worker, $host, $port);
 gearman_worker_add_function($worker, $job, $func);
 
-print "gearman_worker_work() (Procedural): ".(gearman_worker_work($worker) === true ? 'Success' : 'Failure') . "\n";
+print "gearman_worker_work() (Procedural): ".(gearman_worker_work($worker) === true ? 'Success' : 'Failure') . PHP_EOL;
 
 print "OK";
 
 function do_work($job) {
-	print "Calling function ".__FUNCTION__."\n";
+	print "Calling function ".__FUNCTION__.PHP_EOL;
 }
 ?>
 --EXPECT--
