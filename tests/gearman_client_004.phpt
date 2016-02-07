@@ -1,5 +1,5 @@
 --TEST--
-GearmanWorker::getErrno(), gearman_client_get_errno()
+GearmanClient::getErrno(), gearman_client_get_errno()
 --SKIPIF--
 <?php if (!extension_loaded("gearman")) print "skip"; ?>
 --FILE--

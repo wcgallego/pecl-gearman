@@ -1,5 +1,5 @@
 --TEST--
-GearmanWorker::setTimeout(), gearman_client_set_timeout()
+GearmanClient::setTimeout(), gearman_client_set_timeout()
 --SKIPIF--
 <?php if (!extension_loaded("gearman")) print "skip"; ?>
 --FILE--

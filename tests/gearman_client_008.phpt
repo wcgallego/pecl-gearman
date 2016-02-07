@@ -1,5 +1,5 @@
 --TEST--
-GearmanWorker::removeOptions(), gearman_client_remove_options()
+GearmanClient::removeOptions(), gearman_client_remove_options()
 --SKIPIF--
 <?php if (!extension_loaded("gearman")) print "skip"; ?>
 --FILE--
