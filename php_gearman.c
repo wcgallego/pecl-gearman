@@ -2640,6 +2640,11 @@ PHP_FUNCTION(gearman_client_set_workload_callback) {
 	}
 	zend_string_release(callable);
 
+	/* Defining callback again? Clean up old one first */
+        if (!Z_ISUNDEF(obj->zworkload_fn)) {
+		zval_dtor(&obj->zworkload_fn);
+	}
+
 	/* store the cb in client object */
 	ZVAL_DUP(&obj->zworkload_fn, zworkload_fn);
 
@@ -2673,6 +2678,11 @@ PHP_FUNCTION(gearman_client_set_created_callback) {
 		RETURN_FALSE;
 	}
 	zend_string_release(callable);
+
+	/* Defining callback again? Clean up old one first */
+        if (!Z_ISUNDEF(obj->zcreated_fn)) {
+		zval_dtor(&obj->zcreated_fn);
+	}
 
 	/* store the cb in client object */
 	ZVAL_DUP(&obj->zcreated_fn, zcreated_fn);
@@ -2708,6 +2718,11 @@ PHP_FUNCTION(gearman_client_set_data_callback) {
 	}
 	zend_string_release(callable);
 
+	/* Defining callback again? Clean up old one first */
+        if (!Z_ISUNDEF(obj->zdata_fn)) {
+		zval_dtor(&obj->zdata_fn);
+	}
+
 	/* store the cb in client object */
 	ZVAL_DUP(&obj->zdata_fn, zdata_fn);
 
@@ -2741,6 +2756,11 @@ PHP_FUNCTION(gearman_client_set_warning_callback) {
 		RETURN_FALSE;
 	}
 	zend_string_release(callable);
+
+	/* Defining callback again? Clean up old one first */
+        if (!Z_ISUNDEF(obj->zwarning_fn)) {
+		zval_dtor(&obj->zwarning_fn);
+	}
 
 	/* store the cb in client object */
 	ZVAL_DUP(&obj->zwarning_fn, zwarning_fn);
@@ -2777,6 +2797,11 @@ PHP_FUNCTION(gearman_client_set_status_callback) {
 
 	zend_string_release(callable);
 
+	/* Defining callback again? Clean up old one first */
+        if (!Z_ISUNDEF(obj->zstatus_fn)) {
+		zval_dtor(&obj->zstatus_fn);
+	}
+
 	/* store the cb in client object */
 	ZVAL_DUP(&obj->zstatus_fn, zstatus_fn);
 
@@ -2810,6 +2835,11 @@ PHP_FUNCTION(gearman_client_set_complete_callback) {
 		RETURN_FALSE;
 	}
 	zend_string_release(callable);
+
+	/* Defining callback again? Clean up old one first */
+        if (!Z_ISUNDEF(obj->zcomplete_fn)) {
+		zval_dtor(&obj->zcomplete_fn);
+	}
 
 	/* store the cb in client object */
 	ZVAL_DUP(&obj->zcomplete_fn, zcomplete_fn);
@@ -2845,6 +2875,11 @@ PHP_FUNCTION(gearman_client_set_exception_callback) {
 	}
 	zend_string_release(callable);
 
+	/* Defining callback again? Clean up old one first */
+        if (!Z_ISUNDEF(obj->zexception_fn)) {
+		zval_dtor(&obj->zexception_fn);
+	}
+
 	/* store the cb in client object */
 	ZVAL_DUP(&obj->zexception_fn, zexception_fn);
 
@@ -2872,12 +2907,23 @@ PHP_FUNCTION(gearman_client_set_fail_callback) {
 	obj = Z_GEARMAN_CLIENT_P(zobj);
 
 	/* check that the function is callable */
+
 	if (! zend_is_callable(zfail_fn, 0, &callable)) {
 		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable);
 		zend_string_release(callable);
 		RETURN_FALSE;
 	}
 	zend_string_release(callable);
+
+	/* Defining callback again? Clean up old one first */
+        if (!Z_ISUNDEF(obj->zfail_fn)) {
+		zval_dtor(&obj->zfail_fn);
+	}
+
+	/* Defining callback again? Clean up old one first */
+        if (!Z_ISUNDEF(obj->zfail_fn)) {
+		zval_dtor(&obj->zfail_fn);
+	}
 
 	/* store the cb in client object */
 	ZVAL_DUP(&obj->zfail_fn, zfail_fn);
