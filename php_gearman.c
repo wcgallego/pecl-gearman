@@ -3616,6 +3616,8 @@ static void gearman_client_obj_free(zend_object *object) {
 	}
 
 	zval_dtor(&intern->zclient);
+
+	// Clear Callbacks
 	zval_dtor(&intern->zworkload_fn);
 	zval_dtor(&intern->zcreated_fn);
 	zval_dtor(&intern->zdata_fn);
@@ -3640,6 +3642,7 @@ static void gearman_client_obj_free(zend_object *object) {
 	}
 
 	zend_object_std_dtor(&intern->std);
+	efree(intern);
 }
 
 static inline zend_object *gearman_client_obj_new(zend_class_entry *ce) {
