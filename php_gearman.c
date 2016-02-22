@@ -2372,7 +2372,9 @@ static void gearman_client_add_task_handler(gearman_task_st* (*add_task_func)(
 	}
 
 	/* store our workload and add ref so it wont go away on us */
-	Z_ADDREF_P(zworkload);
+		if (Z_REFCOUNTED_P(zworkload)) {
+			Z_ADDREF_P(zworkload);
+		}
 	ZVAL_COPY_VALUE(&task->zworkload, zworkload);
 
 	/* need to store a ref to the client for later access to cb's */
