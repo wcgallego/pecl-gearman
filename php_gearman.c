@@ -3609,6 +3609,10 @@ static void gearman_client_obj_free(zend_object *object) {
 	zval_dtor(&intern->task_list);
 
 	zend_object_std_dtor(&intern->std);
+
+	// I'm including it because it cleans up a memory leak, but still not sure why it's not automatically
+	// cleaned up like other objects. Need to dig in more
+	efree(intern);
 }
 
 static inline zend_object *gearman_client_obj_new(zend_class_entry *ce) {
