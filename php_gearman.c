@@ -2613,7 +2613,7 @@ PHP_FUNCTION(gearman_client_set_workload_callback) {
 
 	/* check that the function is callable */
 	if (! zend_is_callable(zworkload_fn, 0, &callable)) {
-		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable);
+		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable->val);
 		zend_string_release(callable);
 		RETURN_FALSE;
 	}
@@ -2652,7 +2652,7 @@ PHP_FUNCTION(gearman_client_set_created_callback) {
 
 	/* check that the function is callable */
 	if (! zend_is_callable(zcreated_fn, 0, &callable)) {
-		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable);
+		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable->val);
 		zend_string_release(callable);
 		RETURN_FALSE;
 	}
@@ -2691,7 +2691,7 @@ PHP_FUNCTION(gearman_client_set_data_callback) {
 
 	/* check that the function is callable */
 	if (! zend_is_callable(zdata_fn, 0, &callable)) {
-		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable);
+		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable->val);
 		zend_string_release(callable);
 		RETURN_FALSE;
 	}
@@ -2730,7 +2730,7 @@ PHP_FUNCTION(gearman_client_set_warning_callback) {
 
 	/* check that the function is callable */
 	if (! zend_is_callable(zwarning_fn, 0, &callable)) {
-		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable);
+		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable->val);
 		zend_string_release(callable);
 		RETURN_FALSE;
 	}
@@ -2809,7 +2809,7 @@ PHP_FUNCTION(gearman_client_set_complete_callback) {
 
 	/* check that the function is callable */
 	if (! zend_is_callable(zcomplete_fn, 0, &callable)) {
-		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable);
+		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable->val);
 		zend_string_release(callable);
 		RETURN_FALSE;
 	}
@@ -2848,7 +2848,7 @@ PHP_FUNCTION(gearman_client_set_exception_callback) {
 
 	/* check that the function is callable */
 	if (! zend_is_callable(zexception_fn, 0, &callable)) {
-		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable);
+		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable->val);
 		zend_string_release(callable);
 		RETURN_FALSE;
 	}
@@ -2888,7 +2888,7 @@ PHP_FUNCTION(gearman_client_set_fail_callback) {
 	/* check that the function is callable */
 
 	if (! zend_is_callable(zfail_fn, 0, &callable)) {
-		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable);
+		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable->val);
 		zend_string_release(callable);
 		RETURN_FALSE;
 	}
