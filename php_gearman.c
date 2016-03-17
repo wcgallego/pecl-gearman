@@ -967,7 +967,7 @@ struct _gearman_task_obj {
 	gearman_return_t ret;
 	gearman_task_obj_flags_t flags;
 	gearman_task_st *task;
-	zval *zclient;
+	zval zclient;
 	zval zdata;
 	zval zworkload;
 
@@ -1356,7 +1356,7 @@ PHP_FUNCTION(gearman_task_data) {
 	obj = Z_GEARMAN_TASK_P(zobj);
 
 	if (obj->flags & GEARMAN_TASK_OBJ_CREATED &&
-		!gearman_client_has_option(&Z_GEARMAN_CLIENT_P(obj->zclient)->client, GEARMAN_CLIENT_UNBUFFERED_RESULT)) {
+		!gearman_client_has_option(&Z_GEARMAN_CLIENT_P(&obj->zclient)->client, GEARMAN_CLIENT_UNBUFFERED_RESULT)) {
 		data = gearman_task_data(obj->task);
 		data_len = gearman_task_data_size(obj->task);
 
@@ -1409,7 +1409,7 @@ PHP_FUNCTION(gearman_task_send_workload) {
 	if (obj->ret != GEARMAN_SUCCESS)
 	{
 		php_error_docref(NULL, E_WARNING,  "%s",
-						 gearman_client_error(&Z_GEARMAN_CLIENT_P(obj->zclient)->client));
+						 gearman_client_error(&Z_GEARMAN_CLIENT_P(&obj->zclient)->client));
 		RETURN_FALSE;
 	}
 
@@ -1442,9 +1442,9 @@ PHP_FUNCTION(gearman_task_recv_data) {
 	data_len= gearman_task_recv_data(obj->task, data_buffer, data_buffer_size,
 									 &obj->ret);
 	if (obj->ret != GEARMAN_SUCCESS &&
-		!gearman_client_has_option(&Z_GEARMAN_CLIENT_P(obj->zclient)->client, GEARMAN_CLIENT_UNBUFFERED_RESULT)) {
+		!gearman_client_has_option(&Z_GEARMAN_CLIENT_P(&obj->zclient)->client, GEARMAN_CLIENT_UNBUFFERED_RESULT)) {
 		php_error_docref(NULL, E_WARNING,  "%s",
-						 gearman_client_error(&Z_GEARMAN_CLIENT_P(obj->zclient)->client));
+						 gearman_client_error(&Z_GEARMAN_CLIENT_P(&obj->zclient)->client));
 		RETURN_FALSE;
 	}
 
@@ -2382,7 +2382,7 @@ static void gearman_client_add_task_handler(gearman_task_st* (*add_task_func)(
 	ZVAL_COPY_VALUE(&task->zworkload, zworkload);
 
 	/* need to store a ref to the client for later access to cb's */
-	task->zclient = zobj;
+	ZVAL_COPY_VALUE(&task->zclient, zobj);
 
 	/* add the task */
 	task->task = (*add_task_func)(
@@ -2489,7 +2489,7 @@ PHP_FUNCTION(gearman_client_add_task_status) {
                ZVAL_COPY_VALUE(&task->zdata, zdata);
 	}
 	/* need to store a ref to the client for later access to cb's */
-	task->zclient = zobj;
+	ZVAL_COPY_VALUE(&task->zclient, zobj);
 
 	/* add the task */
 	task->task = gearman_client_add_task_status(&(obj->client),
@@ -2553,49 +2553,49 @@ static gearman_return_t _php_task_cb_fn(gearman_task_obj *task, gearman_client_o
 /* TODO: clean this up a bit, Macro? */
 static gearman_return_t _php_task_workload_fn(gearman_task_st *task) {
 	gearman_task_obj *task_obj = (gearman_task_obj *) gearman_task_context(task);
-	gearman_client_obj *client_obj = Z_GEARMAN_CLIENT_P(task_obj->zclient);
+	gearman_client_obj *client_obj = Z_GEARMAN_CLIENT_P(&task_obj->zclient);
 	return _php_task_cb_fn(task_obj, client_obj, client_obj->zworkload_fn);
 }
 
 static gearman_return_t _php_task_created_fn(gearman_task_st *task) {
 	gearman_task_obj *task_obj = (gearman_task_obj *) gearman_task_context(task);
-	gearman_client_obj *client_obj = Z_GEARMAN_CLIENT_P(task_obj->zclient);
+	gearman_client_obj *client_obj = Z_GEARMAN_CLIENT_P(&task_obj->zclient);
 	return _php_task_cb_fn(task_obj, client_obj, client_obj->zcreated_fn);
 }
 
 static gearman_return_t _php_task_data_fn(gearman_task_st *task) {
 	gearman_task_obj *task_obj = (gearman_task_obj *) gearman_task_context(task);
-	gearman_client_obj *client_obj = Z_GEARMAN_CLIENT_P(task_obj->zclient);
+	gearman_client_obj *client_obj = Z_GEARMAN_CLIENT_P(&task_obj->zclient);
 	return _php_task_cb_fn(task_obj, client_obj, client_obj->zdata_fn);
 }
 
 static gearman_return_t _php_task_warning_fn(gearman_task_st *task) {
 	gearman_task_obj *task_obj = (gearman_task_obj *) gearman_task_context(task);
-	gearman_client_obj *client_obj = Z_GEARMAN_CLIENT_P(task_obj->zclient);
+	gearman_client_obj *client_obj = Z_GEARMAN_CLIENT_P(&task_obj->zclient);
 	return _php_task_cb_fn(task_obj, client_obj, client_obj->zwarning_fn);
 }
 
 static gearman_return_t _php_task_status_fn(gearman_task_st *task) {
 	gearman_task_obj *task_obj = (gearman_task_obj *) gearman_task_context(task);
-	gearman_client_obj *client_obj = Z_GEARMAN_CLIENT_P(task_obj->zclient);
+	gearman_client_obj *client_obj = Z_GEARMAN_CLIENT_P(&task_obj->zclient);
 	return _php_task_cb_fn(task_obj, client_obj, client_obj->zstatus_fn);
 }
 
 static gearman_return_t _php_task_complete_fn(gearman_task_st *task) {
 	gearman_task_obj *task_obj = (gearman_task_obj *) gearman_task_context(task);
-	gearman_client_obj *client_obj = Z_GEARMAN_CLIENT_P(task_obj->zclient);
+	gearman_client_obj *client_obj = Z_GEARMAN_CLIENT_P(&task_obj->zclient);
 	return _php_task_cb_fn(task_obj, client_obj, client_obj->zcomplete_fn);
 }
 
 static gearman_return_t _php_task_exception_fn(gearman_task_st *task) {
 	gearman_task_obj *task_obj = (gearman_task_obj *) gearman_task_context(task);
-	gearman_client_obj *client_obj = Z_GEARMAN_CLIENT_P(task_obj->zclient);
+	gearman_client_obj *client_obj = Z_GEARMAN_CLIENT_P(&task_obj->zclient);
 	return _php_task_cb_fn(task_obj, client_obj, client_obj->zexception_fn);
 }
 
 static gearman_return_t _php_task_fail_fn(gearman_task_st *task) {
 	gearman_task_obj *task_obj = (gearman_task_obj *) gearman_task_context(task);
-	gearman_client_obj *client_obj = Z_GEARMAN_CLIENT_P(task_obj->zclient);
+	gearman_client_obj *client_obj = Z_GEARMAN_CLIENT_P(&task_obj->zclient);
 	return _php_task_cb_fn(task_obj, client_obj, client_obj->zfail_fn);
 }
 
@@ -3613,10 +3613,6 @@ static void gearman_client_obj_free(zend_object *object) {
 	zval_dtor(&intern->task_list);
 
 	zend_object_std_dtor(&intern->std);
-
-	// I'm including it because it cleans up a memory leak, but still not sure why it's not automatically
-	// cleaned up like other objects. Need to dig in more
-	efree(intern);
 }
 
 static inline zend_object *gearman_client_obj_new(zend_class_entry *ce) {
@@ -3758,7 +3754,7 @@ static void gearman_task_obj_free(zend_object *object) {
 
 	zval_dtor(&intern->zworkload);
 	zval_dtor(&intern->zdata);
-	zval_dtor(intern->zclient);
+	zval_dtor(&intern->zclient);
 
 	zend_object_std_dtor(&intern->std);
 }
