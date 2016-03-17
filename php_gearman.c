@@ -3754,7 +3754,7 @@ static void gearman_task_obj_free(zend_object *object) {
 
 	zval_dtor(&intern->zworkload);
 	zval_dtor(&intern->zdata);
-	zval_dtor(intern->zclient);
+	zval_dtor(&intern->zclient);
 
 	zend_object_std_dtor(&intern->std);
 }
