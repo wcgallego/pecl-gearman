@@ -3190,7 +3190,7 @@ PHP_FUNCTION(gearman_worker_add_server) {
 	size_t host_len = 0;
 	zend_long port = 0;
 
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Osl", &zobj,
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|sl", &zobj,
 								gearman_worker_ce,
 								&host, &host_len,
 								&port
