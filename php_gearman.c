@@ -2356,6 +2356,10 @@ static void gearman_client_add_task_handler(gearman_task_st* (*add_task_func)(
 	}
 	obj = Z_GEARMAN_CLIENT_P(zobj);
 
+	if (unique_len == 0) {
+	  unique = NULL;
+	}
+
 	/* get a task object, and prepare it for return */
 	if (object_init_ex(return_value, gearman_task_ce) != SUCCESS) {
 		php_error_docref(NULL, E_WARNING, "GearmanTask Object creation failure.");
