@@ -6,11 +6,13 @@ GearmanClient::setOptions(), gearman_client_set_options()
 <?php 
 
 $client = new GearmanClient();
+$client->setOptions(32);
 print "GearmanClient::options (OO): " . $client->options() . PHP_EOL;
 print "GearmanClient::setOptions (OO): " . ($client->setOptions(GEARMAN_CLIENT_NON_BLOCKING) ? 'Success' : 'Failure') . PHP_EOL;
 print "GearmanClient::options (OO): " . $client->options() . PHP_EOL;
 
 $client2 = gearman_client_create();
+gearman_client_set_options($client2, 32);
 print "gearman_client_options (Procedural): " . gearman_client_options($client2) . PHP_EOL;
 print "gearman_client_set_options (Procedural): " . (gearman_client_set_options($client2, GEARMAN_CLIENT_NON_BLOCKING) ? 'Success' : 'Failure') . PHP_EOL;
 print "gearman_client_options (Procedural): " . gearman_client_options($client2) . PHP_EOL;
