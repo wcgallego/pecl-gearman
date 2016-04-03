@@ -12,7 +12,7 @@ $host = 'localhost';
 $port = 4730;
 $job = 'GenericTestJob';
 $func = 'do_work';
-$workload = json_encode(['workload' => 'test']);
+$workload = '{"workload":"test"}';
 
 // Adding 2 jobs, one for OO and one for procedural
 $client = new GearmanClient();
