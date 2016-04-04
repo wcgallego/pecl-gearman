@@ -3383,7 +3383,7 @@ static void *_php_worker_function_callback(gearman_job_st *job,
 						void *context,
 						size_t *result_size,
 						gearman_return_t *ret_ptr) {
-	zval zjob, *message = NULL;
+	zval zjob, message;
 	gearman_job_obj *jobj;
 	gearman_worker_cb *worker_cb = (gearman_worker_cb *)context;
 	char *result = NULL;
@@ -3426,10 +3426,9 @@ static void *_php_worker_function_callback(gearman_job_st *job,
 	if (EG(exception)) {
 		*ret_ptr = GEARMAN_WORK_EXCEPTION;
 
-		ZVAL_STRING(message, "Unable to add worker function");
+		ZVAL_STRING(&message, "Unable to add worker function");
 
-		jobj->ret = gearman_job_send_exception(jobj->job, Z_STRVAL_P(message), Z_STRLEN_P(message));
-		EG(exception) = NULL;
+		jobj->ret = gearman_job_send_exception(jobj->job, Z_STRVAL(message), Z_STRLEN(message));
 
 		if (jobj->ret != GEARMAN_SUCCESS && jobj->ret != GEARMAN_IO_WAIT) {
 			php_error_docref(NULL, E_WARNING,  "Unable to add worker function: %s",
