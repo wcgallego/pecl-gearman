@@ -35,6 +35,7 @@ static inline zend_object *gearman_worker_cb_obj_new(zend_class_entry *ce);
 
 // TODO - move this somewhere...
 static void gearman_task_obj_free(zend_object *object);
+static void gearman_worker_cb_obj_free(zend_object *object);
 
 /* {{{ arginfo */
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_version, 0, 0, 0)
@@ -2385,9 +2386,9 @@ static void gearman_client_add_task_handler(gearman_task_st* (*add_task_func)(
 	}
 
 	/* store our workload and add ref so it wont go away on us */
-		if (Z_REFCOUNTED_P(zworkload)) {
-			Z_ADDREF_P(zworkload);
-		}
+	if (Z_REFCOUNTED_P(zworkload)) {
+		Z_ADDREF_P(zworkload);
+	}
 	ZVAL_COPY_VALUE(&task->zworkload, zworkload);
 
 	/* need to store a ref to the client for later access to cb's */
@@ -3463,7 +3464,8 @@ static void *_php_worker_function_callback(gearman_job_st *job,
 
 	if (!Z_ISUNDEF(argv[1])) {
 		zval_dtor(&argv[1]);
-	}	
+	}
+
 
 	return result;
 }
@@ -3515,16 +3517,17 @@ PHP_FUNCTION(gearman_worker_add_function) {
 
 	worker_cb = Z_GEARMAN_WORKER_CB_P(&zworker_cb);
 
-// TODO - ZVAL_COPY_VALUE here instead with an addref? will that suffice?
 	// Name of the callback function
-	ZVAL_DUP(&worker_cb->zname, zname);
+	ZVAL_COPY(&worker_cb->zname, zname);
 
 	// Reference to the callback function
-	ZVAL_DUP(&worker_cb->zcall, zcall);
+	ZVAL_COPY(&worker_cb->zcall, zcall);
 
 	// Additional data passed along to the callback function
 	if (zdata) {
-		ZVAL_DUP(&worker_cb->zdata,zdata);
+		ZVAL_COPY(&worker_cb->zdata,zdata);
+	} else {
+		ZVAL_NULL(&worker_cb->zdata);
 	}
 	
 	// Add the worker_cb to the list
@@ -3539,8 +3542,6 @@ PHP_FUNCTION(gearman_worker_add_function) {
 						_php_worker_function_callback,
 						(void *)worker_cb
 						);
-
-	zval_dtor(&zworker_cb);
 
 	if (obj->ret != GEARMAN_SUCCESS) {
 		php_error_docref(NULL, E_WARNING, "Unable to add function to Gearman Worker: %s %s",
@@ -3562,6 +3563,7 @@ PHP_FUNCTION(gearman_worker_work) {
 		RETURN_FALSE;
 	}
 	obj = Z_GEARMAN_WORKER_P(zobj);
+
 
 	obj->ret = gearman_worker_work(&(obj->worker));
 
@@ -3710,11 +3712,17 @@ static void gearman_worker_obj_free(zend_object *object) {
 		gearman_worker_free(&(intern->worker));
 	}
 
-	if (!Z_ISUNDEF(intern->cb_list)) {
-		zval_dtor(&intern->cb_list);
-	}
+	HashTable *arr = Z_ARRVAL(intern->cb_list);
+	zval *cb;
+	gearman_worker_cb_obj *worker_cb;
+	ZEND_HASH_FOREACH_VAL (arr, cb) {
+		worker_cb = Z_GEARMAN_WORKER_CB_P(cb);
+		gearman_worker_cb_obj_free(&worker_cb->std);
+	} ZEND_HASH_FOREACH_END();
 
-	zend_object_std_dtor(&(intern->std));
+	zval_dtor(&intern->cb_list);
+
+	zend_object_std_dtor(&intern->std);
 }
 
 static inline zend_object *gearman_worker_obj_new(zend_class_entry *ce) {
@@ -3802,14 +3810,16 @@ static void gearman_worker_cb_obj_free(zend_object *object) {
 		return;
 	}
 
-        if (!Z_ISUNDEF(intern->zname)) {
-		zval_dtor(&intern->zname);
-	}
-        if (!Z_ISUNDEF(intern->zcall)) {
+	zval_dtor(&intern->zname);
+	zval_dtor(&intern->zdata);
+	zval_dtor(&intern->zcall);
+
+	// TODO - this isn't quite right. Clearly I'm doing zval_dtor twice on this callback
+	// Basically, if you pass in an anonymous or inlined function from within a class scope,
+	// it'll have a refcount of at least 2 instead of one. This leads to a mem leak as the
+	// zcall isn't cleaned up. Temporary (I hope) fix until I can better figure it out
+	if (&intern->zcall) {
 		zval_dtor(&intern->zcall);
-	}
-        if (!Z_ISUNDEF(intern->zdata)) {
-		zval_dtor(&intern->zdata);
 	}
 
 	zend_object_std_dtor(&(intern->std));
@@ -3826,6 +3836,7 @@ static inline zend_object *gearman_worker_cb_obj_new(zend_class_entry *ce) {
 	intern->std.handlers = &gearman_worker_cb_obj_handlers;
 	return &intern->std;
 }
+
 /* Function list. */
 zend_function_entry gearman_functions[] = {
 	/* Functions from gearman.h */
@@ -4277,7 +4288,8 @@ PHP_MINIT_FUNCTION(gearman) {
 	gearman_worker_cb_ce->create_object = gearman_worker_cb_obj_new;
 	memcpy(&gearman_worker_cb_obj_handlers, zend_get_std_object_handlers(), sizeof(gearman_worker_cb_obj_handlers));
 	gearman_worker_cb_obj_handlers.offset = XtOffsetOf(gearman_worker_cb_obj, std);
-	gearman_worker_cb_obj_handlers.free_obj = gearman_worker_cb_obj_free;
+	//gearman_worker_cb_obj_handlers.free_obj = gearman_worker_cb_obj_free;
+	gearman_worker_cb_obj_handlers.free_obj = NULL;
 
 	/* These are automatically generated from gearman_constants.h using
 	const_gen.sh. Do not remove the CONST_GEN_* comments, this is how the
