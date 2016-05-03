@@ -3531,7 +3531,7 @@ PHP_FUNCTION(gearman_worker_add_function) {
 	}
 	
 	// Add the worker_cb to the list
-	add_next_index_zval(&obj->cb_list, &zworker_cb);
+	zend_hash_update(Z_ARRVAL(obj->cb_list), zval_get_string(&worker_cb->zname), &zworker_cb);
 
 	/* add the function */
 	/* NOTE: _php_worker_function_callback is a wrapper that calls
@@ -3712,11 +3712,13 @@ static void gearman_worker_obj_free(zend_object *object) {
 		gearman_worker_free(&(intern->worker));
 	}
 
-	HashTable *arr = Z_ARRVAL(intern->cb_list);
-	zval *cb;
+	HashTable *hash = Z_ARRVAL(intern->cb_list);
+	zend_ulong hashIndex;
+	zend_string *hashKey;
+	zval *hashData;
 	gearman_worker_cb_obj *worker_cb;
-	ZEND_HASH_FOREACH_VAL (arr, cb) {
-		worker_cb = Z_GEARMAN_WORKER_CB_P(cb);
+	ZEND_HASH_FOREACH_KEY_VAL(hash, hashIndex, hashKey, hashData) {
+		worker_cb = Z_GEARMAN_WORKER_CB_P(hashData);
 		gearman_worker_cb_obj_free(&worker_cb->std);
 	} ZEND_HASH_FOREACH_END();
 
