@@ -3713,11 +3713,9 @@ static void gearman_worker_obj_free(zend_object *object) {
 	}
 
 	HashTable *hash = Z_ARRVAL(intern->cb_list);
-	zend_ulong hashIndex;
-	zend_string *hashKey;
 	zval *hashData;
 	gearman_worker_cb_obj *worker_cb;
-	ZEND_HASH_FOREACH_KEY_VAL(hash, hashIndex, hashKey, hashData) {
+	ZEND_HASH_FOREACH_VAL(hash, hashData) {
 		worker_cb = Z_GEARMAN_WORKER_CB_P(hashData);
 		gearman_worker_cb_obj_free(&worker_cb->std);
 	} ZEND_HASH_FOREACH_END();
