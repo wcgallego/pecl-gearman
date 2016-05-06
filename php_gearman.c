@@ -3496,13 +3496,13 @@ PHP_FUNCTION(gearman_worker_add_function) {
 
         /* check that the function name is a string */
 	if (Z_TYPE_P(zname) != IS_STRING) {
-		php_error_docref(NULL, E_WARNING, "function name must be a string");
+		php_error_docref(NULL, E_WARNING, "Function name must be a string");
 		RETURN_FALSE;
 	}
 
 	/* check that the function can be called */
 	if (!zend_is_callable(zcall, 0, &callable)) {
-		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable->val);
+		php_error_docref(NULL, E_WARNING, "Function '%s' is not a valid callback", ZSTR_VAL(callable));
 		zend_string_release(callable);
 		RETURN_FALSE;
 	}
@@ -3514,6 +3514,10 @@ PHP_FUNCTION(gearman_worker_add_function) {
                 php_error_docref(NULL, E_WARNING, "Failed to create gearman_worker_cb_ce object.");
 		RETURN_FALSE;
         }
+
+	if (Z_TYPE_P(zcall) != IS_ARRAY && (Z_TYPE_P(zcall) != IS_OBJECT)) {
+		convert_to_string_ex(zcall);
+	}
 
 	worker_cb = Z_GEARMAN_WORKER_CB_P(&zworker_cb);
 
@@ -3813,14 +3817,6 @@ static void gearman_worker_cb_obj_free(zend_object *object) {
 	zval_dtor(&intern->zname);
 	zval_dtor(&intern->zdata);
 	zval_dtor(&intern->zcall);
-
-	// TODO - this isn't quite right. Clearly I'm doing zval_dtor twice on this callback
-	// Basically, if you pass in an anonymous or inlined function from within a class scope,
-	// it'll have a refcount of at least 2 instead of one. This leads to a mem leak as the
-	// zcall isn't cleaned up. Temporary (I hope) fix until I can better figure it out
-	if (&intern->zcall) {
-		zval_dtor(&intern->zcall);
-	}
 
 	zend_object_std_dtor(&(intern->std));
 }
