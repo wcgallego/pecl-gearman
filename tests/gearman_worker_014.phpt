@@ -17,8 +17,10 @@ $workload = '{"workload":"test"}';
 // Adding 2 jobs, one for OO and one for procedural
 $client = new GearmanClient();
 $client->addServer($host, $port);
+$handle = $client->doBackground($job, $workload);
 $client->doBackground($job, $workload);
-$client->doBackground($job, $workload);
+
+print "GearmanWorker::doBackground() (OO): ".(preg_match('/^H:'.gethostname().':\d+$/', $handle) === 1? 'Success' : 'Failure').PHP_EOL;
 
 $worker = new GearmanWorker();
 $worker->addServer($host, $port);
@@ -39,6 +41,7 @@ function do_work($job) {
 }
 ?>
 --EXPECT--
+GearmanWorker::doBackground() (OO): Success
 Calling function do_work
 GearmanWorker::work() (OO): Success
 Calling function do_work

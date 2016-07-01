@@ -2155,6 +2155,8 @@ static void gearman_client_do_background_work_handler(gearman_return_t (*do_back
 						job_handle->val
 					);
 
+	ZSTR_LEN(job_handle) = strnlen(ZSTR_VAL(job_handle), GEARMAN_JOB_HANDLE_SIZE-1);
+
 	if (! PHP_GEARMAN_CLIENT_RET_OK(obj->ret)) {
 		php_error_docref(NULL, E_WARNING, "%s",
 						 gearman_client_error(&(obj->client)));
