@@ -2871,7 +2871,7 @@ PHP_FUNCTION(gearman_client_clear_callbacks) {
 /* {{{ proto string GearmanClient::context()
    Get the application data */
 PHP_FUNCTION(gearman_client_context) {
-	const uint8_t *data;
+	const char *data;
 
 	gearman_client_obj *obj;
 	zval *zobj;
@@ -2883,7 +2883,7 @@ PHP_FUNCTION(gearman_client_context) {
 
 	data = gearman_client_context(&(obj->client));
 
-	RETURN_STRINGL((char *)data, (long) sizeof(data));
+	RETURN_STRINGL(data, strlen(data));
 }
 /* }}} */
 
