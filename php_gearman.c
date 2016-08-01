@@ -705,6 +705,9 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_construct, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_destruct, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_error, 0, 0, 1)
 	ZEND_ARG_INFO(0, worker_object)
 ZEND_END_ARG_INFO()
@@ -3573,8 +3576,11 @@ PHP_METHOD(GearmanWorker, __construct)
 }
 /* }}} */
 
-static void gearman_worker_obj_free(zend_object *object) {
-	gearman_worker_obj *intern = gearman_worker_fetch_object(object);
+/* {{{ proto object GearmanWorker::__destruct()
+   Destroys a worker object */
+PHP_METHOD(GearmanWorker, __destruct)
+{
+	gearman_worker_obj *intern = Z_GEARMAN_WORKER_P(getThis());
 
 	if (!intern)  {
 		return;
@@ -3585,8 +3591,12 @@ static void gearman_worker_obj_free(zend_object *object) {
 	}
 
 	zval_dtor(&intern->cb_list);
-
 	zend_object_std_dtor(&intern->std);
+}
+/* }}} */
+
+static void gearman_worker_obj_free(zend_object *object) {
+
 }
 
 static inline void cb_list_dtor(zval *zv) {
@@ -3850,6 +3860,7 @@ zend_function_entry gearman_task_methods[]= {
 
 zend_function_entry gearman_worker_methods[]= {
 	PHP_ME(GearmanWorker, __construct, arginfo_oo_gearman_worker_construct, ZEND_ACC_CTOR | ZEND_ACC_PUBLIC)
+	PHP_ME(GearmanWorker, __destruct, arginfo_oo_gearman_worker_destruct, ZEND_ACC_DTOR | ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(returnCode, gearman_worker_return_code, arginfo_oo_gearman_worker_return_code, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(error, gearman_worker_error, arginfo_oo_gearman_worker_error, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(getErrno, gearman_worker_errno, arginfo_oo_gearman_worker_errno, ZEND_ACC_PUBLIC)
