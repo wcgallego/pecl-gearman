@@ -3403,7 +3403,7 @@ PHP_FUNCTION(gearman_worker_add_function) {
 	}
 
 	// Add the worker_cb to the list
-	zend_hash_next_index_insert_mem(Z_ARRVAL(obj->cb_list), worker_cb, sizeof(gearman_worker_cb_obj));
+	zend_hash_next_index_insert_ptr(Z_ARRVAL(obj->cb_list), worker_cb);
 
 	/* add the function */
 	/* NOTE: _php_worker_function_callback is a wrapper that calls
@@ -3584,19 +3584,17 @@ static void gearman_worker_obj_free(zend_object *object) {
 		gearman_worker_free(&(intern->worker));
 	}
 
-	HashTable *hash = Z_ARRVAL(intern->cb_list);
-	zval *hashData;
-	ZEND_HASH_FOREACH_VAL(hash, hashData) {
-	    gearman_worker_cb_obj *worker_cb = Z_PTR_P(hashData);
+	zval_dtor(&intern->cb_list);
+
+	zend_object_std_dtor(&intern->std);
+}
+
+static inline void cb_list_dtor(zval *zv) {
+	    gearman_worker_cb_obj *worker_cb = Z_PTR_P(zv);
         zval_dtor(&worker_cb->zname);
         zval_dtor(&worker_cb->zdata);
         zval_dtor(&worker_cb->zcall);
         efree(worker_cb);
-	} ZEND_HASH_FOREACH_END();
-
-	zval_dtor(&intern->cb_list);
-
-	zend_object_std_dtor(&intern->std);
 }
 
 static inline zend_object *gearman_worker_obj_new(zend_class_entry *ce) {
@@ -3607,7 +3605,8 @@ static inline zend_object *gearman_worker_obj_new(zend_class_entry *ce) {
 	zend_object_std_init(&(intern->std), ce);
 	object_properties_init(&intern->std, ce);
 
-	array_init(&intern->cb_list);
+    ZVAL_NEW_ARR(&intern->cb_list);
+    zend_hash_init(Z_ARRVAL(intern->cb_list), 0, NULL, cb_list_dtor, 0);
 
 	intern->std.handlers = &gearman_worker_obj_handlers;
 	return &intern->std;
