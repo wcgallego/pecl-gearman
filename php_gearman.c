@@ -31,11 +31,9 @@ static inline zend_object *gearman_client_obj_new(zend_class_entry *ce);
 static inline zend_object *gearman_task_obj_new(zend_class_entry *ce);
 static inline zend_object *gearman_worker_obj_new(zend_class_entry *ce);
 static inline zend_object *gearman_job_obj_new(zend_class_entry *ce);
-static inline zend_object *gearman_worker_cb_obj_new(zend_class_entry *ce);
 
 // TODO - move this somewhere...
 static void gearman_task_obj_free(zend_object *object);
-static void gearman_worker_cb_obj_free(zend_object *object);
 
 /* {{{ arginfo */
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_version, 0, 0, 0)
@@ -916,7 +914,6 @@ struct _gearman_worker_cb_obj {
 	zval zname; /* name associated with callback */
 	zval zcall; /* name of callback */
 	zval zdata; /* data passed to callback via worker */
-	zend_object std;
 };
 
 typedef enum {
@@ -991,12 +988,6 @@ static inline gearman_job_obj *gearman_job_fetch_object(zend_object *obj) {
 
 #define Z_GEARMAN_JOB_P(zv) gearman_job_fetch_object(Z_OBJ_P((zv)))
 
-static inline gearman_worker_cb_obj *gearman_worker_cb_fetch_object(zend_object *obj) {
-    return (gearman_worker_cb_obj *)((char*)(obj) - XtOffsetOf(gearman_worker_cb_obj, std));
-}
-
-#define Z_GEARMAN_WORKER_CB_P(zv) gearman_worker_cb_fetch_object(Z_OBJ_P((zv)))
-
 /*
  * Object variables
  */
@@ -1012,9 +1003,6 @@ static zend_object_handlers gearman_job_obj_handlers;
 
 zend_class_entry *gearman_task_ce;
 static zend_object_handlers gearman_task_obj_handlers;
-
-zend_class_entry *gearman_worker_cb_ce;
-static zend_object_handlers gearman_worker_cb_obj_handlers;
 
 zend_class_entry *gearman_exception_ce;
 
@@ -3369,7 +3357,6 @@ PHP_FUNCTION(gearman_worker_add_function) {
 	gearman_worker_cb_obj *worker_cb;
 
 	zval *zname, *zcall, *zdata = NULL;
-	zval zworker_cb;
 	zend_long timeout = 0;
 
 	zend_string *callable = NULL;
@@ -3400,16 +3387,7 @@ PHP_FUNCTION(gearman_worker_add_function) {
 	zend_string_release(callable);
 
 	/* create a new worker cb */
-        if (object_init_ex(&zworker_cb, gearman_worker_cb_ce) != SUCCESS) {
-                php_error_docref(NULL, E_WARNING, "Failed to create gearman_worker_cb_ce object.");
-		RETURN_FALSE;
-        }
-
-	if (Z_TYPE_P(zcall) != IS_ARRAY && (Z_TYPE_P(zcall) != IS_OBJECT)) {
-		convert_to_string_ex(zcall);
-	}
-
-	worker_cb = Z_GEARMAN_WORKER_CB_P(&zworker_cb);
+    worker_cb = emalloc(sizeof(gearman_worker_cb_obj));
 
 	// Name of the callback function
 	ZVAL_COPY(&worker_cb->zname, zname);
@@ -3423,9 +3401,9 @@ PHP_FUNCTION(gearman_worker_add_function) {
 	} else {
 		ZVAL_NULL(&worker_cb->zdata);
 	}
-	
+
 	// Add the worker_cb to the list
-	zend_hash_update(Z_ARRVAL(obj->cb_list), zval_get_string(&worker_cb->zname), &zworker_cb);
+	zend_hash_next_index_insert_mem(Z_ARRVAL(obj->cb_list), worker_cb, sizeof(gearman_worker_cb_obj));
 
 	/* add the function */
 	/* NOTE: _php_worker_function_callback is a wrapper that calls
@@ -3608,10 +3586,12 @@ static void gearman_worker_obj_free(zend_object *object) {
 
 	HashTable *hash = Z_ARRVAL(intern->cb_list);
 	zval *hashData;
-	gearman_worker_cb_obj *worker_cb;
 	ZEND_HASH_FOREACH_VAL(hash, hashData) {
-		worker_cb = Z_GEARMAN_WORKER_CB_P(hashData);
-		gearman_worker_cb_obj_free(&worker_cb->std);
+	    gearman_worker_cb_obj *worker_cb = Z_PTR_P(hashData);
+        zval_dtor(&worker_cb->zname);
+        zval_dtor(&worker_cb->zdata);
+        zval_dtor(&worker_cb->zcall);
+        efree(worker_cb);
 	} ZEND_HASH_FOREACH_END();
 
 	zval_dtor(&intern->cb_list);
@@ -3690,36 +3670,6 @@ static inline zend_object *gearman_task_obj_new(zend_class_entry *ce) {
 	object_properties_init(&intern->std, ce);
 
 	intern->std.handlers = &gearman_task_obj_handlers;
-	return &intern->std;
-}
-
-
-/*
- * Gearman Worker Callback obj
- */
-static void gearman_worker_cb_obj_free(zend_object *object) {
-	gearman_worker_cb_obj *intern = gearman_worker_cb_fetch_object(object);
-
-	if (!intern)  {
-		return;
-	}
-
-	zval_dtor(&intern->zname);
-	zval_dtor(&intern->zdata);
-	zval_dtor(&intern->zcall);
-
-	zend_object_std_dtor(&(intern->std));
-}
-
-static inline zend_object *gearman_worker_cb_obj_new(zend_class_entry *ce) {
-	gearman_worker_cb_obj *intern = ecalloc(1,
-		sizeof(gearman_worker_cb_obj) +
-		zend_object_properties_size(ce));
-
-	zend_object_std_init(&(intern->std), ce);
-	object_properties_init(&intern->std, ce);
-
-	intern->std.handlers = &gearman_worker_cb_obj_handlers;
 	return &intern->std;
 }
 
@@ -3982,13 +3932,6 @@ PHP_MINIT_FUNCTION(gearman) {
 	gearman_exception_ce = zend_register_internal_class_ex(&ce, zend_exception_get_default());
 	gearman_exception_ce->ce_flags |= ZEND_ACC_FINAL;
 	zend_declare_property_long(gearman_exception_ce, "code", sizeof("code")-1, 0, ZEND_ACC_PUBLIC);
-
-	gearman_worker_cb_ce = zend_register_internal_class(&ce);
-	gearman_worker_cb_ce->create_object = gearman_worker_cb_obj_new;
-	memcpy(&gearman_worker_cb_obj_handlers, zend_get_std_object_handlers(), sizeof(gearman_worker_cb_obj_handlers));
-	gearman_worker_cb_obj_handlers.offset = XtOffsetOf(gearman_worker_cb_obj, std);
-	//gearman_worker_cb_obj_handlers.free_obj = gearman_worker_cb_obj_free;
-	gearman_worker_cb_obj_handlers.free_obj = NULL;
 
 	/* These are automatically generated from gearman_constants.h using
 	const_gen.sh. Do not remove the CONST_GEN_* comments, this is how the
