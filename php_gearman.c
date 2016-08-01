@@ -2044,11 +2044,7 @@ static void gearman_client_do_background_work_handler(gearman_return_t (*do_back
 								const char *unique,
 								const void *workload,
 								size_t workload_size,
-<<<<<<< HEAD
 						  			gearman_job_handle_t job_handle
-=======
-								gearman_job_handle_t job_handle
->>>>>>> 67f242114f9570b6d8fe0955332f20af64abf594
 					),
 					INTERNAL_FUNCTION_PARAMETERS) {
 	char *function_name;
