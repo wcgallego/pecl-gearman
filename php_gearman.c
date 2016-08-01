@@ -2,7 +2,7 @@
  * Gearman PHP Extension
  *
  * Copyright (C) 2008 James M. Luedke <contact@jamesluedke.com>,
- *                    Eric Day <eday@oddments.org>
+ *			Eric Day <eday@oddments.org>
  * All rights reserved.
  *
  * Use and distribution licensed under the PHP license.  See
@@ -32,9 +32,6 @@ static inline zend_object *gearman_task_obj_new(zend_class_entry *ce);
 static inline zend_object *gearman_worker_obj_new(zend_class_entry *ce);
 static inline zend_object *gearman_job_obj_new(zend_class_entry *ce);
 
-// TODO - move this somewhere...
-static void gearman_task_obj_free(zend_object *object);
-
 /* {{{ arginfo */
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_version, 0, 0, 0)
 ZEND_END_ARG_INFO()
@@ -48,6 +45,9 @@ ZEND_END_ARG_INFO()
  * Gearman Task arginfo
  */
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_task_construct, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_task_destruct, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_task_return_code, 0, 0, 1)
@@ -148,6 +148,8 @@ ZEND_END_ARG_INFO()
 /*
  * Gearman Job Functions
  */
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_job_destruct, 0, 0, 0)
+ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_job_return_code, 0, 0, 1)
 	ZEND_ARG_INFO(0, job_object)
@@ -264,6 +266,9 @@ ZEND_END_ARG_INFO()
 
 // Objected Oriented method for creating a GearmanClient object
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_construct, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_destruct, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_return_code, 0, 0, 1)
@@ -514,7 +519,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_add_task_high, 0, 0, 2)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_add_task_low, 0, 0, 3)
-        ZEND_ARG_INFO(0, client_object)
+	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, function_name)
 	ZEND_ARG_INFO(0, workload)
 	ZEND_ARG_INFO(0, context)
@@ -529,7 +534,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_add_task_low, 0, 0, 2)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_add_task_background, 0, 0, 3)
-        ZEND_ARG_INFO(0, client_object)
+	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, function_name)
 	ZEND_ARG_INFO(0, workload)
 	ZEND_ARG_INFO(0, context)
@@ -544,7 +549,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_add_task_background, 0, 0, 2)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_add_task_high_background, 0, 0, 3)
-        ZEND_ARG_INFO(0, client_object)
+	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, function_name)
 	ZEND_ARG_INFO(0, workload)
 	ZEND_ARG_INFO(0, context)
@@ -559,7 +564,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_add_task_high_background, 0, 0,
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_add_task_low_background, 0, 0, 3)
-        ZEND_ARG_INFO(0, client_object)
+	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, function_name)
 	ZEND_ARG_INFO(0, workload)
 	ZEND_ARG_INFO(0, context)
@@ -574,7 +579,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_add_task_low_background, 0, 0, 
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_add_task_status, 0, 0, 2)
-        ZEND_ARG_INFO(0, client_object)
+	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, job_handle)
 	ZEND_ARG_INFO(0, context)
 ZEND_END_ARG_INFO()
@@ -585,7 +590,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_add_task_status, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_set_workload_callback, 0, 0, 2)
-        ZEND_ARG_INFO(0, client_object)
+	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, callback)
 ZEND_END_ARG_INFO()
 
@@ -594,7 +599,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_set_workload_callback, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_set_created_callback, 0, 0, 2)
-        ZEND_ARG_INFO(0, client_object)
+	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, callback)
 ZEND_END_ARG_INFO()
 
@@ -603,7 +608,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_set_created_callback, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_set_data_callback, 0, 0, 2)
-        ZEND_ARG_INFO(0, client_object)
+	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, callback)
 ZEND_END_ARG_INFO()
 
@@ -612,7 +617,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_set_data_callback, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_set_warning_callback, 0, 0, 2)
-        ZEND_ARG_INFO(0, client_object)
+	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, callback)
 ZEND_END_ARG_INFO()
 
@@ -621,7 +626,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_set_warning_callback, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_set_status_callback, 0, 0, 2)
-        ZEND_ARG_INFO(0, client_object)
+	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, callback)
 ZEND_END_ARG_INFO()
 
@@ -630,7 +635,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_set_status_callback, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_set_complete_callback, 0, 0, 2)
-        ZEND_ARG_INFO(0, client_object)
+	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, callback)
 ZEND_END_ARG_INFO()
 
@@ -639,7 +644,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_set_complete_callback, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_set_exception_callback, 0, 0, 2)
-        ZEND_ARG_INFO(0, client_object)
+	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, callback)
 ZEND_END_ARG_INFO()
 
@@ -648,7 +653,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_set_exception_callback, 0, 0, 1
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_set_fail_callback, 0, 0, 2)
-        ZEND_ARG_INFO(0, client_object)
+	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, callback)
 ZEND_END_ARG_INFO()
 
@@ -657,7 +662,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_set_fail_callback, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_clear_callbacks, 0, 0, 1)
-        ZEND_ARG_INFO(0, client_object)
+	ZEND_ARG_INFO(0, client_object)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_clear_callbacks, 0, 0, 0)
@@ -908,7 +913,6 @@ typedef struct {
 
 	zval task_list;
 
-	// has to be last member
 	zend_object std;
 } gearman_client_obj;
 
@@ -929,7 +933,6 @@ typedef struct {
 	gearman_worker_st worker;
 	zval cb_list;
 
-	// Has to be last member
 	zend_object std;
 } gearman_worker_obj;
 
@@ -944,7 +947,6 @@ typedef struct {
 	zval *worker;
 	zval *zworkload;
 
-	// Has to be last member
 	zend_object std;
 } gearman_job_obj;
 
@@ -960,7 +962,6 @@ struct _gearman_task_obj {
 	zval zdata;
 	zval zworkload;
 
-	// Has to be last member
 	zend_object std;
 };
 
@@ -968,25 +969,25 @@ struct _gearman_task_obj {
 // TODO - probably find a better place for this to live
 // TODO - move to top above gearman_client_new constructor
 static inline gearman_client_obj *gearman_client_fetch_object(zend_object *obj) {
-    return (gearman_client_obj *)((char*)(obj) - XtOffsetOf(gearman_client_obj, std));
+	return (gearman_client_obj *)((char*)(obj) - XtOffsetOf(gearman_client_obj, std));
 }
 
 #define Z_GEARMAN_CLIENT_P(zv) gearman_client_fetch_object(Z_OBJ_P((zv)))
 
 static inline gearman_task_obj *gearman_task_fetch_object(zend_object *obj) {
-    return (gearman_task_obj *)((char*)(obj) - XtOffsetOf(gearman_task_obj, std));
+	return (gearman_task_obj *)((char*)(obj) - XtOffsetOf(gearman_task_obj, std));
 }
 
 #define Z_GEARMAN_TASK_P(zv) gearman_task_fetch_object(Z_OBJ_P((zv)))
 
 static inline gearman_worker_obj *gearman_worker_fetch_object(zend_object *obj) {
-    return (gearman_worker_obj *)((char*)(obj) - XtOffsetOf(gearman_worker_obj, std));
+	return (gearman_worker_obj *)((char*)(obj) - XtOffsetOf(gearman_worker_obj, std));
 }
 
 #define Z_GEARMAN_WORKER_P(zv) gearman_worker_fetch_object(Z_OBJ_P((zv)))
 
 static inline gearman_job_obj *gearman_job_fetch_object(zend_object *obj) {
-    return (gearman_job_obj *)((char*)(obj) - XtOffsetOf(gearman_job_obj, std));
+	return (gearman_job_obj *)((char*)(obj) - XtOffsetOf(gearman_job_obj, std));
 }
 
 #define Z_GEARMAN_JOB_P(zv) gearman_job_fetch_object(Z_OBJ_P((zv)))
@@ -1019,17 +1020,17 @@ zend_class_entry *gearman_exception_ce;
  * be passed back but they will cause a docref Warning. Might
  * want to think of a better solution XXX */
 #define PHP_GEARMAN_CLIENT_RET_OK(__ret) ((__ret) == GEARMAN_SUCCESS || \
-                                          (__ret) == GEARMAN_PAUSE || \
-                                          (__ret) == GEARMAN_IO_WAIT || \
-                                          (__ret) == GEARMAN_WORK_STATUS || \
-                                          (__ret) == GEARMAN_WORK_DATA || \
-                                          (__ret) == GEARMAN_WORK_EXCEPTION || \
-                                          (__ret) == GEARMAN_WORK_WARNING || \
-                                          (__ret) == GEARMAN_WORK_FAIL)
+					  (__ret) == GEARMAN_PAUSE || \
+					  (__ret) == GEARMAN_IO_WAIT || \
+					  (__ret) == GEARMAN_WORK_STATUS || \
+					  (__ret) == GEARMAN_WORK_DATA || \
+					  (__ret) == GEARMAN_WORK_EXCEPTION || \
+					  (__ret) == GEARMAN_WORK_WARNING || \
+					  (__ret) == GEARMAN_WORK_FAIL)
 
 #define GEARMAN_EXCEPTION(__error, __error_code) { \
 	zend_throw_exception(gearman_exception_ce, __error, __error_code); \
-    return; \
+	return; \
 }
 
 /* Custom malloc and free calls to avoid excessive buffer copies. */
@@ -1067,7 +1068,7 @@ PHP_FUNCTION(gearman_bugreport) {
 PHP_FUNCTION(gearman_verbose_name) {
 	zend_long verbose;
 
-  	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l",
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l",
 		&verbose) == FAILURE) {
 		php_error_docref(NULL, E_WARNING, "Unable to parse parameters.");
 		RETURN_NULL();
@@ -1380,10 +1381,10 @@ PHP_FUNCTION(gearman_job_send_data) {
 	}
 	obj = Z_GEARMAN_JOB_P(zobj);
 
-        /* make sure worker initialized a job */
-        if (obj->job == NULL) {
-                RETURN_FALSE;
-        }
+	/* make sure worker initialized a job */
+	if (obj->job == NULL) {
+		RETURN_FALSE;
+	}
 
 	obj->ret = gearman_job_send_data(obj->job, data, data_len);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
@@ -1402,7 +1403,7 @@ PHP_FUNCTION(gearman_job_send_warning) {
 	zval *zobj;
 	gearman_job_obj *obj;
 	char *warning = NULL;
-	size_t  warning_len = 0;
+	size_t	warning_len = 0;
 
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &zobj, gearman_job_ce,
 								&warning, &warning_len) == FAILURE) {
@@ -1410,10 +1411,10 @@ PHP_FUNCTION(gearman_job_send_warning) {
 	}
 	obj = Z_GEARMAN_JOB_P(zobj);
 
-        /* make sure worker initialized a job */
-        if (obj->job == NULL) {
-                RETURN_FALSE;
-        }
+	/* make sure worker initialized a job */
+	if (obj->job == NULL) {
+		RETURN_FALSE;
+	}
 
 	obj->ret = gearman_job_send_warning(obj->job, (void *) warning,
 								 (size_t) warning_len);
@@ -1535,10 +1536,10 @@ PHP_FUNCTION(gearman_job_handle) {
 	}
 	obj = Z_GEARMAN_JOB_P(zobj);
 
-        /* make sure worker initialized a job */
-        if (obj->job == NULL) {
-                RETURN_FALSE;
-        }
+	/* make sure worker initialized a job */
+	if (obj->job == NULL) {
+		RETURN_FALSE;
+	}
 
 	RETURN_STRING((char *)gearman_job_handle(obj->job))
 }
@@ -1555,10 +1556,10 @@ PHP_FUNCTION(gearman_job_function_name) {
 	}
 	obj = Z_GEARMAN_JOB_P(zobj);
 
-        /* make sure worker initialized a job */
-        if (obj->job == NULL) {
-                RETURN_FALSE;
-        }
+	/* make sure worker initialized a job */
+	if (obj->job == NULL) {
+		RETURN_FALSE;
+	}
 
 	RETURN_STRING((char *)gearman_job_function_name(obj->job))
 }
@@ -1575,10 +1576,10 @@ PHP_FUNCTION(gearman_job_unique) {
 	}
 	obj = Z_GEARMAN_JOB_P(zobj);
 
-        /* make sure worker initialized a job */
-        if (obj->job == NULL) {
-                RETURN_FALSE;
-        }
+	/* make sure worker initialized a job */
+	if (obj->job == NULL) {
+		RETURN_FALSE;
+	}
 
 	RETURN_STRING((char *)gearman_job_unique(obj->job))
 }
@@ -1635,7 +1636,7 @@ PHP_FUNCTION(gearman_job_set_return) {
 	}
 	obj = Z_GEARMAN_JOB_P(zobj);
 
-       ret = ret_val;
+	   ret = ret_val;
 	/* make sure its a valid gearman_return_t */
 	if (ret < GEARMAN_SUCCESS || ret > GEARMAN_MAX_RETURN) {
 		php_error_docref(NULL, E_WARNING,
@@ -1691,6 +1692,36 @@ PHP_METHOD(GearmanClient, __construct)
 
 }
 /* }}} */
+
+/* {{{ proto object GearmanClient::__destruct()
+   cleans up GearmanClient object */
+PHP_METHOD(GearmanClient, __destruct)
+{
+	gearman_client_obj *intern = Z_GEARMAN_CLIENT_P(getThis());
+	if (!intern) {
+		return;
+	}
+
+	if (intern->flags & GEARMAN_CLIENT_OBJ_CREATED) {
+		gearman_client_free(&intern->client);
+	}
+
+	zval_dtor(&intern->zclient);
+
+	// Clear Callbacks
+	zval_dtor(&intern->zworkload_fn);
+	zval_dtor(&intern->zcreated_fn);
+	zval_dtor(&intern->zdata_fn);
+	zval_dtor(&intern->zwarning_fn);
+	zval_dtor(&intern->zstatus_fn);
+	zval_dtor(&intern->zcomplete_fn);
+	zval_dtor(&intern->zexception_fn);
+	zval_dtor(&intern->zfail_fn);
+
+	zval_dtor(&intern->task_list);
+
+	zend_object_std_dtor(&intern->std);
+}
 
 /* {{{ proto int gearman_client_return_code()
    get last gearman_return_t */
@@ -1868,7 +1899,7 @@ PHP_FUNCTION(gearman_client_add_server) {
 	}
 
 	if (!gearman_client_set_server_option(&(obj->client), "exceptions", (sizeof("exceptions") - 1))) {
-	    GEARMAN_EXCEPTION("Failed to set exception option", 0);
+		GEARMAN_EXCEPTION("Failed to set exception option", 0);
 	}
 
 	RETURN_TRUE;
@@ -1897,7 +1928,7 @@ PHP_FUNCTION(gearman_client_add_servers) {
 	}
 
 	if (!gearman_client_set_server_option(&(obj->client), "exceptions", (sizeof("exceptions") - 1))) {
-	    GEARMAN_EXCEPTION("Failed to set exception option", 0);
+		GEARMAN_EXCEPTION("Failed to set exception option", 0);
 	}
 
 	RETURN_TRUE;
@@ -2013,7 +2044,11 @@ static void gearman_client_do_background_work_handler(gearman_return_t (*do_back
 								const char *unique,
 								const void *workload,
 								size_t workload_size,
-                                              			gearman_job_handle_t job_handle
+<<<<<<< HEAD
+						  			gearman_job_handle_t job_handle
+=======
+								gearman_job_handle_t job_handle
+>>>>>>> 67f242114f9570b6d8fe0955332f20af64abf594
 					),
 					INTERNAL_FUNCTION_PARAMETERS) {
 	char *function_name;
@@ -2371,13 +2406,13 @@ PHP_FUNCTION(gearman_client_add_task_status) {
 		RETURN_FALSE;
 	}
 
-       task = Z_GEARMAN_TASK_P(return_value);
+	   task = Z_GEARMAN_TASK_P(return_value);
 
 	if (zdata) {
-               if (Z_REFCOUNTED_P(zdata)) {
-                       Z_ADDREF_P(zdata);
-               }
-               ZVAL_COPY_VALUE(&task->zdata, zdata);
+		   if (Z_REFCOUNTED_P(zdata)) {
+			   Z_ADDREF_P(zdata);
+		   }
+		   ZVAL_COPY_VALUE(&task->zdata, zdata);
 	}
 	/* need to store a ref to the client for later access to cb's */
 	ZVAL_COPY_VALUE(&task->zclient, zobj);
@@ -2397,9 +2432,9 @@ PHP_FUNCTION(gearman_client_add_task_status) {
 
 	task->flags |= GEARMAN_TASK_OBJ_CREATED;
 
-       // prepend task to list of tasks on client obj
-       Z_ADDREF_P(return_value);
-       add_next_index_zval(&obj->task_list, return_value);
+	   // prepend task to list of tasks on client obj
+	   Z_ADDREF_P(return_value);
+	   add_next_index_zval(&obj->task_list, return_value);
 }
 /* }}} */
 
@@ -2411,7 +2446,7 @@ static gearman_return_t _php_task_cb_fn(gearman_task_obj *task, gearman_client_o
 	uint32_t param_count;
 
 	ZVAL_OBJ(&ztask, &task->std);
-        ZVAL_COPY_VALUE(&argv[0], &ztask);
+	ZVAL_COPY_VALUE(&argv[0], &ztask);
 
 	if (Z_ISUNDEF(task->zdata)) {
 		param_count = 1;
@@ -2515,7 +2550,7 @@ PHP_FUNCTION(gearman_client_set_workload_callback) {
 	zend_string_release(callable);
 
 	/* Defining callback again? Clean up old one first */
-        if (!Z_ISUNDEF(obj->zworkload_fn)) {
+	if (!Z_ISUNDEF(obj->zworkload_fn)) {
 		zval_dtor(&obj->zworkload_fn);
 	}
 
@@ -2554,7 +2589,7 @@ PHP_FUNCTION(gearman_client_set_created_callback) {
 	zend_string_release(callable);
 
 	/* Defining callback again? Clean up old one first */
-        if (!Z_ISUNDEF(obj->zcreated_fn)) {
+	if (!Z_ISUNDEF(obj->zcreated_fn)) {
 		zval_dtor(&obj->zcreated_fn);
 	}
 
@@ -2593,7 +2628,7 @@ PHP_FUNCTION(gearman_client_set_data_callback) {
 	zend_string_release(callable);
 
 	/* Defining callback again? Clean up old one first */
-        if (!Z_ISUNDEF(obj->zdata_fn)) {
+	if (!Z_ISUNDEF(obj->zdata_fn)) {
 		zval_dtor(&obj->zdata_fn);
 	}
 
@@ -2632,7 +2667,7 @@ PHP_FUNCTION(gearman_client_set_warning_callback) {
 	zend_string_release(callable);
 
 	/* Defining callback again? Clean up old one first */
-        if (!Z_ISUNDEF(obj->zwarning_fn)) {
+	if (!Z_ISUNDEF(obj->zwarning_fn)) {
 		zval_dtor(&obj->zwarning_fn);
 	}
 
@@ -2672,7 +2707,7 @@ PHP_FUNCTION(gearman_client_set_status_callback) {
 	zend_string_release(callable);
 
 	/* Defining callback again? Clean up old one first */
-        if (!Z_ISUNDEF(obj->zstatus_fn)) {
+	if (!Z_ISUNDEF(obj->zstatus_fn)) {
 		zval_dtor(&obj->zstatus_fn);
 	}
 
@@ -2711,7 +2746,7 @@ PHP_FUNCTION(gearman_client_set_complete_callback) {
 	zend_string_release(callable);
 
 	/* Defining callback again? Clean up old one first */
-        if (!Z_ISUNDEF(obj->zcomplete_fn)) {
+	if (!Z_ISUNDEF(obj->zcomplete_fn)) {
 		zval_dtor(&obj->zcomplete_fn);
 	}
 
@@ -2750,7 +2785,7 @@ PHP_FUNCTION(gearman_client_set_exception_callback) {
 	zend_string_release(callable);
 
 	/* Defining callback again? Clean up old one first */
-        if (!Z_ISUNDEF(obj->zexception_fn)) {
+	if (!Z_ISUNDEF(obj->zexception_fn)) {
 		zval_dtor(&obj->zexception_fn);
 	}
 
@@ -2790,12 +2825,12 @@ PHP_FUNCTION(gearman_client_set_fail_callback) {
 	zend_string_release(callable);
 
 	/* Defining callback again? Clean up old one first */
-        if (!Z_ISUNDEF(obj->zfail_fn)) {
+	if (!Z_ISUNDEF(obj->zfail_fn)) {
 		zval_dtor(&obj->zfail_fn);
 	}
 
 	/* Defining callback again? Clean up old one first */
-        if (!Z_ISUNDEF(obj->zfail_fn)) {
+	if (!Z_ISUNDEF(obj->zfail_fn)) {
 		zval_dtor(&obj->zfail_fn);
 	}
 
@@ -2919,7 +2954,7 @@ PHP_FUNCTION(gearman_worker_return_code)
 /* {{{ proto string gearman_worker_error(object worker)
    Return an error string for the last error encountered. */
 PHP_FUNCTION(gearman_worker_error) {
-        char *error;
+	char *error;
 	zval *zobj;
 	gearman_worker_obj *obj;
 
@@ -2928,12 +2963,12 @@ PHP_FUNCTION(gearman_worker_error) {
 	}
 	obj = Z_GEARMAN_WORKER_P(zobj);
 
-        error = (char *)gearman_worker_error(&(obj->worker));
-        if (error) {
-            RETURN_STRING(error);
-        }
+	error = (char *)gearman_worker_error(&(obj->worker));
+	if (error) {
+		RETURN_STRING(error);
+	}
 
-        RETURN_FALSE;
+	RETURN_FALSE;
 }
 /* }}} */
 
@@ -3192,7 +3227,7 @@ PHP_FUNCTION(gearman_worker_register) {
 /* }}} */
 
 /* {{{ proto bool gearman_worker_unregister(object worker, string function)
-    Unregister function with job servers. */
+	Unregister function with job servers. */
 PHP_FUNCTION(gearman_worker_unregister) {
 	zval *zobj;
 	gearman_worker_obj *obj;
@@ -3284,22 +3319,22 @@ static void *_php_worker_function_callback(gearman_job_st *job,
 	zval argv[2], retval;
 
 	/* first create our job object that will be passed to the callback */
-        if (object_init_ex(&zjob, gearman_job_ce) != SUCCESS) {
-                php_error_docref(NULL, E_WARNING, "Failed to create gearman_job_ce object.");
-                return result;
-        }
+	if (object_init_ex(&zjob, gearman_job_ce) != SUCCESS) {
+		php_error_docref(NULL, E_WARNING, "Failed to create gearman_job_ce object.");
+		return result;
+	}
 	jobj = Z_GEARMAN_JOB_P(&zjob);
 	jobj->job = job;
 
-        ZVAL_COPY_VALUE(&argv[0], &zjob);
+	ZVAL_COPY_VALUE(&argv[0], &zjob);
 
-        if (Z_ISUNDEF(worker_cb->zdata)) {
-                param_count = 1;
+	if (Z_ISUNDEF(worker_cb->zdata)) {
+		param_count = 1;
 		ZVAL_NULL(&argv[1]);
-        } else {
-                ZVAL_COPY_VALUE(&argv[1], &worker_cb->zdata);
-                param_count = 2;
-        }
+	} else {
+		ZVAL_COPY_VALUE(&argv[1], &worker_cb->zdata);
+		param_count = 2;
+	}
 
 	jobj->ret = GEARMAN_SUCCESS;
 
@@ -3374,7 +3409,7 @@ PHP_FUNCTION(gearman_worker_add_function) {
 	}
 	obj = Z_GEARMAN_WORKER_P(zobj);
 
-        /* check that the function name is a string */
+	/* check that the function name is a string */
 	if (Z_TYPE_P(zname) != IS_STRING) {
 		php_error_docref(NULL, E_WARNING, "Function name must be a string");
 		RETURN_FALSE;
@@ -3390,7 +3425,7 @@ PHP_FUNCTION(gearman_worker_add_function) {
 	zend_string_release(callable);
 
 	/* create a new worker cb */
-    worker_cb = emalloc(sizeof(gearman_worker_cb_obj));
+	worker_cb = emalloc(sizeof(gearman_worker_cb_obj));
 
 	// Name of the callback function
 	ZVAL_COPY(&worker_cb->zname, zname);
@@ -3429,7 +3464,7 @@ PHP_FUNCTION(gearman_worker_add_function) {
 /* }}} */
 
 /* {{{ proto int gearman_worker_work(object worker)
-    Wait for a job and call the appropriate callback function when it gets one. */
+	Wait for a job and call the appropriate callback function when it gets one. */
 PHP_FUNCTION(gearman_worker_work) {
 	zval *zobj = NULL;
 	gearman_worker_obj *obj;
@@ -3488,33 +3523,6 @@ PHP_FUNCTION(gearman_worker_ping) {
  * Methods for gearman_client
  */
 
-static void gearman_client_obj_free(zend_object *object) {
-	gearman_client_obj *intern = gearman_client_fetch_object(object);
-	if (!intern) {
-		return;
-	}
-
-	if (intern->flags & GEARMAN_CLIENT_OBJ_CREATED) {
-		gearman_client_free(&intern->client);
-	}
-
-	zval_dtor(&intern->zclient);
-
-	// Clear Callbacks
-	zval_dtor(&intern->zworkload_fn);
-	zval_dtor(&intern->zcreated_fn);
-	zval_dtor(&intern->zdata_fn);
-	zval_dtor(&intern->zwarning_fn);
-	zval_dtor(&intern->zstatus_fn);
-	zval_dtor(&intern->zcomplete_fn);
-	zval_dtor(&intern->zexception_fn);
-	zval_dtor(&intern->zfail_fn);
-
-	zval_dtor(&intern->task_list);
-
-	zend_object_std_dtor(&intern->std);
-}
-
 static inline zend_object *gearman_client_obj_new(zend_class_entry *ce) {
 	gearman_client_obj *intern = ecalloc(1,
 		sizeof(gearman_client_obj) +
@@ -3534,7 +3542,7 @@ static inline zend_object *gearman_client_obj_new(zend_class_entry *ce) {
  */
 
 /* {{{ proto object gearman_worker_ctor()
-   Initialize a worker object.  */
+   Initialize a worker object.	*/
 static void gearman_worker_ctor(INTERNAL_FUNCTION_PARAMETERS) {
 	gearman_worker_obj *worker;
 	if (zend_parse_parameters_none() == FAILURE) {
@@ -3595,16 +3603,12 @@ PHP_METHOD(GearmanWorker, __destruct)
 }
 /* }}} */
 
-static void gearman_worker_obj_free(zend_object *object) {
-
-}
-
 static inline void cb_list_dtor(zval *zv) {
-	    gearman_worker_cb_obj *worker_cb = Z_PTR_P(zv);
-        zval_dtor(&worker_cb->zname);
-        zval_dtor(&worker_cb->zdata);
-        zval_dtor(&worker_cb->zcall);
-        efree(worker_cb);
+	gearman_worker_cb_obj *worker_cb = Z_PTR_P(zv);
+	zval_dtor(&worker_cb->zname);
+	zval_dtor(&worker_cb->zdata);
+	zval_dtor(&worker_cb->zcall);
+	efree(worker_cb);
 }
 
 static inline zend_object *gearman_worker_obj_new(zend_class_entry *ce) {
@@ -3615,8 +3619,8 @@ static inline zend_object *gearman_worker_obj_new(zend_class_entry *ce) {
 	zend_object_std_init(&(intern->std), ce);
 	object_properties_init(&intern->std, ce);
 
-    ZVAL_NEW_ARR(&intern->cb_list);
-    zend_hash_init(Z_ARRVAL(intern->cb_list), 0, NULL, cb_list_dtor, 0);
+	ZVAL_NEW_ARR(&intern->cb_list);
+	zend_hash_init(Z_ARRVAL(intern->cb_list), 0, NULL, cb_list_dtor, 0);
 
 	intern->std.handlers = &gearman_worker_obj_handlers;
 	return &intern->std;
@@ -3625,8 +3629,11 @@ static inline zend_object *gearman_worker_obj_new(zend_class_entry *ce) {
 /*
  * Methods Job object
  */
-static void gearman_job_obj_free(zend_object *object) {
-	gearman_job_obj *intern = gearman_job_fetch_object(object);
+/* {{{ proto object GearmanJob::__destruct()
+   cleans up GearmanJob object */
+PHP_METHOD(GearmanJob, __destruct)
+{
+	gearman_job_obj *intern = Z_GEARMAN_JOB_P(getThis());
 	if (!intern) {
 		return;
 	}
@@ -3654,8 +3661,16 @@ static inline zend_object *gearman_job_obj_new(zend_class_entry *ce) {
  * Methods Task object
  */
 
-static void gearman_task_obj_free(zend_object *object) {
-	gearman_task_obj *intern = gearman_task_fetch_object(object);
+/* {{{ proto object GearmanTask::__construct()
+   Returns a task object */
+static PHP_METHOD(GearmanTask, __construct) {
+}
+
+/* {{{ proto object GearmanTask::__destruct()
+   Destroys a task object */
+static PHP_METHOD(GearmanTask, __destruct)
+{
+	gearman_task_obj *intern = Z_GEARMAN_TASK_P(getThis());
 	if (!intern) {
 		return;
 	}
@@ -3665,9 +3680,6 @@ static void gearman_task_obj_free(zend_object *object) {
 	zval_dtor(&intern->zclient);
 
 	zend_object_std_dtor(&intern->std);
-}
-
-static PHP_METHOD(GearmanTask, __construct) {
 }
 
 static inline zend_object *gearman_task_obj_new(zend_class_entry *ce) {
@@ -3794,54 +3806,56 @@ zend_function_entry gearman_methods[]= {
 };
 
 static zend_function_entry gearman_client_methods[]= {
-	ZEND_ME(GearmanClient, __construct, arginfo_gearman_client_construct, ZEND_ACC_CTOR | ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(returnCode, gearman_client_return_code, arginfo_oo_gearman_client_return_code, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(error, gearman_client_error, arginfo_oo_gearman_client_error, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(getErrno, gearman_client_get_errno, arginfo_oo_gearman_client_get_errno, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(options, gearman_client_options, arginfo_gearman_client_options, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(setOptions, gearman_client_set_options, arginfo_gearman_client_set_options, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(addOptions, gearman_client_add_options, arginfo_gearman_client_add_options, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(removeOptions, gearman_client_remove_options, arginfo_gearman_client_remove_options, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(timeout, gearman_client_timeout, arginfo_oo_gearman_client_timeout, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(setTimeout, gearman_client_set_timeout, arginfo_oo_gearman_client_set_timeout, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(context, gearman_client_context, arginfo_oo_gearman_client_context, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(setContext, gearman_client_set_context, arginfo_oo_gearman_client_set_context, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(addServer, gearman_client_add_server, arginfo_oo_gearman_client_add_server, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(addServers, gearman_client_add_servers, arginfo_oo_gearman_client_add_servers, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(wait, gearman_client_wait, arginfo_oo_gearman_client_wait, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(doNormal, gearman_client_do_normal, arginfo_oo_gearman_client_do_normal, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(doHigh, gearman_client_do_high, arginfo_oo_gearman_client_do_high, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(doLow, gearman_client_do_low, arginfo_oo_gearman_client_do_low, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(doBackground, gearman_client_do_background, arginfo_oo_gearman_client_do_background, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(doHighBackground, gearman_client_do_high_background, arginfo_oo_gearman_client_do_high_background, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(doLowBackground, gearman_client_do_low_background, arginfo_oo_gearman_client_do_low_background, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(doJobHandle, gearman_client_do_job_handle, arginfo_oo_gearman_client_do_job_handle, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(doStatus, gearman_client_do_status, arginfo_oo_gearman_client_do_status, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(jobStatus, gearman_client_job_status, arginfo_oo_gearman_client_job_status, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(jobStatusByUniqueKey, gearman_client_job_status_by_unique_key, arginfo_oo_gearman_client_job_status_by_unique_key, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(ping, gearman_client_ping, arginfo_oo_gearman_client_ping, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(addTask, gearman_client_add_task, arginfo_oo_gearman_client_add_task, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(addTaskHigh, gearman_client_add_task_high, arginfo_oo_gearman_client_add_task_high, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(addTaskLow, gearman_client_add_task_low, arginfo_gearman_client_add_task_low, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(addTaskBackground, gearman_client_add_task_background, arginfo_gearman_client_add_task_background, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(addTaskHighBackground, gearman_client_add_task_high_background, arginfo_gearman_client_add_task_high_background, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(addTaskLowBackground, gearman_client_add_task_low_background, arginfo_gearman_client_add_task_low_background, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(addTaskStatus, gearman_client_add_task_status, arginfo_oo_gearman_client_add_task_status, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(setWorkloadCallback, gearman_client_set_workload_callback, arginfo_oo_gearman_client_set_workload_callback, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(setCreatedCallback, gearman_client_set_created_callback, arginfo_oo_gearman_client_set_created_callback, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(setDataCallback, gearman_client_set_data_callback, arginfo_oo_gearman_client_set_data_callback, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(setWarningCallback, gearman_client_set_warning_callback, arginfo_oo_gearman_client_set_warning_callback, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(setStatusCallback, gearman_client_set_status_callback, arginfo_oo_gearman_client_set_status_callback, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(setCompleteCallback, gearman_client_set_complete_callback, arginfo_oo_gearman_client_set_complete_callback, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(setExceptionCallback, gearman_client_set_exception_callback, arginfo_oo_gearman_client_set_exception_callback, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(setFailCallback, gearman_client_set_fail_callback, arginfo_oo_gearman_client_set_fail_callback, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(clearCallbacks, gearman_client_clear_callbacks, arginfo_oo_gearman_client_clear_callbacks, ZEND_ACC_PUBLIC)
-	ZEND_ME_MAPPING(runTasks, gearman_client_run_tasks, arginfo_oo_gearman_client_run_tasks, ZEND_ACC_PUBLIC)
+	PHP_ME(GearmanClient, __construct, arginfo_gearman_client_construct, ZEND_ACC_CTOR | ZEND_ACC_PUBLIC)
+	PHP_ME(GearmanClient, __destruct, arginfo_oo_gearman_client_destruct, ZEND_ACC_DTOR | ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(returnCode, gearman_client_return_code, arginfo_oo_gearman_client_return_code, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(error, gearman_client_error, arginfo_oo_gearman_client_error, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(getErrno, gearman_client_get_errno, arginfo_oo_gearman_client_get_errno, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(options, gearman_client_options, arginfo_gearman_client_options, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(setOptions, gearman_client_set_options, arginfo_gearman_client_set_options, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(addOptions, gearman_client_add_options, arginfo_gearman_client_add_options, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(removeOptions, gearman_client_remove_options, arginfo_gearman_client_remove_options, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(timeout, gearman_client_timeout, arginfo_oo_gearman_client_timeout, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(setTimeout, gearman_client_set_timeout, arginfo_oo_gearman_client_set_timeout, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(context, gearman_client_context, arginfo_oo_gearman_client_context, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(setContext, gearman_client_set_context, arginfo_oo_gearman_client_set_context, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(addServer, gearman_client_add_server, arginfo_oo_gearman_client_add_server, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(addServers, gearman_client_add_servers, arginfo_oo_gearman_client_add_servers, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(wait, gearman_client_wait, arginfo_oo_gearman_client_wait, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(doNormal, gearman_client_do_normal, arginfo_oo_gearman_client_do_normal, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(doHigh, gearman_client_do_high, arginfo_oo_gearman_client_do_high, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(doLow, gearman_client_do_low, arginfo_oo_gearman_client_do_low, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(doBackground, gearman_client_do_background, arginfo_oo_gearman_client_do_background, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(doHighBackground, gearman_client_do_high_background, arginfo_oo_gearman_client_do_high_background, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(doLowBackground, gearman_client_do_low_background, arginfo_oo_gearman_client_do_low_background, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(doJobHandle, gearman_client_do_job_handle, arginfo_oo_gearman_client_do_job_handle, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(doStatus, gearman_client_do_status, arginfo_oo_gearman_client_do_status, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(jobStatus, gearman_client_job_status, arginfo_oo_gearman_client_job_status, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(jobStatusByUniqueKey, gearman_client_job_status_by_unique_key, arginfo_oo_gearman_client_job_status_by_unique_key, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(ping, gearman_client_ping, arginfo_oo_gearman_client_ping, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(addTask, gearman_client_add_task, arginfo_oo_gearman_client_add_task, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(addTaskHigh, gearman_client_add_task_high, arginfo_oo_gearman_client_add_task_high, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(addTaskLow, gearman_client_add_task_low, arginfo_gearman_client_add_task_low, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(addTaskBackground, gearman_client_add_task_background, arginfo_gearman_client_add_task_background, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(addTaskHighBackground, gearman_client_add_task_high_background, arginfo_gearman_client_add_task_high_background, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(addTaskLowBackground, gearman_client_add_task_low_background, arginfo_gearman_client_add_task_low_background, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(addTaskStatus, gearman_client_add_task_status, arginfo_oo_gearman_client_add_task_status, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(setWorkloadCallback, gearman_client_set_workload_callback, arginfo_oo_gearman_client_set_workload_callback, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(setCreatedCallback, gearman_client_set_created_callback, arginfo_oo_gearman_client_set_created_callback, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(setDataCallback, gearman_client_set_data_callback, arginfo_oo_gearman_client_set_data_callback, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(setWarningCallback, gearman_client_set_warning_callback, arginfo_oo_gearman_client_set_warning_callback, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(setStatusCallback, gearman_client_set_status_callback, arginfo_oo_gearman_client_set_status_callback, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(setCompleteCallback, gearman_client_set_complete_callback, arginfo_oo_gearman_client_set_complete_callback, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(setExceptionCallback, gearman_client_set_exception_callback, arginfo_oo_gearman_client_set_exception_callback, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(setFailCallback, gearman_client_set_fail_callback, arginfo_oo_gearman_client_set_fail_callback, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(clearCallbacks, gearman_client_clear_callbacks, arginfo_oo_gearman_client_clear_callbacks, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(runTasks, gearman_client_run_tasks, arginfo_oo_gearman_client_run_tasks, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 
 zend_function_entry gearman_task_methods[]= {
 	PHP_ME(GearmanTask, __construct, arginfo_oo_gearman_task_construct, ZEND_ACC_CTOR | ZEND_ACC_PUBLIC)
+	PHP_ME(GearmanTask, __destruct, arginfo_oo_gearman_task_destruct, ZEND_ACC_DTOR | ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(returnCode, gearman_task_return_code, arginfo_oo_gearman_task_return_code, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(functionName, gearman_task_function_name, arginfo_oo_gearman_task_function_name, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(unique, gearman_task_unique, arginfo_oo_gearman_task_unique, ZEND_ACC_PUBLIC)
@@ -3885,6 +3899,7 @@ zend_function_entry gearman_worker_methods[]= {
 };
 
 zend_function_entry gearman_job_methods[]= {
+	PHP_ME(GearmanJob, __destruct, arginfo_oo_gearman_job_destruct, ZEND_ACC_DTOR | ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(returnCode, gearman_job_return_code, arginfo_oo_gearman_job_return_code, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(setReturn, gearman_job_set_return, arginfo_oo_gearman_job_set_return, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(sendData, gearman_job_send_data, arginfo_oo_gearman_job_send_data, ZEND_ACC_PUBLIC)
@@ -3914,28 +3929,28 @@ PHP_MINIT_FUNCTION(gearman) {
 	gearman_client_ce->create_object = gearman_client_obj_new;
 	memcpy(&gearman_client_obj_handlers, zend_get_std_object_handlers(), sizeof(gearman_client_obj_handlers));
 	gearman_client_obj_handlers.offset = XtOffsetOf(gearman_client_obj, std);
-	gearman_client_obj_handlers.free_obj = gearman_client_obj_free;
+	gearman_client_obj_handlers.free_obj = NULL;
 
 	INIT_CLASS_ENTRY(ce, "GearmanTask", gearman_task_methods);
 	gearman_task_ce = zend_register_internal_class(&ce);
 	gearman_task_ce->create_object = gearman_task_obj_new;
 	memcpy(&gearman_task_obj_handlers, zend_get_std_object_handlers(), sizeof(gearman_task_obj_handlers));
 	gearman_task_obj_handlers.offset = XtOffsetOf(gearman_task_obj, std);
-	gearman_task_obj_handlers.free_obj = gearman_task_obj_free;
+	gearman_task_obj_handlers.free_obj = NULL;
 
 	INIT_CLASS_ENTRY(ce, "GearmanWorker", gearman_worker_methods);
 	gearman_worker_ce = zend_register_internal_class(&ce);
 	gearman_worker_ce->create_object = gearman_worker_obj_new;
 	memcpy(&gearman_worker_obj_handlers, zend_get_std_object_handlers(), sizeof(gearman_worker_obj_handlers));
 	gearman_worker_obj_handlers.offset = XtOffsetOf(gearman_worker_obj, std);
-	gearman_worker_obj_handlers.free_obj = gearman_worker_obj_free;
+	gearman_worker_obj_handlers.free_obj = NULL;
 
 	INIT_CLASS_ENTRY(ce, "GearmanJob", gearman_job_methods);
 	gearman_job_ce = zend_register_internal_class(&ce);
 	gearman_job_ce->create_object = gearman_job_obj_new;
 	memcpy(&gearman_job_obj_handlers, zend_get_std_object_handlers(), sizeof(gearman_job_obj_handlers));
 	gearman_job_obj_handlers.offset = XtOffsetOf(gearman_job_obj, std);
-	gearman_job_obj_handlers.free_obj = gearman_job_obj_free;
+	gearman_job_obj_handlers.free_obj = NULL;
 
 	/* XXX exception class */
 	INIT_CLASS_ENTRY(ce, "GearmanException", gearman_exception_methods)
