@@ -1,0 +1,21 @@
+sudo: required
+dist: trusty
+language: c
+
+addons:
+  apt:
+    sources:
+        - sourceline: 'deb http://ppa.launchpad.net/ondrej/php/ubuntu trusty main'
+    packages:
+        - gearman-job-server
+        - libgearman-dev
+        - gearman-tools
+        - php7.0-cli
+        - php7.0-dev
+
+script:
+    - php --version
+    - phpize
+    - ./configure
+    - make
+    - REPORT_EXIT_STATUS=1 make test
