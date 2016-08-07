@@ -893,14 +893,10 @@ typedef enum {
 	GEARMAN_CLIENT_OBJ_CREATED = (1 << 0)
 } gearman_client_obj_flags_t;
 
-// Defined below
-typedef struct _gearman_task_obj gearman_task_obj;
-
 typedef struct {
 	gearman_return_t ret;
 	gearman_client_obj_flags_t flags;
 	gearman_client_st client;
-	zval zclient;
 	/* used for keeping track of task interface callbacks */
 	zval zworkload_fn;
 	zval zcreated_fn;
@@ -916,12 +912,11 @@ typedef struct {
 	zend_object std;
 } gearman_client_obj;
 
-typedef struct _gearman_worker_cb_obj gearman_worker_cb_obj;
-struct _gearman_worker_cb_obj {
+typedef struct {
 	zval zname; /* name associated with callback */
 	zval zcall; /* name of callback */
 	zval zdata; /* data passed to callback via worker */
-};
+} gearman_worker_cb_obj;
 
 typedef enum {
 	GEARMAN_WORKER_OBJ_CREATED = (1 << 0)
@@ -944,8 +939,6 @@ typedef struct {
 	gearman_return_t ret;
 	gearman_job_obj_flags_t flags;
 	gearman_job_st *job;
-	zval *worker;
-	zval *zworkload;
 
 	zend_object std;
 } gearman_job_obj;
@@ -954,7 +947,7 @@ typedef enum {
 	GEARMAN_TASK_OBJ_CREATED = (1 << 0),
 } gearman_task_obj_flags_t;
 
-struct _gearman_task_obj {
+typedef struct {
 	gearman_return_t ret;
 	gearman_task_obj_flags_t flags;
 	gearman_task_st *task;
@@ -963,7 +956,7 @@ struct _gearman_task_obj {
 	zval zworkload;
 
 	zend_object std;
-};
+} gearman_task_obj;
 
 
 // TODO - probably find a better place for this to live
@@ -1706,8 +1699,6 @@ PHP_METHOD(GearmanClient, __destruct)
 		gearman_client_free(&intern->client);
 	}
 
-	zval_dtor(&intern->zclient);
-
 	// Clear Callbacks
 	zval_dtor(&intern->zworkload_fn);
 	zval_dtor(&intern->zcreated_fn);
@@ -2299,14 +2290,10 @@ static void gearman_client_add_task_handler(gearman_task_st* (*add_task_func)(
 		ZVAL_COPY_VALUE(&task->zdata, zdata);
 	}
 
-	/* store our workload and add ref so it wont go away on us */
-	if (Z_REFCOUNTED_P(zworkload)) {
-		Z_ADDREF_P(zworkload);
-	}
-	ZVAL_COPY_VALUE(&task->zworkload, zworkload);
+	ZVAL_COPY(&task->zworkload, zworkload);
 
 	/* need to store a ref to the client for later access to cb's */
-	ZVAL_COPY_VALUE(&task->zclient, zobj);
+	ZVAL_COPY(&task->zclient, zobj);
 
 	/* add the task */
 	task->task = (*add_task_func)(
@@ -2413,7 +2400,7 @@ PHP_FUNCTION(gearman_client_add_task_status) {
 		   ZVAL_COPY_VALUE(&task->zdata, zdata);
 	}
 	/* need to store a ref to the client for later access to cb's */
-	ZVAL_COPY_VALUE(&task->zclient, zobj);
+	ZVAL_COPY(&task->zclient, zobj);
 
 	/* add the task */
 	task->task = gearman_client_add_task_status(&(obj->client),
@@ -2917,7 +2904,6 @@ PHP_FUNCTION(gearman_client_run_tasks) {
 	}
 	obj = Z_GEARMAN_CLIENT_P(zobj);
 
-	obj->zclient = *zobj;
 	obj->ret = gearman_client_run_tasks(&(obj->client));
 
 	if (! PHP_GEARMAN_CLIENT_RET_OK(obj->ret)) {
@@ -3287,8 +3273,6 @@ PHP_FUNCTION(gearman_worker_grab_job) {
 
 	object_init_ex(return_value, gearman_job_ce);
 	job = Z_GEARMAN_JOB_P(return_value);
-
-	job->worker = zobj;
 
 	job->job = gearman_worker_grab_job(&(obj->worker), NULL, &obj->ret);
 	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
