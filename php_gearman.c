@@ -2035,7 +2035,7 @@ static void gearman_client_do_background_work_handler(gearman_return_t (*do_back
 								const char *unique,
 								const void *workload,
 								size_t workload_size,
-						  			gearman_job_handle_t job_handle
+								gearman_job_handle_t job_handle
 					),
 					INTERNAL_FUNCTION_PARAMETERS) {
 	char *function_name;
@@ -2273,6 +2273,10 @@ static void gearman_client_add_task_handler(gearman_task_st* (*add_task_func)(
 
 	if (unique_len == 0) {
 	  unique = NULL;
+	}
+
+	if (Z_TYPE_P(zworkload) != IS_STRING) {
+		convert_to_string(zworkload);
 	}
 
 	/* get a task object, and prepare it for return */
