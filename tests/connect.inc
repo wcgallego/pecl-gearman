@@ -1,4 +1,4 @@
 <?php
 
-$host = getenv("GEARMAN_TEST_HOST") ? getenv("GEARMAN_TEST_HOST") : "localhost";
-$port = getenv("GEARMAN_TEST_PORT") ? getenv("GEARMAN_TEST_PORT") : 4730;
+$host = getenv("GEARMAN_TEST_HOST") ?: "localhost";
+$port = getenv("GEARMAN_TEST_PORT") ?: 4730;
