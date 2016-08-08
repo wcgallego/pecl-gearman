@@ -9,7 +9,7 @@ require_once('skipifconnect.inc');
 <?php
 require_once('connect.inc');
 
-print "Start\n";
+print "Start" . PHP_EOL;
 $job_name = uniqid();
 $pid = pcntl_fork();
 if ($pid == -1) {
@@ -17,30 +17,30 @@ if ($pid == -1) {
 } else if ($pid > 0) {
     // Parent. This is the worker
     $worker = new GearmanWorker();
-    var_dump($worker->addServer($host, $port));
-    var_dump($worker->setTimeout(5));
-    var_dump($worker->register($job_name, 5));
-    var_dump($worker->register($job_name . "1", 5));
-    var_dump($worker->register($job_name . "2", 5));
-    var_dump($worker->register($job_name . "3", 5));
-    var_dump(
+    print "addServer: " . var_export($worker->addServer($host, $port), true) . PHP_EOL;
+    print "setTimeout: " . var_export($worker->setTimeout(5), true) . PHP_EOL;
+    print "register: " . var_export($worker->register($job_name, 5), true) . PHP_EOL;
+    print "register: " . var_export($worker->register($job_name . "1", 5), true) . PHP_EOL;
+    print "register: " . var_export($worker->register($job_name . "2", 5), true) . PHP_EOL;
+    print "register: " . var_export($worker->register($job_name . "3", 5), true) . PHP_EOL;
+    print "addFunction: " . var_export(
         $worker->addFunction(
             $job_name,
             function($job) {
-                var_dump($job->workload());
+                print "workload: " . var_export($job->workload(), true) . PHP_EOL;
             }
-        )
-    );
-    var_dump($worker->work());
-    var_dump($worker->unregister($job_name));
-    var_dump($worker->unregisterAll());
+        ), true
+    ) . PHP_EOL;
+    print "work: " . var_export($worker->work(), true) . PHP_EOL;
+    print "unregister: " . var_export($worker->unregister($job_name), true) . PHP_EOL;
+    print "unregisterAll: " . var_export($worker->unregisterAll(), true) . PHP_EOL;
 
     // Wait for child
     $exit_status = 0;
     if (pcntl_wait($exit_status) <= 0) {
-        print "pcntl_wait exited with error\n";
+        print "pcntl_wait exited with error" . PHP_EOL;
     } else if (!pcntl_wifexited($exit_status)) {
-        print "child exited with error\n";
+        print "child exited with error" . PHP_EOL;
     }
 } else {
     //Child. This is the client. Don't echo anything here
@@ -58,15 +58,15 @@ if ($pid == -1) {
 print "Done";
 --EXPECTF--
 Start
-bool(true)
-bool(true)
-bool(true)
-bool(true)
-bool(true)
-bool(true)
-bool(true)
-string(7) "nothing"
-bool(true)
-bool(true)
-bool(true)
+addServer: true
+setTimeout: true
+register: true
+register: true
+register: true
+register: true
+addFunction: true
+workload: 'nothing'
+work: true
+unregister: true
+unregisterAll: true
 Done

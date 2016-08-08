@@ -9,7 +9,7 @@ require_once('skipifconnect.inc');
 <?php
 require_once('connect.inc');
 
-print "Start\n";
+print "Start" . PHP_EOL;
 
 $job_name = uniqid();
 
@@ -50,16 +50,16 @@ if ($pid == -1) {
     };
 
     $client->setCompleteCallback(function($task) {
-        print "Complete: " . $task->data() . "\n";
+        print "Complete: " . $task->data() . PHP_EOL;
     });
     $client->setDataCallback(function($task) {
-        print "Data: " . $task->data() . "\n";
+        print "Data: " . $task->data() . PHP_EOL;
     });
     $client->setExceptionCallback(function($task) {
-        print "Exception: " . $task->data() . "\n";
+        print "Exception: " . $task->data() . PHP_EOL;
     });
     $client->setFailCallback(function($task) {
-        print "Fail\n";
+        print "Fail" . PHP_EOL;
     });
 
     $tasks = [];
@@ -67,15 +67,15 @@ if ($pid == -1) {
     $tasks[] = $client->addTask($job_name, "fail");
     $tasks[] = $client->addTask($job_name, "exception");
     $client->runTasks();
-    var_dump($client->returnCode());
-    var_dump($client->clearCallbacks());
+    print "returnCode: " . var_export($client->returnCode(), true) . PHP_EOL;
+    print "clearCallbacks: " . var_export($client->clearCallbacks(), true) . PHP_EOL;
 
     // Wait for child
     $exit_status = 0;
     if (pcntl_wait($exit_status) <= 0) {
-        print "pcntl_wait exited with error\n";
+        print "pcntl_wait exited with error" . PHP_EOL;
     } else if (!pcntl_wifexited($exit_status)) {
-        print "child exited with error\n";
+        print "child exited with error" . PHP_EOL;
     }
 }
 
@@ -86,6 +86,6 @@ Exception: unhandled
 Complete: exception
 Fail
 Complete: done
-int(0)
-bool(true)
+returnCode: 0
+clearCallbacks: true
 Done
