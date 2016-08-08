@@ -1690,10 +1690,14 @@ PHP_METHOD(GearmanClient, __construct)
    cleans up GearmanClient object */
 PHP_METHOD(GearmanClient, __destruct)
 {
+	char *context = NULL;
 	gearman_client_obj *intern = Z_GEARMAN_CLIENT_P(getThis());
 	if (!intern) {
 		return;
 	}
+
+	context = gearman_client_context(&(intern->client));
+	efree(context);
 
 	if (intern->flags & GEARMAN_CLIENT_OBJ_CREATED) {
 		gearman_client_free(&intern->client);
@@ -2875,7 +2879,7 @@ PHP_FUNCTION(gearman_client_context) {
 /* {{{ proto bool GearmanClient::setContext(string data)
    Set the application data */
 PHP_FUNCTION(gearman_client_set_context) {
-	char *data;
+	char *data, *old_context;
 	size_t data_len = 0;
 
 	gearman_client_obj *obj;
@@ -2886,7 +2890,10 @@ PHP_FUNCTION(gearman_client_set_context) {
 	}
 	obj = Z_GEARMAN_CLIENT_P(zobj);
 
-	gearman_client_set_context(&(obj->client), (void *)data);
+	old_context = gearman_client_context(&(obj->client));
+	efree(old_context);
+
+	gearman_client_set_context(&(obj->client), (void*) estrndup(data, data_len));
 	RETURN_TRUE;
 }
 /* }}} */
