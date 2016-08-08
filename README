@@ -61,6 +61,16 @@ You should see some output from both the reverse client and worker
 scripts about the status and then a final result.
 
 
+Limitations
+
+This extension is not thread safe! You should use a non thread safe (NTS)
+build of PHP to run properly this extensions.
+You can check if you have a NTS version of PHP by running this command:
+
+php -v | grep NTS
+
+
+
 Have fun!
 
 http://pecl.php.net/package/gearman
