@@ -12,6 +12,17 @@
 #ifndef __PHP_GEARMAN_H
 #define __PHP_GEARMAN_H
 
+#include "php.h"
+#include "php_ini.h"
+#include "ext/standard/info.h"
+
+#include "zend_exceptions.h"
+#include "zend_interfaces.h"
+
+#include <libgearman-1.0/gearman.h>
+#include <libgearman-1.0/interface/status.h>
+#include <libgearman-1.0/status.h>
+
 /* module version */
 #define PHP_GEARMAN_VERSION "2.0.1"
 

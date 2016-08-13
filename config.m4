@@ -70,5 +70,5 @@ if test "$PHP_GEARMAN" != "no"; then
   PHP_SUBST(GEARMAN_SHARED_LIBADD)
 
   PHP_ADD_INCLUDE($GEARMAN_INC_DIR)
-  PHP_NEW_EXTENSION(gearman, php_gearman.c, $ext_shared)
+  PHP_NEW_EXTENSION(gearman, php_gearman.c php_gearman_client.c php_gearman_task.c, $ext_shared)
 fi
