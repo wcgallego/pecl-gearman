@@ -1,0 +1,18 @@
+sudo: required
+dist: trusty
+language: php
+php:
+    - '7.0'
+
+addons:
+  apt:
+    packages:
+    - gearman-job-server
+    - libgearman-dev
+    - gearman-tools
+
+script:
+    - phpize
+    - ./configure
+    - make
+    - REPORT_EXIT_STATUS=1 make test
