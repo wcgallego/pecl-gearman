@@ -27,6 +27,44 @@ inline zend_object *gearman_task_obj_new(zend_class_entry *ce) {
         return &intern->std;
 }
 
+/* this function will be used to call our user defined task callbacks */
+gearman_return_t _php_task_cb_fn(gearman_task_obj *task, gearman_client_obj *client, zval zcall) {
+        gearman_return_t ret; 
+
+        zval ztask, argv[2], retval;
+        uint32_t param_count;
+
+        ZVAL_OBJ(&ztask, &task->std);
+        ZVAL_COPY_VALUE(&argv[0], &ztask);
+
+        if (Z_ISUNDEF(task->zdata)) {
+                param_count = 1; 
+        } else {
+                ZVAL_COPY_VALUE(&argv[1], &task->zdata);
+                param_count = 2; 
+        }    
+
+        if (call_user_function_ex(EG(function_table), NULL, &zcall, &retval, param_count, argv, 0, NULL) != SUCCESS) {
+                php_error_docref(NULL,
+                                E_WARNING,
+                                "Could not call the function %s",
+                                ( Z_ISUNDEF(zcall) || Z_TYPE(zcall) != IS_STRING)  ? "[undefined]" : Z_STRVAL(zcall)
+                                );   
+                ret = 0; 
+        } else {
+                if (Z_ISUNDEF(retval)) {
+                        ret = 0; 
+                } else {
+                        if (Z_TYPE(retval) != IS_LONG) {
+                                convert_to_long(&retval);
+                        }    
+                        ret = Z_LVAL(retval);
+                }    
+        }    
+
+        return ret; 
+}
+
 /* TODO: clean this up a bit, Macro? */
 gearman_return_t _php_task_workload_fn(gearman_task_st *task) {
         gearman_task_obj *task_obj = (gearman_task_obj *) gearman_task_context(task);
