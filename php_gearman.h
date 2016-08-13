@@ -18,4 +18,18 @@
 extern zend_module_entry gearman_module_entry;
 #define phpext_gearman_ptr &gearman_module_entry
 
+typedef enum {
+        GEARMAN_OBJ_CREATED = (1 << 0)
+} gearman_obj_flags_t;
+
+zend_class_entry *gearman_exception_ce;
+
+#define GEARMAN_EXCEPTION(__error, __error_code) { \
+        zend_throw_exception(gearman_exception_ce, __error, __error_code); \
+        return; \
+}
+
+void *_php_malloc(size_t size, void *arg);
+void _php_free(void *ptr, void *arg);
+
 #endif  /* __PHP_GEARMAN_H */

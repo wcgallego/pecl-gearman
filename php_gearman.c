@@ -886,10 +886,6 @@ ZEND_END_ARG_INFO()
  */
 
 typedef enum {
-	GEARMAN_OBJ_CREATED = (1 << 0)
-} gearman_obj_flags_t;
-
-typedef enum {
 	GEARMAN_CLIENT_OBJ_CREATED = (1 << 0)
 } gearman_client_obj_flags_t;
 
@@ -1001,8 +997,6 @@ static zend_object_handlers gearman_job_obj_handlers;
 zend_class_entry *gearman_task_ce;
 static zend_object_handlers gearman_task_obj_handlers;
 
-zend_class_entry *gearman_exception_ce;
-
 /*
  * Helper macros.
  */
@@ -1021,13 +1015,8 @@ zend_class_entry *gearman_exception_ce;
 					  (__ret) == GEARMAN_WORK_WARNING || \
 					  (__ret) == GEARMAN_WORK_FAIL)
 
-#define GEARMAN_EXCEPTION(__error, __error_code) { \
-	zend_throw_exception(gearman_exception_ce, __error, __error_code); \
-	return; \
-}
-
 /* Custom malloc and free calls to avoid excessive buffer copies. */
-static void *_php_malloc(size_t size, void *arg) {
+void *_php_malloc(size_t size, void *arg) {
 	uint8_t *ret;
 	ret = emalloc(size+1);
 	ret[size]= 0;
@@ -1075,18 +1064,6 @@ PHP_FUNCTION(gearman_verbose_name) {
 	RETURN_STRING((char *)gearman_verbose_name(verbose));
 }
 /* }}} */
-
-/*
- * Functions from con.h
- */
-
-/*
- * Functions from packet.h
- */
-
-/*
- * Functions from task.h
- */
 
 /* {{{ proto int gearman_task_return_code()
    get last gearman_return_t */
