@@ -13,7 +13,7 @@
 #define __PHP_GEARMAN_H
 
 /* module version */
-#define PHP_GEARMAN_VERSION "2.0.0-dev"
+#define PHP_GEARMAN_VERSION "2.0.1"
 
 extern zend_module_entry gearman_module_entry;
 #define phpext_gearman_ptr &gearman_module_entry
