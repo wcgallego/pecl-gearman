@@ -69,6 +69,7 @@ gearman_return_t _php_task_cb_fn(gearman_task_obj *task, gearman_client_obj *cli
 void _php_task_free(gearman_task_st *task, void *context) {
 	gearman_task_obj *task_obj= (gearman_task_obj *) context;
 	gearman_client_obj *cli_obj = Z_GEARMAN_CLIENT_P(&task_obj->zclient);
+	task_obj->flags &= ~GEARMAN_TASK_OBJ_CREATED;
 	zend_hash_index_del(Z_ARRVAL(cli_obj->task_list), task_obj->task_id);
 }
 
