@@ -48,6 +48,7 @@ typedef struct {
 	zval zexception_fn;
 	zval zfail_fn;
 
+	zend_ulong created_tasks;
 	zval task_list;
 
 	zend_object std;

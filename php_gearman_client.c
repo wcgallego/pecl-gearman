@@ -23,6 +23,7 @@ inline zend_object *gearman_client_obj_new(zend_class_entry *ce) {
 	zend_object_std_init(&(intern->std), ce);
 	object_properties_init(&intern->std, ce);
 	array_init(&intern->task_list);
+	intern->created_tasks = 0;
 
 	intern->std.handlers = &gearman_client_obj_handlers;
 	return &intern->std;

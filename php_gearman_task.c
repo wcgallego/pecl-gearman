@@ -22,6 +22,7 @@ inline zend_object *gearman_task_obj_new(zend_class_entry *ce) {
 
         zend_object_std_init(&(intern->std), ce); 
         object_properties_init(&intern->std, ce); 
+        intern->task_id = 0;
 
         intern->std.handlers = &gearman_task_obj_handlers;
         return &intern->std;
@@ -63,6 +64,12 @@ gearman_return_t _php_task_cb_fn(gearman_task_obj *task, gearman_client_obj *cli
         }    
 
         return ret; 
+}
+
+void _php_task_free(gearman_task_st *task, void *context) {
+	gearman_task_obj *task_obj= (gearman_task_obj *) context;
+	gearman_client_obj *cli_obj = Z_GEARMAN_CLIENT_P(&task_obj->zclient);
+	zend_hash_index_del(Z_ARRVAL(cli_obj->task_list), task_obj->task_id);
 }
 
 /* TODO: clean this up a bit, Macro? */

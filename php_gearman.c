@@ -1563,6 +1563,7 @@ static void gearman_client_ctor(INTERNAL_FUNCTION_PARAMETERS) {
 	gearman_client_add_options(&(client->client), GEARMAN_CLIENT_FREE_TASKS);
 	gearman_client_set_workload_malloc_fn(&(client->client), _php_malloc, NULL);
 	gearman_client_set_workload_free_fn(&(client->client), _php_free, NULL);
+	gearman_client_set_task_context_free_fn(&(client->client), _php_task_free);
 }
 
 /* {{{ proto object gearman_client_create()
@@ -2219,10 +2220,11 @@ static void gearman_client_add_task_handler(gearman_task_st* (*add_task_func)(
 	}
 
 	task->flags |= GEARMAN_TASK_OBJ_CREATED;
+	task->task_id = ++obj->created_tasks;
 
 	// prepend task to list of tasks on client obj
 	Z_ADDREF_P(return_value);
-	add_next_index_zval(&obj->task_list, return_value);
+	add_index_zval(&obj->task_list, task->task_id, return_value);
 }
 /* }}} */
 

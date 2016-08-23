@@ -41,6 +41,7 @@ typedef struct {
         zval zclient;
         zval zdata;
         zval zworkload;
+        zend_ulong task_id;
 
         zend_object std;
 } gearman_task_obj;
@@ -49,6 +50,7 @@ inline gearman_task_obj *gearman_task_fetch_object(zend_object *obj);
 #define Z_GEARMAN_TASK_P(zv) gearman_task_fetch_object(Z_OBJ_P((zv)))
 
 gearman_return_t _php_task_cb_fn(gearman_task_obj *task, gearman_client_obj *client, zval zcall);
+void _php_task_free(gearman_task_st *task, void *context);
 
 gearman_return_t _php_task_workload_fn(gearman_task_st *task);
 gearman_return_t _php_task_created_fn(gearman_task_st *task);
