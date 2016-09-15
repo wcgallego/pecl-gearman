@@ -46,7 +46,7 @@ typedef struct {
         zend_object std;
 } gearman_task_obj;
 
-inline gearman_task_obj *gearman_task_fetch_object(zend_object *obj);
+gearman_task_obj *gearman_task_fetch_object(zend_object *obj);
 #define Z_GEARMAN_TASK_P(zv) gearman_task_fetch_object(Z_OBJ_P((zv)))
 
 gearman_return_t _php_task_cb_fn(gearman_task_obj *task, gearman_client_obj *client, zval zcall);
