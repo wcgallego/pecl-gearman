@@ -2676,6 +2676,7 @@ PHP_FUNCTION(gearman_client_clear_callbacks) {
    Get the application data */
 PHP_FUNCTION(gearman_client_context) {
 	const char *data;
+	int length = 0;
 
 	gearman_client_obj *obj;
 	zval *zobj;
@@ -2687,7 +2688,11 @@ PHP_FUNCTION(gearman_client_context) {
 
 	data = gearman_client_context(&(obj->client));
 
-	RETURN_STRINGL(data, strlen(data));
+	if (data) {
+		length = strlen(data);
+	}
+
+	RETURN_STRINGL(data, length);
 }
 /* }}} */
 
