@@ -3575,11 +3575,11 @@ zend_function_entry gearman_functions[] = {
 	PHP_FE(gearman_job_workload, arginfo_gearman_job_workload)
 	PHP_FE(gearman_job_workload_size, arginfo_gearman_job_workload_size)
 
-	{NULL, NULL, NULL} /* Must be the last line in gearman_functions[] */
+	ZEND_FE_END
 };
 
 zend_function_entry gearman_methods[]= {
-	{NULL, NULL, NULL}
+	ZEND_FE_END
 };
 
 static zend_function_entry gearman_client_methods[]= {
@@ -3588,10 +3588,10 @@ static zend_function_entry gearman_client_methods[]= {
 	PHP_ME_MAPPING(returnCode, gearman_client_return_code, arginfo_oo_gearman_client_return_code, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(error, gearman_client_error, arginfo_oo_gearman_client_error, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(getErrno, gearman_client_get_errno, arginfo_oo_gearman_client_get_errno, ZEND_ACC_PUBLIC)
-	PHP_ME_MAPPING(options, gearman_client_options, arginfo_gearman_client_options, ZEND_ACC_PUBLIC)
-	PHP_ME_MAPPING(setOptions, gearman_client_set_options, arginfo_gearman_client_set_options, ZEND_ACC_PUBLIC)
-	PHP_ME_MAPPING(addOptions, gearman_client_add_options, arginfo_gearman_client_add_options, ZEND_ACC_PUBLIC)
-	PHP_ME_MAPPING(removeOptions, gearman_client_remove_options, arginfo_gearman_client_remove_options, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(options, gearman_client_options, arginfo_oo_gearman_client_options, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(setOptions, gearman_client_set_options, arginfo_oo_gearman_client_set_options, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(addOptions, gearman_client_add_options, arginfo_oo_gearman_client_add_options, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(removeOptions, gearman_client_remove_options, arginfo_oo_gearman_client_remove_options, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(timeout, gearman_client_timeout, arginfo_oo_gearman_client_timeout, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(setTimeout, gearman_client_set_timeout, arginfo_oo_gearman_client_set_timeout, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(context, gearman_client_context, arginfo_oo_gearman_client_context, ZEND_ACC_PUBLIC)
@@ -3612,10 +3612,10 @@ static zend_function_entry gearman_client_methods[]= {
 	PHP_ME_MAPPING(ping, gearman_client_ping, arginfo_oo_gearman_client_ping, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(addTask, gearman_client_add_task, arginfo_oo_gearman_client_add_task, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(addTaskHigh, gearman_client_add_task_high, arginfo_oo_gearman_client_add_task_high, ZEND_ACC_PUBLIC)
-	PHP_ME_MAPPING(addTaskLow, gearman_client_add_task_low, arginfo_gearman_client_add_task_low, ZEND_ACC_PUBLIC)
-	PHP_ME_MAPPING(addTaskBackground, gearman_client_add_task_background, arginfo_gearman_client_add_task_background, ZEND_ACC_PUBLIC)
-	PHP_ME_MAPPING(addTaskHighBackground, gearman_client_add_task_high_background, arginfo_gearman_client_add_task_high_background, ZEND_ACC_PUBLIC)
-	PHP_ME_MAPPING(addTaskLowBackground, gearman_client_add_task_low_background, arginfo_gearman_client_add_task_low_background, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(addTaskLow, gearman_client_add_task_low, arginfo_oo_gearman_client_add_task_low, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(addTaskBackground, gearman_client_add_task_background, arginfo_oo_gearman_client_add_task_background, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(addTaskHighBackground, gearman_client_add_task_high_background, arginfo_oo_gearman_client_add_task_high_background, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(addTaskLowBackground, gearman_client_add_task_low_background, arginfo_oo_gearman_client_add_task_low_background, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(addTaskStatus, gearman_client_add_task_status, arginfo_oo_gearman_client_add_task_status, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(setWorkloadCallback, gearman_client_set_workload_callback, arginfo_oo_gearman_client_set_workload_callback, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(setCreatedCallback, gearman_client_set_created_callback, arginfo_oo_gearman_client_set_created_callback, ZEND_ACC_PUBLIC)
@@ -3627,7 +3627,7 @@ static zend_function_entry gearman_client_methods[]= {
 	PHP_ME_MAPPING(setFailCallback, gearman_client_set_fail_callback, arginfo_oo_gearman_client_set_fail_callback, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(clearCallbacks, gearman_client_clear_callbacks, arginfo_oo_gearman_client_clear_callbacks, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(runTasks, gearman_client_run_tasks, arginfo_oo_gearman_client_run_tasks, ZEND_ACC_PUBLIC)
-	{NULL, NULL, NULL}
+	ZEND_FE_END
 };
 
 zend_function_entry gearman_task_methods[]= {
@@ -3645,8 +3645,7 @@ zend_function_entry gearman_task_methods[]= {
 	PHP_ME_MAPPING(data, gearman_task_data, arginfo_oo_gearman_task_data, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(dataSize, gearman_task_data_size, arginfo_oo_gearman_task_data_size, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(recvData, gearman_task_recv_data, arginfo_oo_gearman_task_recv_data, ZEND_ACC_PUBLIC)
-
-	{NULL, NULL, NULL}
+	ZEND_FE_END
 };
 
 zend_function_entry gearman_worker_methods[]= {
@@ -3672,7 +3671,7 @@ zend_function_entry gearman_worker_methods[]= {
 	PHP_ME_MAPPING(addFunction, gearman_worker_add_function, arginfo_oo_gearman_worker_add_function, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(work, gearman_worker_work, arginfo_oo_gearman_worker_work, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(echo, gearman_worker_ping, arginfo_oo_gearman_worker_ping, ZEND_ACC_PUBLIC)
-	{NULL, NULL, NULL}
+	ZEND_FE_END
 };
 
 zend_function_entry gearman_job_methods[]= {
@@ -3690,12 +3689,11 @@ zend_function_entry gearman_job_methods[]= {
 	PHP_ME_MAPPING(unique, gearman_job_unique, arginfo_oo_gearman_job_unique, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(workload, gearman_job_workload, arginfo_oo_gearman_job_workload, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(workloadSize, gearman_job_workload_size, arginfo_oo_gearman_job_workload_size, ZEND_ACC_PUBLIC)
-
-	{NULL, NULL, NULL}
+	ZEND_FE_END
 };
 
 zend_function_entry gearman_exception_methods[] = {
-	{NULL, NULL, NULL}
+	ZEND_FE_END
 };
 
 PHP_MINIT_FUNCTION(gearman) {
