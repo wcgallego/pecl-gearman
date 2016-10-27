@@ -72,4 +72,8 @@ gearman_client_obj *gearman_client_fetch_object(zend_object *obj);
 					  (__ret) == GEARMAN_WORK_WARNING || \
 					  (__ret) == GEARMAN_WORK_FAIL)
 
+PHP_FUNCTION(gearman_client_create);
+PHP_METHOD(GearmanClient, __construct);
+PHP_METHOD(GearmanClient, __destruct);
+
 #endif  /* __PHP_GEARMAN_CLIENT_H */
