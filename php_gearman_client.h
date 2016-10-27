@@ -84,5 +84,7 @@ PHP_FUNCTION(gearman_client_add_options);
 PHP_FUNCTION(gearman_client_remove_options);
 PHP_FUNCTION(gearman_client_timeout);
 PHP_FUNCTION(gearman_client_set_timeout);
+PHP_FUNCTION(gearman_client_add_server);
+PHP_FUNCTION(gearman_client_add_servers);
 
 #endif  /* __PHP_GEARMAN_CLIENT_H */

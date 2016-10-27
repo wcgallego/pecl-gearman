@@ -253,3 +253,62 @@ PHP_FUNCTION(gearman_client_set_timeout) {
         RETURN_TRUE;
 }
 /* }}} */
+
+/* {{{ proto bool gearman_client_add_server(object client [, string host [, int port]])
+   Add a job server to a client. This goes into a list of servers than can be used to run tasks. No socket I/O happens here, it is just added to a list. */
+PHP_FUNCTION(gearman_client_add_server) {
+        char *host = NULL;
+        size_t host_len = 0;
+        zend_long port = 0;
+
+        gearman_client_obj *obj;
+        zval *zobj;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|sl", &zobj, gearman_client_ce, &host, &host_len, &port) == FAILURE) {
+                RETURN_FALSE;
+        }            
+        obj = Z_GEARMAN_CLIENT_P(zobj);
+
+        obj->ret = gearman_client_add_server(&(obj->client), host, port);
+        if (obj->ret != GEARMAN_SUCCESS) {
+                php_error_docref(NULL, E_WARNING, "%s",
+                                                 gearman_client_error(&(obj->client)));
+                RETURN_FALSE;                         
+        }            
+
+        if (!gearman_client_set_server_option(&(obj->client), "exceptions", (sizeof("exceptions") - 1))) {
+                GEARMAN_EXCEPTION("Failed to set exception option", 0);
+        }            
+
+        RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool gearman_client_add_servers(object client [, string servers])
+   Add a list of job servers to a client. This goes into a list of servers that can be used to run tasks. No socket I/O happens here, it is just added to a list. */
+PHP_FUNCTION(gearman_client_add_servers) {
+        char *servers = NULL;
+        size_t servers_len = 0;
+
+        gearman_client_obj *obj;
+        zval *zobj;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|s", &zobj, gearman_client_ce, &servers, &servers_len) == FAILURE) {
+                RETURN_FALSE;
+        }
+        obj = Z_GEARMAN_CLIENT_P(zobj);
+
+        obj->ret = gearman_client_add_servers(&(obj->client), servers);
+        if (obj->ret != GEARMAN_SUCCESS) {
+                php_error_docref(NULL, E_WARNING, "%s",
+                                                 gearman_client_error(&(obj->client)));
+                RETURN_FALSE;
+        }
+
+        if (!gearman_client_set_server_option(&(obj->client), "exceptions", (sizeof("exceptions") - 1))) {
+                GEARMAN_EXCEPTION("Failed to set exception option", 0);
+        }
+
+        RETURN_TRUE;
+}
+/* }}} */
