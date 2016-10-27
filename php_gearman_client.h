@@ -79,5 +79,8 @@ PHP_FUNCTION(gearman_client_return_code);
 PHP_FUNCTION(gearman_client_error);
 PHP_FUNCTION(gearman_client_get_errno);
 PHP_FUNCTION(gearman_client_options);
+PHP_FUNCTION(gearman_client_set_options);
+PHP_FUNCTION(gearman_client_add_options);
+PHP_FUNCTION(gearman_client_remove_options);
 
 #endif  /* __PHP_GEARMAN_CLIENT_H */

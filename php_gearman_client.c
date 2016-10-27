@@ -168,3 +168,57 @@ PHP_FUNCTION(gearman_client_options) {
         RETURN_LONG(gearman_client_options(&(obj->client)))
 }
 /* }}} */
+
+/* {{{ proto void gearman_client_set_options(constant option)
+   Set options for a client structure. */
+PHP_FUNCTION(gearman_client_set_options) {
+        zend_long options;
+
+        gearman_client_obj *obj;
+        zval *zobj;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol", &zobj, gearman_client_ce, &options) == FAILURE) {
+                RETURN_FALSE;
+        }    
+        obj = Z_GEARMAN_CLIENT_P(zobj);
+
+        gearman_client_set_options(&(obj->client), options);
+        RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto void GearmanClient::addOptions(constant option)
+   Set options for a client structure. */
+PHP_FUNCTION(gearman_client_add_options) {
+        zend_long options;
+
+        gearman_client_obj *obj;
+        zval *zobj;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol", &zobj, gearman_client_ce, &options) == FAILURE) {
+                RETURN_FALSE;
+        }
+        obj = Z_GEARMAN_CLIENT_P(zobj);
+
+        gearman_client_add_options(&(obj->client), options);
+        RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto void GearmanClient::removeOptions(constant option)
+   Set options for a client structure. */
+PHP_FUNCTION(gearman_client_remove_options) {
+        zend_long options;
+
+        gearman_client_obj *obj;
+        zval *zobj;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol", &zobj, gearman_client_ce, &options) == FAILURE) {
+                RETURN_FALSE;
+        }
+        obj = Z_GEARMAN_CLIENT_P(zobj);
+
+        gearman_client_remove_options(&(obj->client), options);
+        RETURN_TRUE;
+}
+/* }}} */
