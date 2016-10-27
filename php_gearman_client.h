@@ -77,5 +77,7 @@ PHP_METHOD(GearmanClient, __construct);
 PHP_METHOD(GearmanClient, __destruct);
 PHP_FUNCTION(gearman_client_return_code);
 PHP_FUNCTION(gearman_client_error);
+PHP_FUNCTION(gearman_client_get_errno);
+PHP_FUNCTION(gearman_client_options);
 
 #endif  /* __PHP_GEARMAN_CLIENT_H */

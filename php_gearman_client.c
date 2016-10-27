@@ -138,3 +138,33 @@ PHP_FUNCTION(gearman_client_error) {
         RETURN_FALSE;
 }
 /* }}} */
+
+/* {{{ proto int gearman_client_get_errno()
+   Value of errno in the case of a GEARMAN_ERRNO return value. */
+PHP_FUNCTION(gearman_client_get_errno) {
+        gearman_client_obj *obj;
+        zval *zobj;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_client_ce) == FAILURE) {
+                RETURN_NULL();
+        }    
+        obj = Z_GEARMAN_CLIENT_P(zobj);
+
+        RETURN_LONG(gearman_client_errno(&(obj->client)))
+}
+/* }}} */
+
+/* {{{ proto int gearman_client_options()
+   Get options for a client structure. */
+PHP_FUNCTION(gearman_client_options) {
+        gearman_client_obj *obj;
+        zval *zobj;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_client_ce) == FAILURE) {
+                RETURN_NULL();
+        }    
+        obj = Z_GEARMAN_CLIENT_P(zobj);
+
+        RETURN_LONG(gearman_client_options(&(obj->client)))
+}
+/* }}} */
