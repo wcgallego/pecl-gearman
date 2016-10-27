@@ -103,3 +103,38 @@ PHP_METHOD(GearmanClient, __destruct)
         zend_object_std_dtor(&intern->std);
 }
 
+/* {{{ proto int gearman_client_return_code()
+   get last gearman_return_t */
+PHP_FUNCTION(gearman_client_return_code)
+{
+        gearman_client_obj *obj;
+        zval *zobj;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_client_ce) == FAILURE) {
+                RETURN_NULL();
+        }    
+        obj = Z_GEARMAN_CLIENT_P(zobj);
+
+        RETURN_LONG(obj->ret);
+}
+/* }}} */
+
+/* {{{ proto string gearman_client_error()
+   Return an error string for the last error encountered. */
+PHP_FUNCTION(gearman_client_error) {
+        char *error = NULL;
+        gearman_client_obj *obj;
+        zval *zobj;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_client_ce) == FAILURE) {
+                RETURN_NULL();
+        }    
+        obj = Z_GEARMAN_CLIENT_P(zobj);
+
+        error = (char *)gearman_client_error(&(obj->client));
+        if (error) {
+                RETURN_STRING(error)
+        }    
+        RETURN_FALSE;
+}
+/* }}} */

@@ -1546,42 +1546,6 @@ PHP_FUNCTION(gearman_job_set_return) {
  * Functions from client.h
  */
 
-/* {{{ proto int gearman_client_return_code()
-   get last gearman_return_t */
-PHP_FUNCTION(gearman_client_return_code)
-{
-	gearman_client_obj *obj;
-	zval *zobj;
-
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_client_ce) == FAILURE) {
-		RETURN_NULL();
-	}
-	obj = Z_GEARMAN_CLIENT_P(zobj);
-
-	RETURN_LONG(obj->ret);
-}
-/* }}} */
-
-/* {{{ proto string gearman_client_error()
-   Return an error string for the last error encountered. */
-PHP_FUNCTION(gearman_client_error) {
-	char *error = NULL;
-	gearman_client_obj *obj;
-	zval *zobj;
-
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_client_ce) == FAILURE) {
-		RETURN_NULL();
-	}
-	obj = Z_GEARMAN_CLIENT_P(zobj);
-
-	error = (char *)gearman_client_error(&(obj->client));
-	if (error) {
-		RETURN_STRING(error)
-	}
-	RETURN_FALSE;
-}
-/* }}} */
-
 /* {{{ proto int gearman_client_get_errno()
    Value of errno in the case of a GEARMAN_ERRNO return value. */
 PHP_FUNCTION(gearman_client_get_errno) {
