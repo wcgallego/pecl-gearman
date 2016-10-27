@@ -1546,39 +1546,6 @@ PHP_FUNCTION(gearman_job_set_return) {
  * Functions from client.h
  */
 
-/* {{{ proto int gearman_client_timeout(object)
-   Get timeout for a client structure. */
-PHP_FUNCTION(gearman_client_timeout) {
-	gearman_client_obj *obj;
-	zval *zobj;
-
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_client_ce) == FAILURE) {
-		RETURN_NULL();
-	}
-	obj = Z_GEARMAN_CLIENT_P(zobj);
-
-	RETURN_LONG(gearman_client_timeout(&(obj->client)))
-}
-/* }}} */
-
-/* {{{ proto void gearman_client_set_timeout(object, constant timeout)
-   Set timeout for a client structure. */
-PHP_FUNCTION(gearman_client_set_timeout) {
-	zend_long timeout;
-
-	gearman_client_obj *obj;
-	zval *zobj;
-
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol", &zobj, gearman_client_ce, &timeout) == FAILURE) {
-		RETURN_FALSE;
-	}
-	obj = Z_GEARMAN_CLIENT_P(zobj);
-
-	gearman_client_set_timeout(&(obj->client), timeout);
-	RETURN_TRUE;
-}
-/* }}} */
-
 /* {{{ proto bool gearman_client_add_server(object client [, string host [, int port]])
    Add a job server to a client. This goes into a list of servers than can be used to run tasks. No socket I/O happens here, it is just added to a list. */
 PHP_FUNCTION(gearman_client_add_server) {

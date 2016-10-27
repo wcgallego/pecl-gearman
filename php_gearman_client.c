@@ -222,3 +222,34 @@ PHP_FUNCTION(gearman_client_remove_options) {
         RETURN_TRUE;
 }
 /* }}} */
+
+PHP_FUNCTION(gearman_client_timeout) {
+        gearman_client_obj *obj;
+        zval *zobj;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_client_ce) == FAILURE) {
+                RETURN_NULL();
+        }    
+        obj = Z_GEARMAN_CLIENT_P(zobj);
+
+        RETURN_LONG(gearman_client_timeout(&(obj->client)))
+}
+/* }}} */
+
+/* {{{ proto void gearman_client_set_timeout(object, constant timeout)
+   Set timeout for a client structure. */
+PHP_FUNCTION(gearman_client_set_timeout) {
+        zend_long timeout;
+
+        gearman_client_obj *obj;
+        zval *zobj;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol", &zobj, gearman_client_ce, &timeout) == FAILURE) {
+                RETURN_FALSE;
+        }    
+        obj = Z_GEARMAN_CLIENT_P(zobj);
+
+        gearman_client_set_timeout(&(obj->client), timeout);
+        RETURN_TRUE;
+}
+/* }}} */
