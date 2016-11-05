@@ -106,5 +106,13 @@ PHP_FUNCTION(gearman_client_add_task_high_background);
 PHP_FUNCTION(gearman_client_add_task_low_background);
 PHP_FUNCTION(gearman_client_run_tasks);
 PHP_FUNCTION(gearman_client_add_task_status);
+PHP_FUNCTION(gearman_client_set_workload_callback);
+PHP_FUNCTION(gearman_client_set_created_callback);
+PHP_FUNCTION(gearman_client_set_data_callback);
+PHP_FUNCTION(gearman_client_set_warning_callback);
+PHP_FUNCTION(gearman_client_set_status_callback);
+PHP_FUNCTION(gearman_client_set_complete_callback);
+PHP_FUNCTION(gearman_client_set_exception_callback);
+PHP_FUNCTION(gearman_client_set_fail_callback);
 
 #endif  /* __PHP_GEARMAN_CLIENT_H */

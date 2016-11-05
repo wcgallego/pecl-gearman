@@ -834,3 +834,321 @@ PHP_FUNCTION(gearman_client_add_task_status) {
         add_next_index_zval(&obj->task_list, return_value);
 }
 /* }}} */
+/* {{{ proto bool GearmanClient::setWorkloadCallback(callback function)
+   Callback function when workload data needs to be sent for a task. */
+PHP_FUNCTION(gearman_client_set_workload_callback) {
+	zval *zworkload_fn;
+	zend_string *callable = NULL;
+
+	gearman_client_obj *obj;
+	zval *zobj;
+
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz", &zobj, gearman_client_ce,
+								&zworkload_fn
+								) == FAILURE) {
+		RETURN_FALSE;
+	}
+	obj = Z_GEARMAN_CLIENT_P(zobj);
+
+	/* check that the function is callable */
+	if (! zend_is_callable(zworkload_fn, 0, &callable)) {
+		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable->val);
+		zend_string_release(callable);
+		RETURN_FALSE;
+	}
+	zend_string_release(callable);
+
+	/* Defining callback again? Clean up old one first */
+	if (!Z_ISUNDEF(obj->zworkload_fn)) {
+		zval_dtor(&obj->zworkload_fn);
+	}
+
+	/* store the cb in client object */
+	ZVAL_COPY(&obj->zworkload_fn, zworkload_fn);
+
+	/* set the callback for php */
+	gearman_client_set_workload_fn(&(obj->client), _php_task_workload_fn);
+
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool GearmanClient::setCreatedCallback(callback function)
+   Callback function when workload data needs to be sent for a task. */
+PHP_FUNCTION(gearman_client_set_created_callback) {
+	zval *zcreated_fn;
+	zend_string *callable = NULL;
+
+	gearman_client_obj *obj;
+	zval *zobj;
+
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz", &zobj, gearman_client_ce,
+								&zcreated_fn
+								) == FAILURE) {
+		RETURN_FALSE;
+	}
+	obj = Z_GEARMAN_CLIENT_P(zobj);
+
+	/* check that the function is callable */
+	if (! zend_is_callable(zcreated_fn, 0, &callable)) {
+		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable->val);
+		zend_string_release(callable);
+		RETURN_FALSE;
+	}
+	zend_string_release(callable);
+
+	/* Defining callback again? Clean up old one first */
+	if (!Z_ISUNDEF(obj->zcreated_fn)) {
+		zval_dtor(&obj->zcreated_fn);
+	}
+
+	/* store the cb in client object */
+	ZVAL_COPY(&obj->zcreated_fn, zcreated_fn);
+
+	/* set the callback for php */
+	gearman_client_set_created_fn(&(obj->client), _php_task_created_fn);
+
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool GearmanClient::setDataCallback(callback function)
+   Callback function when there is a data packet for a task. */
+PHP_FUNCTION(gearman_client_set_data_callback) {
+	zval *zdata_fn;
+	zend_string *callable = NULL;
+
+	gearman_client_obj *obj;
+	zval *zobj;
+
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz", &zobj, gearman_client_ce,
+								&zdata_fn
+								) == FAILURE) {
+		RETURN_FALSE;
+	}
+	obj = Z_GEARMAN_CLIENT_P(zobj);
+
+	/* check that the function is callable */
+	if (! zend_is_callable(zdata_fn, 0, &callable)) {
+		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable->val);
+		zend_string_release(callable);
+		RETURN_FALSE;
+	}
+	zend_string_release(callable);
+
+	/* Defining callback again? Clean up old one first */
+	if (!Z_ISUNDEF(obj->zdata_fn)) {
+		zval_dtor(&obj->zdata_fn);
+	}
+
+	/* store the cb in client object */
+	ZVAL_COPY(&obj->zdata_fn, zdata_fn);
+
+	/* set the callback for php */
+	gearman_client_set_data_fn(&(obj->client), _php_task_data_fn);
+
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool GearmanClient::setWarningCallback(callback function)
+   Callback function when there is a warning packet for a task. */
+PHP_FUNCTION(gearman_client_set_warning_callback) {
+	zval *zwarning_fn;
+	zend_string *callable = NULL;
+
+	gearman_client_obj *obj;
+	zval *zobj;
+
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz", &zobj, gearman_client_ce,
+								&zwarning_fn
+								) == FAILURE) {
+		RETURN_FALSE;
+	}
+	obj = Z_GEARMAN_CLIENT_P(zobj);
+
+	/* check that the function is callable */
+	if (! zend_is_callable(zwarning_fn, 0, &callable)) {
+		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable->val);
+		zend_string_release(callable);
+		RETURN_FALSE;
+	}
+	zend_string_release(callable);
+
+	/* Defining callback again? Clean up old one first */
+	if (!Z_ISUNDEF(obj->zwarning_fn)) {
+		zval_dtor(&obj->zwarning_fn);
+	}
+
+	/* store the cb in client object */
+	ZVAL_COPY(&obj->zwarning_fn, zwarning_fn);
+
+	/* set the callback for php */
+	gearman_client_set_warning_fn(&(obj->client), _php_task_warning_fn);
+
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool GearmanClient::setStatusCallback(callback function)
+   Callback function when there is a status packet for a task. */
+PHP_FUNCTION(gearman_client_set_status_callback) {
+	zval *zstatus_fn;
+	zend_string *callable = NULL;
+
+	gearman_client_obj *obj;
+	zval *zobj;
+
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz", &zobj, gearman_client_ce,
+								&zstatus_fn
+								) == FAILURE) {
+		RETURN_FALSE;
+	}
+	obj = Z_GEARMAN_CLIENT_P(zobj);
+
+	/* check that the function is callable */
+	if (!zend_is_callable(zstatus_fn, 0, &callable)) {
+		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable->val);
+		zend_string_release(callable);
+		RETURN_FALSE;
+	}
+
+	zend_string_release(callable);
+
+	/* Defining callback again? Clean up old one first */
+	if (!Z_ISUNDEF(obj->zstatus_fn)) {
+		zval_dtor(&obj->zstatus_fn);
+	}
+
+	/* store the cb in client object */
+	ZVAL_COPY(&obj->zstatus_fn, zstatus_fn);
+
+	/* set the callback for php */
+	gearman_client_set_status_fn(&(obj->client), _php_task_status_fn);
+
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool GearmanClient::setCompleteCallback(callback function)
+   Callback function when there is a status packet for a task. */
+PHP_FUNCTION(gearman_client_set_complete_callback) {
+	zval *zcomplete_fn;
+	zend_string *callable = NULL;
+
+	gearman_client_obj *obj;
+	zval *zobj;
+
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz", &zobj, gearman_client_ce,
+								&zcomplete_fn
+								) == FAILURE) {
+		RETURN_FALSE;
+	}
+	obj = Z_GEARMAN_CLIENT_P(zobj);
+
+	/* check that the function is callable */
+	if (! zend_is_callable(zcomplete_fn, 0, &callable)) {
+		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable->val);
+		zend_string_release(callable);
+		RETURN_FALSE;
+	}
+	zend_string_release(callable);
+
+	/* Defining callback again? Clean up old one first */
+	if (!Z_ISUNDEF(obj->zcomplete_fn)) {
+		zval_dtor(&obj->zcomplete_fn);
+	}
+
+	/* store the cb in client object */
+	ZVAL_COPY(&obj->zcomplete_fn, zcomplete_fn);
+
+	/* set the callback for php */
+	gearman_client_set_complete_fn(&(obj->client), _php_task_complete_fn);
+
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool GearmanClient::setExceptionCallback(callback function)
+   Callback function when there is a exception packet for a task. */
+PHP_FUNCTION(gearman_client_set_exception_callback) {
+	zval *zexception_fn;
+	zend_string *callable = NULL;
+
+	gearman_client_obj *obj;
+	zval *zobj;
+
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz", &zobj, gearman_client_ce,
+								&zexception_fn
+								) == FAILURE) {
+		RETURN_FALSE;
+	}
+	obj = Z_GEARMAN_CLIENT_P(zobj);
+
+	/* check that the function is callable */
+	if (! zend_is_callable(zexception_fn, 0, &callable)) {
+		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable->val);
+		zend_string_release(callable);
+		RETURN_FALSE;
+	}
+	zend_string_release(callable);
+
+	/* Defining callback again? Clean up old one first */
+	if (!Z_ISUNDEF(obj->zexception_fn)) {
+		zval_dtor(&obj->zexception_fn);
+	}
+
+	/* store the cb in client object */
+	ZVAL_COPY(&obj->zexception_fn, zexception_fn);
+
+	/* set the callback for php */
+	gearman_client_set_exception_fn(&(obj->client), _php_task_exception_fn);
+
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool GearmanClient::setFailCallback(callback function)
+   Callback function when there is a fail packet for a task. */
+PHP_FUNCTION(gearman_client_set_fail_callback) {
+	zval *zfail_fn;
+	zend_string *callable = NULL;
+
+	gearman_client_obj *obj;
+	zval *zobj;
+
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz", &zobj, gearman_client_ce,
+								&zfail_fn
+								) == FAILURE) {
+		RETURN_FALSE;
+	}
+	obj = Z_GEARMAN_CLIENT_P(zobj);
+
+	/* check that the function is callable */
+
+	if (! zend_is_callable(zfail_fn, 0, &callable)) {
+		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable->val);
+		zend_string_release(callable);
+		RETURN_FALSE;
+	}
+	zend_string_release(callable);
+
+	/* Defining callback again? Clean up old one first */
+	if (!Z_ISUNDEF(obj->zfail_fn)) {
+		zval_dtor(&obj->zfail_fn);
+	}
+
+	/* Defining callback again? Clean up old one first */
+	if (!Z_ISUNDEF(obj->zfail_fn)) {
+		zval_dtor(&obj->zfail_fn);
+	}
+
+	/* store the cb in client object */
+	ZVAL_COPY(&obj->zfail_fn, zfail_fn);
+
+	/* set the callback for php */
+	gearman_client_set_fail_fn(&(obj->client), _php_task_fail_fn);
+
+	RETURN_TRUE;
+}
+/* }}} */
