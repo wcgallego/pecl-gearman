@@ -568,3 +568,33 @@ PHP_FUNCTION(gearman_client_job_status) {
         add_next_index_long(return_value, (long) denominator);
 }
 /* }}} */
+
+/* {{{ proto array GearmanClient::jobStatusByUniqueKey(string unique_key)
+   Get the status for a backgound job using the unique key passed in during job submission, rather than job handle. */
+PHP_FUNCTION(gearman_client_job_status_by_unique_key) {
+        char *unique_key;
+        size_t unique_key_len;
+        gearman_client_obj *obj;
+        zval *zobj;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &zobj, gearman_client_ce,
+                                                                &unique_key, &unique_key_len) == FAILURE) {
+                RETURN_EMPTY_STRING();
+        }    
+        obj = Z_GEARMAN_CLIENT_P(zobj);
+
+        gearman_status_t status = gearman_client_unique_status(&(obj->client), unique_key, unique_key_len);
+        gearman_return_t rc = gearman_status_return(status);
+
+        if (rc != GEARMAN_SUCCESS && rc != GEARMAN_IO_WAIT) {
+                php_error_docref(NULL, E_WARNING, "%s",
+                                                 gearman_client_error(&(obj->client)));
+        }    
+
+        array_init(return_value);
+        add_next_index_bool(return_value, gearman_status_is_known(status));
+        add_next_index_bool(return_value, gearman_status_is_running(status));
+        add_next_index_long(return_value, (long) gearman_status_numerator(status));
+        add_next_index_long(return_value, (long) gearman_status_denominator(status));
+}
+/* }}} */
