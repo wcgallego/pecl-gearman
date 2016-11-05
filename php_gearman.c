@@ -1546,22 +1546,6 @@ PHP_FUNCTION(gearman_job_set_return) {
  * Functions from client.h
  */
 
-/* {{{ proto string GearmanClient::doJobHandle()
-   Get the job handle for the running task. This should be used between repeated gearman_client_do_normal() and gearman_client_do_high() calls to get information. */
-PHP_FUNCTION(gearman_client_do_job_handle) {
-	gearman_client_obj *obj;
-	zval *zobj;
-
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_client_ce) == FAILURE) {
-		RETURN_EMPTY_STRING();
-	}
-	obj = Z_GEARMAN_CLIENT_P(zobj);
-
-
-	RETURN_STRING((char *)gearman_client_do_job_handle(&(obj->client)))
-}
-/* }}} */
-
 /* {{{ proto array GearmanClient::doStatus()
    Get the status for the running task. This should be used between repeated gearman_client_do() and gearman_client_do_high() calls to get information. */
 PHP_FUNCTION(gearman_client_do_status) {
