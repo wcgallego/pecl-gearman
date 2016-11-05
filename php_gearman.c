@@ -1546,31 +1546,6 @@ PHP_FUNCTION(gearman_job_set_return) {
  * Functions from client.h
  */
 
-/* {{{ proto bool GearmanClient::ping(string workload)
-   Send data to all job servers to see if they send it back. */
-PHP_FUNCTION(gearman_client_ping) {
-	char *workload;
-	size_t workload_len;
-	gearman_client_obj *obj;
-	zval *zobj;
-
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &zobj, gearman_client_ce, &workload, &workload_len) == FAILURE) {
-		RETURN_FALSE;
-	}
-	obj = Z_GEARMAN_CLIENT_P(zobj);
-
-	obj->ret = gearman_client_echo(&(obj->client), workload, (size_t)workload_len);
-
-	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
-		php_error_docref(NULL, E_WARNING, "%s",
-						 gearman_client_error(&(obj->client)));
-		RETURN_FALSE;
-	}
-
-	RETURN_TRUE;
-}
-/* }}} */
-
 /* {{{ proto object gearman_client_add_task_handler(void *add_task_func, object client, string function, zval workload [, string unique ])
    Add a task to be run in parallel, background or not, high/normal/low dependent upon add_task_func. */
 static void gearman_client_add_task_handler(gearman_task_st* (*add_task_func)(
