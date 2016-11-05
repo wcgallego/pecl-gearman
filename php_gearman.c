@@ -1577,7 +1577,8 @@ static void gearman_client_do_work_handler(void* (*do_work_func)(
 								gearman_client_st *client,
 								const char *function_name,
 								const char *unique,
-								const void *workload, size_t workload_size,
+								const void *workload,
+								size_t workload_size,
 								size_t *result_size,
 								gearman_return_t *ret_ptr
 					),
