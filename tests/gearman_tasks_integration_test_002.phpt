@@ -13,6 +13,12 @@ print "Start" . PHP_EOL;
 
 $job_name = uniqid();
 
+$contexts = [
+        "success",
+	"fail",
+	"exception"
+    ];
+
 $pid = pcntl_fork();
 if ($pid == -1) {
     die("Could not fork");
@@ -36,7 +42,7 @@ if ($pid == -1) {
         }
     );
 
-    for ($i = 0; $i < 3; $i++) {
+    for ($i = 0; $i < count($contexts); $i++) {
         $worker->work();
     }
 
@@ -63,9 +69,9 @@ if ($pid == -1) {
     });
 
     $tasks = [];
-    $tasks[] = $client->addTask($job_name, "success");
-    $tasks[] = $client->addTask($job_name, "fail");
-    $tasks[] = $client->addTask($job_name, "exception");
+    foreach ($contexts as $c) {
+        $tasks[] = $client->addTask($job_name, $c);
+    }
     $client->runTasks();
     print "returnCode: " . var_export($client->returnCode(), true) . PHP_EOL;
     print "clearCallbacks: " . var_export($client->clearCallbacks(), true) . PHP_EOL;
@@ -83,7 +89,6 @@ print "Done";
 --EXPECTF--
 Start
 Exception: unhandled
-Complete: exception
 Fail
 Complete: done
 returnCode: 0
