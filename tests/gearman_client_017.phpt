@@ -13,7 +13,7 @@ $client->addServer('localhost', 4730);
 $job_handle = $client->doBackground($job_name . "_OO", "test_jobStatus");
 list($is_known, $is_running, $numerator, $denominator) = $client->jobStatus($job_handle);
 
-print "GearmanClient::doStatus() (OO): " . PHP_EOL
+print "GearmanClient::jobStatus() (OO): " . PHP_EOL
 	. "  is_known is true: " . ($is_known === true ? 'Success' : 'Failure') .
 	PHP_EOL
 	. "  is_running is false: " . ($is_running=== false ? 'Success' : 'Failure') .
@@ -44,7 +44,7 @@ print "gearman_client_job_status() (Procedural): " . PHP_EOL
 print "OK";
 ?>
 --EXPECT--
-GearmanClient::doStatus() (OO): 
+GearmanClient::jobStatus() (OO): 
   is_known is true: Success
   is_running is false: Success
   Numerator is 0: Success
