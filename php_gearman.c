@@ -1546,64 +1546,6 @@ PHP_FUNCTION(gearman_job_set_return) {
  * Functions from client.h
  */
 
-/* this function is used to request status information from the gearmand
- * server. it will then call your predefined status callback, passing
- * zdata/context to it */
-/* {{{ proto object gearman_client_add_task_status(object client, string job_handle [, zval data])
-   Add task to get the status for a backgound task in parallel. */
-PHP_FUNCTION(gearman_client_add_task_status) {
-	zval *zdata = NULL;
-
-	char *job_handle;
-	size_t job_handle_len = 0;
-
-	gearman_client_obj *obj;
-	zval *zobj;
-	gearman_task_obj *task;
-
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os|z", &zobj, gearman_client_ce,
-								&job_handle, &job_handle_len,
-								&zdata
-								) == FAILURE) {
-		RETURN_FALSE;
-	}
-	obj = Z_GEARMAN_CLIENT_P(zobj);
-
-	/* get a task object, and prepare it for return */
-	if (object_init_ex(return_value, gearman_task_ce) != SUCCESS) {
-		php_error_docref(NULL, E_WARNING, "GearmanTask Object creation failure.");
-		RETURN_FALSE;
-	}
-
-	   task = Z_GEARMAN_TASK_P(return_value);
-
-	if (zdata) {
-		   ZVAL_COPY(&task->zdata, zdata);
-	}
-	/* need to store a ref to the client for later access to cb's */
-	ZVAL_COPY(&task->zclient, zobj);
-
-	/* add the task */
-	task->task = gearman_client_add_task_status(&(obj->client),
-							task->task,
-							(void *)task,
-							job_handle,
-							&obj->ret
-							);
-	if (obj->ret != GEARMAN_SUCCESS) {
-		php_error_docref(NULL, E_WARNING, "%s",
-						 gearman_client_error(&(obj->client)));
-		RETURN_FALSE;
-	}
-
-	task->flags |= GEARMAN_TASK_OBJ_CREATED;
-
-	// prepend task to list of tasks on client obj
-	Z_ADDREF_P(return_value);
-	add_next_index_zval(&obj->task_list, return_value);
-}
-/* }}} */
-
 /* {{{ proto bool GearmanClient::setWorkloadCallback(callback function)
    Callback function when workload data needs to be sent for a task. */
 PHP_FUNCTION(gearman_client_set_workload_callback) {

@@ -105,5 +105,6 @@ PHP_FUNCTION(gearman_client_add_task_background);
 PHP_FUNCTION(gearman_client_add_task_high_background);
 PHP_FUNCTION(gearman_client_add_task_low_background);
 PHP_FUNCTION(gearman_client_run_tasks);
+PHP_FUNCTION(gearman_client_add_task_status);
 
 #endif  /* __PHP_GEARMAN_CLIENT_H */
