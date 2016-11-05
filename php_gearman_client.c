@@ -170,7 +170,8 @@ PHP_FUNCTION(gearman_client_options) {
 /* }}} */
 
 /* {{{ proto void gearman_client_set_options(constant option)
-   Set options for a client structure. */
+   Set options for a client structure.
+   NOTE: this is deprecated in gearmand */
 PHP_FUNCTION(gearman_client_set_options) {
         zend_long options;
 
@@ -508,5 +509,27 @@ PHP_FUNCTION(gearman_client_do_job_handle) {
 
 
         RETURN_STRING((char *)gearman_client_do_job_handle(&(obj->client)))
+}
+/* }}} */
+
+/* {{{ proto array GearmanClient::doStatus()
+   Get the status for the running task. This should be used between repeated gearman_client_do() and gearman_client_do_high() calls to get information. */
+PHP_FUNCTION(gearman_client_do_status) {
+        uint32_t numerator;
+        uint32_t denominator;
+
+        gearman_client_obj *obj;
+        zval *zobj;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_client_ce) == FAILURE) {
+                RETURN_EMPTY_STRING();
+        }            
+        obj = Z_GEARMAN_CLIENT_P(zobj);
+
+        gearman_client_do_status(&(obj->client), &numerator, &denominator);
+
+        array_init(return_value);
+        add_next_index_long(return_value, (long) numerator);
+        add_next_index_long(return_value, (long) denominator);
 }
 /* }}} */

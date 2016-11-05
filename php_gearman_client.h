@@ -94,5 +94,6 @@ PHP_FUNCTION(gearman_client_do_background);
 PHP_FUNCTION(gearman_client_do_high_background);
 PHP_FUNCTION(gearman_client_do_low_background);
 PHP_FUNCTION(gearman_client_do_job_handle);
+PHP_FUNCTION(gearman_client_do_status);
 
 #endif  /* __PHP_GEARMAN_CLIENT_H */
