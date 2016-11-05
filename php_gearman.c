@@ -1995,29 +1995,6 @@ PHP_FUNCTION(gearman_client_set_context) {
 }
 /* }}} */
 
-/* {{{ proto bool gearman_client_run_tasks(object client)
-   Run tasks that have been added in parallel */
-PHP_FUNCTION(gearman_client_run_tasks) {
-	gearman_client_obj *obj;
-	zval *zobj;
-
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_client_ce) == FAILURE) {
-		RETURN_FALSE;
-	}
-	obj = Z_GEARMAN_CLIENT_P(zobj);
-
-	obj->ret = gearman_client_run_tasks(&(obj->client));
-
-	if (! PHP_GEARMAN_CLIENT_RET_OK(obj->ret)) {
-		php_error_docref(NULL, E_WARNING, "%s",
-						 gearman_client_error(&(obj->client)));
-		RETURN_FALSE;
-	}
-
-	RETURN_TRUE;
-}
-/* }}} */
-
 /*
  * Functions from worker.h
  */
