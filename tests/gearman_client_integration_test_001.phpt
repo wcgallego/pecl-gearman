@@ -48,11 +48,26 @@ if ($pid == -1) {
 	$client = new GearmanClient();
 	$client->addServer($host, $port);
 
-	$job_types = ['doNormal', 'doHigh', 'doLow', 'doBackground', 'doHighBackground', 'doLowBackground'];
+	$job_types = ['doNormal', 'doHigh', 'doLow'];
 	foreach ($job_types as $job_type) {
 		$unique_key = "{$job_name}_{$job_type}";
 		$workload = "Workload for $job_type";
 		$handle = $client->$job_type($job_name, $workload, $unique_key);
+	}
+
+	// Background jobs can run into a race condition if they complete out of
+	// order
+	$job_types = ['doBackground', 'doHighBackground', 'doLowBackground'];
+	foreach ($job_types as $job_type) {
+		$unique_key = "{$job_name}_{$job_type}";
+		$workload = "Workload for $job_type";
+		$handle = $client->$job_type($job_name, $workload, $unique_key);
+
+		do {
+			usleep(10000);
+			list($is_known, $is_running, $numerator, $denominator) =
+				$client->jobStatus($handle);
+		} while ($is_known === true || $is_running === true);
 	}
 }
 ?>
