@@ -533,3 +533,38 @@ PHP_FUNCTION(gearman_client_do_status) {
         add_next_index_long(return_value, (long) denominator);
 }
 /* }}} */
+
+/* {{{ proto array GearmanClient::jobStatus(string job_handle)
+   Get the status for a backgound job. */
+PHP_FUNCTION(gearman_client_job_status) {
+        char *job_handle;
+        size_t job_handle_len;
+        bool is_known;
+        bool is_running;
+        uint32_t numerator;
+        uint32_t denominator;
+
+        gearman_client_obj *obj;
+        zval *zobj;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &zobj, gearman_client_ce,
+                                                                &job_handle, &job_handle_len) == FAILURE) {
+                RETURN_EMPTY_STRING();
+        }    
+        obj = Z_GEARMAN_CLIENT_P(zobj);
+
+        obj->ret = gearman_client_job_status(&(obj->client), job_handle,
+                                                                                &is_known, &is_running,
+                                                                                &numerator, &denominator);
+        if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
+                php_error_docref(NULL, E_WARNING, "%s",
+                                                 gearman_client_error(&(obj->client)));
+        }    
+
+        array_init(return_value);
+        add_next_index_bool(return_value, is_known);
+        add_next_index_bool(return_value, is_running);
+        add_next_index_long(return_value, (long) numerator);
+        add_next_index_long(return_value, (long) denominator);
+}
+/* }}} */
