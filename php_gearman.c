@@ -1598,9 +1598,9 @@ PHP_FUNCTION(gearman_client_add_task_status) {
 
 	task->flags |= GEARMAN_TASK_OBJ_CREATED;
 
-	   // prepend task to list of tasks on client obj
-	   Z_ADDREF_P(return_value);
-	   add_next_index_zval(&obj->task_list, return_value);
+	// prepend task to list of tasks on client obj
+	Z_ADDREF_P(return_value);
+	add_next_index_zval(&obj->task_list, return_value);
 }
 /* }}} */
 
