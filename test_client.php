@@ -24,6 +24,7 @@ else
     echo "gearman_client_create() pass\n";
 
 
+/*
 $client_new = gearman_client_clone($client);
 if (! is_object($client_new))
 {
@@ -35,6 +36,7 @@ else
 
 unset($client_new);
 echo "unset client pass\n";
+*/
 
 $ret= gearman_client_error($client);
 if ($ret != GEARMAN_SUCCESS)
@@ -45,14 +47,14 @@ if ($ret != GEARMAN_SUCCESS)
 else
     echo "gearman_client_error() pass\n";
 
-$ret= gearman_client_errno($client);
+$ret= gearman_client_get_errno($client);
 if ($ret != 0)
 {
-    echo "gearman_client_errno() FAILED\n";
+    echo "gearman_client_get_errno() FAILED\n";
     exit(0);
 }
 else
-    echo "gearman_client_errno() pass\n";
+    echo "gearman_client_get_errno() pass\n";
 
 if (! gearman_client_add_options($client, GEARMAN_CLIENT_UNBUFFERED_RESULT))
 {
@@ -78,14 +80,14 @@ if (! gearman_client_add_servers($client, "127.0.0.1:4730"))
 }
 echo "gearman_client_add_servers() pass\n";
 
-$value = gearman_client_do($client, "test_worker", "gearman_client_do");
+$value = gearman_client_do_normal($client, "test_worker", "gearman_client_do");
 if ($client->returnCode() != GEARMAN_SUCCESS)
 {
-    echo "gearman_client_do() FAILED\n";
+    echo "gearman_client_do_normal() FAILED\n";
     exit(0);
 }
 else
-    echo "gearman_client_do() pass -> $value\n";
+    echo "gearman_client_do_normal() pass -> $value\n";
 
 
 $job_handle = gearman_client_do_background($client, "test_worker", "gearman_client_do_background");
@@ -155,8 +157,8 @@ if ($job_handle != gearman_client_do_job_handle($client))
 else
     echo "gearman_client_do_job_handle() pass -> $job_handle\n";
 
-gearman_client_echo($client, "gearman_client_echo");
-echo "gearman_client_echo() pass\n";
+gearman_client_ping($client, "gearman_client_ping");
+echo "gearman_client_ping() pass\n";
 
 gearman_client_add_task($client, "test_gearman_job", "test_gearman_job", "test_gearman_job");
 echo "gearman_client_add_task() pass\n";
@@ -165,38 +167,38 @@ $res = gearman_client_run_tasks($client);
 echo "gearman_client_run_tasks() pass\n";
 
 /* clear all the callbacks so they dont mess with other test */
-gearman_client_clear_fn($client);
-echo "gearman_client_clear_fn() pass\n";
+gearman_client_clear_callbacks($client);
+echo "gearman_client_clear_callbacks() pass\n";
 
 
 /* set all of our callback functions */
-/* 
+/*
 gearman_client_set_workload_fn($client, "test_gearman_client_set_workload_fn");
 echo "gearman_client_set_workload_fn() pass\n";
 */
-gearman_client_set_created_fn($client, "test_gearman_client_set_created_fn");
+gearman_client_set_created_callback($client, "test_gearman_client_set_created_callback");
 // XXX gearman_client_set_data_fn($client, "test_gearman_client_set_data_fn");
-gearman_client_set_warning_fn($client, "test_gearman_client_set_warning_fn");
-gearman_client_set_status_fn($client, "test_gearman_client_set_status_fn");
-gearman_client_set_complete_fn($client, "test_gearman_client_set_complete_fn");
-gearman_client_set_exception_fn($client, "test_gearman_client_set_exception_fn");
-gearman_client_set_fail_fn($client, "test_gearman_client_set_fail_fn");
-gearman_client_add_task($client, "test_set_callback_fn", "test_set_callback_fn", "test_set_callback_fn");
+gearman_client_set_warning_callback($client, "test_gearman_client_set_warning_callback");
+gearman_client_set_status_callback($client, "test_gearman_client_set_status_callback");
+gearman_client_set_complete_callback($client, "test_gearman_client_set_complete_callback");
+gearman_client_set_exception_callback($client, "test_gearman_client_set_exception_callback");
+gearman_client_set_fail_callback($client, "test_gearman_client_set_fail_callback");
+gearman_client_add_task($client, "test_set_callback_callback", "test_set_callback_callback", "test_set_callback_callback");
 /* run a task see if they all work */
 $res = gearman_client_run_tasks($client);
 // gearman_client_clear_fn($client);
 
 /* test tasks interface */
-gearman_client_clear_fn($client);
-gearman_client_set_complete_fn($client, "test_gearman_tasks");
+gearman_client_clear_callback($client);
+gearman_client_set_complete_callback($client, "test_gearman_tasks");
 gearman_client_add_task($client, "test_tasks", "test_tasks", "test_tasks");
 $res = gearman_client_run_tasks($client);
-gearman_client_clear_fn($client);
+gearman_client_clear_callback($client);
 
 # You can turn off auto task destruction by unsetting this flag on a gearman client.
 gearman_client_remove_options($client, GEARMAN_CLIENT_FREE_TASKS);
 $task = gearman_client_add_task_background($client, "test_tasks_background", "test_tasks_background", "test_tasks_background");
-gearman_client_set_status_fn($client, "test_gearman_task_status");
+gearman_client_set_status_callback($client, "test_gearman_task_status");
 $res = gearman_client_run_tasks($client);
 $job_handle = gearman_task_job_handle($task);
 gearman_client_add_task_status($client, $job_handle);
@@ -221,7 +223,7 @@ function test_gearman_task_status($task)
 echo "gearman_client_add_task_background() pass\n";
 
 
-gearman_client_clear_fn($client);
+gearman_client_clear_callback($client);
 gearman_client_add_task_high($client, "test_tasks_high", "test_tasks_high", "test_tasks_high");
 echo "gearman_client_add_task_high() pass\n";
 
@@ -260,43 +262,43 @@ echo "gearman_task_fn_arg() pass\n";
  * Test Functions
  */
 
-function test_gearman_client_set_fail_fn($task)
+function test_gearman_client_set_fail_callback($task)
 {
-    echo "\tgearman_client_set_fail_fn() pass\n";
+    echo "\tgearman_client_set_fail_callback() pass\n";
 }
 
-function test_gearman_client_set_exception_fn($task)
+function test_gearman_client_set_exception_callback($task)
 {
-    echo "\tgearman_client_set_exception_fn() pass\n";
+    echo "\tgearman_client_set_exception_callback() pass\n";
 }
 
-function test_gearman_client_set_complete_fn($task)
+function test_gearman_client_set_complete_callback($task)
 {
-    echo "\tgearman_client_set_complete_fn() pass\n";
+    echo "\tgearman_client_set_complete_callback() pass\n";
 }
 
-function test_gearman_client_set_status_fn($task)
+function test_gearman_client_set_status_callback($task)
 {
-    echo "\tgearman_client_set_status_fn() pass\n";
+    echo "\tgearman_client_set_status_callback() pass\n";
 }
 
-function test_gearman_client_set_warning_fn($task)
+function test_gearman_client_set_warning_callback($task)
 {
-    echo "\tgearman_client_set_warning_fn() pass\n";
+    echo "\tgearman_client_set_warning_callback() pass\n";
 }
 
-function test_gearman_client_set_data_fn($task)
+function test_gearman_client_set_data_callback($task)
 {
-    echo "\tgearman_client_set_data_fn() pass\n";
+    echo "\tgearman_client_set_data_callback() pass\n";
 }
-function test_gearman_client_set_created_fn($task)
+function test_gearman_client_set_created_callback($task)
 {
-    echo "\tgearman_client_set_created_fn() pass\n";
+    echo "\tgearman_client_set_created_callback() pass\n";
 }
 
-function test_gearman_client_set_workload_fn($task)
+function test_gearman_client_set_workload_callback($task)
 {
-    echo "\tgearman_client_set_workload_fn() pass\n";
+    echo "\tgearman_client_set_workload_callback() pass\n";
 }
 
 function test_gearman_tasks($task)
