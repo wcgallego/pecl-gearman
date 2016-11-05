@@ -98,5 +98,11 @@ PHP_FUNCTION(gearman_client_do_status);
 PHP_FUNCTION(gearman_client_job_status);
 PHP_FUNCTION(gearman_client_job_status_by_unique_key);
 PHP_FUNCTION(gearman_client_ping);
+PHP_FUNCTION(gearman_client_add_task);
+PHP_FUNCTION(gearman_client_add_task_high);
+PHP_FUNCTION(gearman_client_add_task_low);
+PHP_FUNCTION(gearman_client_add_task_background);
+PHP_FUNCTION(gearman_client_add_task_high_background);
+PHP_FUNCTION(gearman_client_add_task_low_background);
 
 #endif  /* __PHP_GEARMAN_CLIENT_H */
