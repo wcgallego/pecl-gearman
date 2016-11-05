@@ -86,5 +86,6 @@ PHP_FUNCTION(gearman_client_timeout);
 PHP_FUNCTION(gearman_client_set_timeout);
 PHP_FUNCTION(gearman_client_add_server);
 PHP_FUNCTION(gearman_client_add_servers);
+PHP_FUNCTION(gearman_client_wait);
 
 #endif  /* __PHP_GEARMAN_CLIENT_H */

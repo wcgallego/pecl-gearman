@@ -1546,31 +1546,6 @@ PHP_FUNCTION(gearman_job_set_return) {
  * Functions from client.h
  */
 
-/* {{{ proto bool GearmanClient::wait()
-   Wait for I/O activity on all connections in a client. */
-PHP_FUNCTION(gearman_client_wait) {
-	gearman_client_obj *obj;
-	zval *zobj;
-
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_client_ce) == FAILURE) {
-		RETURN_FALSE;
-	}
-	obj = Z_GEARMAN_CLIENT_P(zobj);
-
-	obj->ret = gearman_client_wait(&(obj->client));
-
-	if (! PHP_GEARMAN_CLIENT_RET_OK(obj->ret)) {
-		if (obj->ret != GEARMAN_TIMEOUT) {
-			php_error_docref(NULL, E_WARNING, "%s",
-				gearman_client_error(&(obj->client)));
-		}
-		RETURN_FALSE;
-	}
-
-	RETURN_TRUE;
-}
-/* }}} */
-
 /* {{{ proto object gearman_client_do_work_handler(void *add_task_func, object client, string function, zval workload [, string unique ])
    Run a task, high/normal/low dependent upon do_work_func */
 static void gearman_client_do_work_handler(void* (*do_work_func)(
