@@ -130,3 +130,35 @@ PHP_FUNCTION(gearman_worker_remove_options) {
         RETURN_TRUE;
 }
 /* }}} */
+
+/* {{{ proto int gearman_worker_timeout(object worker)
+   Get timeout for a worker structure. */
+PHP_FUNCTION(gearman_worker_timeout) {
+        zval *zobj;
+        gearman_worker_obj *obj;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_worker_ce) == FAILURE) {
+                RETURN_NULL();
+        }    
+        obj = Z_GEARMAN_WORKER_P(zobj);
+
+        RETURN_LONG(gearman_worker_timeout(&(obj->worker)))
+}
+/* }}} */
+
+/* {{{ proto void gearman_worker_set_timeout(object worker, constant timeout)
+   Set timeout for a worker structure. */
+PHP_FUNCTION(gearman_worker_set_timeout) {
+        zval *zobj;
+        gearman_worker_obj *obj;
+        zend_long timeout;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol", &zobj, gearman_worker_ce, &timeout) == FAILURE) {
+                RETURN_FALSE;
+        }    
+        obj = Z_GEARMAN_WORKER_P(zobj);
+
+        gearman_worker_set_timeout(&(obj->worker), timeout);
+        RETURN_TRUE;
+}
+/* }}} */
