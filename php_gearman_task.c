@@ -170,3 +170,20 @@ PHP_FUNCTION(gearman_task_unique) {
         RETURN_FALSE;
 }
 /* }}} */
+
+/* {{{ proto string gearman_task_job_handle(object task)
+   Returns job handle for a task. */
+PHP_FUNCTION(gearman_task_job_handle) {
+        zval *zobj;
+        gearman_task_obj *obj;
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_task_ce) == FAILURE) {
+                RETURN_NULL();
+        }    
+        obj = Z_GEARMAN_TASK_P(zobj);
+
+        if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
+                RETURN_STRING((char *)gearman_task_job_handle(obj->task));
+        }    
+        RETURN_FALSE;
+}
+/* }}} */
