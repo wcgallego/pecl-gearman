@@ -50,4 +50,12 @@ typedef struct {
 gearman_worker_obj *gearman_worker_fetch_object(zend_object *obj);
 #define Z_GEARMAN_WORKER_P(zv) gearman_worker_fetch_object(Z_OBJ_P((zv)))
 
+PHP_FUNCTION(gearman_worker_return_code);
+PHP_FUNCTION(gearman_worker_error);
+PHP_FUNCTION(gearman_worker_errno);
+PHP_FUNCTION(gearman_worker_options);
+PHP_FUNCTION(gearman_worker_set_options);
+PHP_FUNCTION(gearman_worker_add_options);
+PHP_FUNCTION(gearman_worker_remove_options);
+
 #endif  /* __PHP_GEARMAN_WORKER_H */
