@@ -114,5 +114,8 @@ PHP_FUNCTION(gearman_client_set_status_callback);
 PHP_FUNCTION(gearman_client_set_complete_callback);
 PHP_FUNCTION(gearman_client_set_exception_callback);
 PHP_FUNCTION(gearman_client_set_fail_callback);
+PHP_FUNCTION(gearman_client_clear_callbacks);
+PHP_FUNCTION(gearman_client_context);
+PHP_FUNCTION(gearman_client_set_context);
 
 #endif  /* __PHP_GEARMAN_CLIENT_H */
