@@ -30,7 +30,6 @@
 
 
 // TODO - find a better place for this
-static inline zend_object *gearman_worker_obj_new(zend_class_entry *ce);
 static inline zend_object *gearman_job_obj_new(zend_class_entry *ce);
 
 /* {{{ arginfo */
@@ -1991,31 +1990,6 @@ static inline zend_object *gearman_job_obj_new(zend_class_entry *ce) {
 
 	intern->std.handlers = &gearman_job_obj_handlers;
 	return &intern->std;
-}
-
-/*
- * Methods Task object
- */
-
-/* {{{ proto object GearmanTask::__construct()
-   Returns a task object */
-static PHP_METHOD(GearmanTask, __construct) {
-}
-
-/* {{{ proto object GearmanTask::__destruct()
-   Destroys a task object */
-static PHP_METHOD(GearmanTask, __destruct)
-{
-	gearman_task_obj *intern = Z_GEARMAN_TASK_P(getThis());
-	if (!intern) {
-		return;
-	}
-
-	zval_dtor(&intern->zworkload);
-	zval_dtor(&intern->zdata);
-	zval_dtor(&intern->zclient);
-
-	zend_object_std_dtor(&intern->std);
 }
 
 /* Function list. */

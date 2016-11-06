@@ -122,6 +122,26 @@ gearman_return_t _php_task_fail_fn(gearman_task_st *task) {
         return _php_task_cb_fn(task_obj, client_obj, client_obj->zfail_fn);
 }
 
+/* {{{ proto object GearmanTask::__construct()
+   Returns a task object */
+PHP_METHOD(GearmanTask, __construct) {
+}
+
+/* {{{ proto object GearmanTask::__destruct()
+   Destroys a task object */
+PHP_METHOD(GearmanTask, __destruct) {
+        gearman_task_obj *intern = Z_GEARMAN_TASK_P(getThis());
+        if (!intern) {
+                return;
+        }    
+
+        zval_dtor(&intern->zworkload);
+        zval_dtor(&intern->zdata);
+        zval_dtor(&intern->zclient);
+
+        zend_object_std_dtor(&intern->std);
+}
+
 /* {{{ proto int gearman_task_return_code()
    get last gearman_return_t */
 PHP_FUNCTION(gearman_task_return_code) {
