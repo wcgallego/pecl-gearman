@@ -19,6 +19,7 @@
 #include "php_gearman.h"
 #include "php_gearman_client.h"
 #include "php_gearman_task.h"
+#include "php_gearman_worker.h"
 
 #include "zend_exceptions.h"
 #include "zend_interfaces.h"
@@ -932,9 +933,6 @@ static inline gearman_job_obj *gearman_job_fetch_object(zend_object *obj) {
 /*
  * Object variables
  */
-zend_class_entry *gearman_worker_ce;
-static zend_object_handlers gearman_worker_obj_handlers;
-
 zend_class_entry *gearman_job_ce;
 static zend_object_handlers gearman_job_obj_handlers;
 
