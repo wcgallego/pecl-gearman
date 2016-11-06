@@ -62,5 +62,6 @@ gearman_return_t _php_task_exception_fn(gearman_task_st *task);
 gearman_return_t _php_task_fail_fn(gearman_task_st *task);
 
 PHP_FUNCTION(gearman_task_return_code);
+PHP_FUNCTION(gearman_task_function_name);
 
 #endif  /* __PHP_GEARMAN_TASK_H */
