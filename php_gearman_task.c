@@ -187,3 +187,73 @@ PHP_FUNCTION(gearman_task_job_handle) {
         RETURN_FALSE;
 }
 /* }}} */
+/* {{{ proto bool gearman_task_is_known(object task)
+   Get status on whether a task is known or not */
+PHP_FUNCTION(gearman_task_is_known) {
+	zval *zobj;
+	gearman_task_obj *obj;
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_task_ce) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_TASK_P(zobj);
+
+	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
+		RETURN_BOOL(gearman_task_is_known(obj->task));
+	}
+	RETURN_FALSE;
+}
+/* }}} */
+
+
+/* {{{ proto bool gearman_task_is_running(object task)
+   Get status on whether a task is running or not */
+PHP_FUNCTION(gearman_task_is_running) {
+	zval *zobj;
+	gearman_task_obj *obj;
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_task_ce) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_TASK_P(zobj);
+
+	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
+		RETURN_BOOL(gearman_task_is_running(obj->task));
+	}
+	RETURN_FALSE;
+}
+/* }}} */
+
+
+/* {{{ proto int gearman_task_numerator(object task)
+   Returns the numerator of percentage complete for a task. */
+PHP_FUNCTION(gearman_task_numerator) {
+	zval *zobj;
+	gearman_task_obj *obj;
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_task_ce) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_TASK_P(zobj);
+
+	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
+		RETURN_LONG(gearman_task_numerator(obj->task));
+	}
+	RETURN_FALSE;
+}
+/* }}} */
+
+
+/* {{{ proto int gearman_task_denominator(object task)
+   Returns the denominator of percentage complete for a task. */
+PHP_FUNCTION(gearman_task_denominator) {
+	zval *zobj;
+	gearman_task_obj *obj;
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_task_ce) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_TASK_P(zobj);
+
+	if (obj->flags & GEARMAN_TASK_OBJ_CREATED) {
+		RETURN_LONG(gearman_task_denominator(obj->task));
+	}
+	RETURN_FALSE;
+}
+/* }}} */

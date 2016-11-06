@@ -65,5 +65,9 @@ PHP_FUNCTION(gearman_task_return_code);
 PHP_FUNCTION(gearman_task_function_name);
 PHP_FUNCTION(gearman_task_unique);
 PHP_FUNCTION(gearman_task_job_handle);
+PHP_FUNCTION(gearman_task_is_known);
+PHP_FUNCTION(gearman_task_is_running);
+PHP_FUNCTION(gearman_task_numerator);
+PHP_FUNCTION(gearman_task_denominator);
 
 #endif  /* __PHP_GEARMAN_TASK_H */
