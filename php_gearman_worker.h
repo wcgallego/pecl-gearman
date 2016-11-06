@@ -67,5 +67,7 @@ PHP_FUNCTION(gearman_worker_wait);
 PHP_FUNCTION(gearman_worker_register);
 PHP_FUNCTION(gearman_worker_unregister);
 PHP_FUNCTION(gearman_worker_unregister_all);
+PHP_FUNCTION(gearman_worker_grab_job);
+PHP_FUNCTION(gearman_worker_add_function);
 
 #endif  /* __PHP_GEARMAN_WORKER_H */
