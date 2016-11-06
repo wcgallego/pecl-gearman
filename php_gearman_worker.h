@@ -28,4 +28,26 @@
 zend_class_entry *gearman_worker_ce;
 zend_object_handlers gearman_worker_obj_handlers;
 
+typedef struct {
+        zval zname; /* name associated with callback */
+        zval zcall; /* name of callback */
+        zval zdata; /* data passed to callback via worker */
+} gearman_worker_cb_obj;
+
+typedef enum {
+        GEARMAN_WORKER_OBJ_CREATED = (1 << 0)
+} gearman_worker_obj_flags_t;
+
+typedef struct {
+        gearman_return_t ret; 
+        gearman_worker_obj_flags_t flags;
+        gearman_worker_st worker;
+        zval cb_list;
+
+        zend_object std; 
+} gearman_worker_obj;
+
+gearman_worker_obj *gearman_worker_fetch_object(zend_object *obj);
+#define Z_GEARMAN_WORKER_P(zv) gearman_worker_fetch_object(Z_OBJ_P((zv)))
+
 #endif  /* __PHP_GEARMAN_WORKER_H */

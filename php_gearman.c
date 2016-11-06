@@ -884,25 +884,6 @@ ZEND_END_ARG_INFO()
 /*
  * Object types and structures.
  */
-typedef struct {
-	zval zname; /* name associated with callback */
-	zval zcall; /* name of callback */
-	zval zdata; /* data passed to callback via worker */
-} gearman_worker_cb_obj;
-
-typedef enum {
-	GEARMAN_WORKER_OBJ_CREATED = (1 << 0)
-} gearman_worker_obj_flags_t;
-
-typedef struct {
-	gearman_return_t ret;
-	gearman_worker_obj_flags_t flags;
-	gearman_worker_st worker;
-	zval cb_list;
-
-	zend_object std;
-} gearman_worker_obj;
-
 typedef enum {
 	GEARMAN_JOB_OBJ_CREATED = (1 << 0)
 } gearman_job_obj_flags_t;
@@ -914,14 +895,6 @@ typedef struct {
 
 	zend_object std;
 } gearman_job_obj;
-
-// TODO - probably find a better place for this to live
-// TODO - move to top above gearman_client_new constructor
-static inline gearman_worker_obj *gearman_worker_fetch_object(zend_object *obj) {
-	return (gearman_worker_obj *)((char*)(obj) - XtOffsetOf(gearman_worker_obj, std));
-}
-
-#define Z_GEARMAN_WORKER_P(zv) gearman_worker_fetch_object(Z_OBJ_P((zv)))
 
 static inline gearman_job_obj *gearman_job_fetch_object(zend_object *obj) {
 	return (gearman_job_obj *)((char*)(obj) - XtOffsetOf(gearman_job_obj, std));

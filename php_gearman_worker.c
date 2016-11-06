@@ -11,3 +11,7 @@
 
 #include "php_gearman_worker.h"
 
+gearman_worker_obj *gearman_worker_fetch_object(zend_object *obj) {
+        return (gearman_worker_obj *)((char*)(obj) - XtOffsetOf(gearman_worker_obj, std));
+}
+
