@@ -881,33 +881,6 @@ ZEND_END_ARG_INFO()
 
 /* }}} end arginfo */
 
-/*
- * Object types and structures.
- */
-typedef enum {
-	GEARMAN_JOB_OBJ_CREATED = (1 << 0)
-} gearman_job_obj_flags_t;
-
-typedef struct {
-	gearman_return_t ret;
-	gearman_job_obj_flags_t flags;
-	gearman_job_st *job;
-
-	zend_object std;
-} gearman_job_obj;
-
-static inline gearman_job_obj *gearman_job_fetch_object(zend_object *obj) {
-	return (gearman_job_obj *)((char*)(obj) - XtOffsetOf(gearman_job_obj, std));
-}
-
-#define Z_GEARMAN_JOB_P(zv) gearman_job_fetch_object(Z_OBJ_P((zv)))
-
-/*
- * Object variables
- */
-zend_class_entry *gearman_job_ce;
-static zend_object_handlers gearman_job_obj_handlers;
-
 /* Custom malloc and free calls to avoid excessive buffer copies. */
 void *_php_malloc(size_t size, void *arg) {
 	uint8_t *ret;

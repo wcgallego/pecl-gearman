@@ -20,6 +20,7 @@
 #include "zend_interfaces.h"
 
 #include "php_gearman.h"
+#include "php_gearman_job.h"
 
 #include <libgearman-1.0/gearman.h>
 #include <libgearman-1.0/interface/status.h>
