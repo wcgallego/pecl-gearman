@@ -275,3 +275,79 @@ PHP_FUNCTION(gearman_worker_wait) {
         RETURN_TRUE;
 }
 /* }}} */
+
+/* {{{ proto bool gearman_worker_register(object worker, string function [, int timeout ])
+   Register function with job servers with an optional timeout. The timeout specifies how many seconds the server will wait before marking a job as failed. If timeout is zero, there is no timeout. */
+PHP_FUNCTION(gearman_worker_register) {
+        zval *zobj;
+        gearman_worker_obj *obj;
+        char *function_name;
+        size_t function_name_len;
+        zend_long timeout = 0; 
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os|l", &zobj, gearman_worker_ce,
+                                                        &function_name, &function_name_len,
+                                                        &timeout
+                                                        ) == FAILURE) {
+                RETURN_FALSE;
+        }    
+        obj = Z_GEARMAN_WORKER_P(zobj);
+
+        obj->ret = gearman_worker_register(&(obj->worker), function_name, timeout);
+        if (obj->ret != GEARMAN_SUCCESS) {
+                php_error_docref(NULL, E_WARNING, "%s",
+                                                 gearman_worker_error(&(obj->worker)));
+                RETURN_FALSE;
+        }    
+
+        RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool gearman_worker_unregister(object worker, string function)
+        Unregister function with job servers. */
+PHP_FUNCTION(gearman_worker_unregister) {
+        zval *zobj;
+        gearman_worker_obj *obj;
+        char *function_name;
+        size_t function_name_len;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &zobj, gearman_worker_ce,
+                                                        &function_name, &function_name_len
+                                                        ) == FAILURE) {
+                RETURN_FALSE;
+        }
+        obj = Z_GEARMAN_WORKER_P(zobj);
+
+        obj->ret = gearman_worker_unregister(&(obj->worker), function_name);
+        if (obj->ret != GEARMAN_SUCCESS) {
+                php_error_docref(NULL, E_WARNING, "%s",
+                                                 gearman_worker_error(&(obj->worker)));
+                RETURN_FALSE;
+        }
+
+        RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool gearman_worker_unregister_all(object worker)
+   Unregister all functions with job servers. */
+PHP_FUNCTION(gearman_worker_unregister_all) {
+        zval *zobj;
+        gearman_worker_obj *obj;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_worker_ce) == FAILURE) {
+                RETURN_FALSE;
+        }
+        obj = Z_GEARMAN_WORKER_P(zobj);
+
+        obj->ret= gearman_worker_unregister_all(&(obj->worker));
+        if (obj->ret != GEARMAN_SUCCESS) {
+                php_error_docref(NULL, E_WARNING, "%s",
+                                                 gearman_worker_error(&(obj->worker)));
+                RETURN_FALSE;
+        }
+
+        RETURN_TRUE;
+}
+/* }}} */
