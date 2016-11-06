@@ -988,6 +988,10 @@ PHP_FUNCTION(gearman_verbose_name) {
 }
 /* }}} */
 
+/*
+ * Functions from task.h
+ */
+
 /* {{{ proto int gearman_task_return_code()
    get last gearman_return_t */
 PHP_FUNCTION(gearman_task_return_code)
@@ -1158,7 +1162,7 @@ PHP_FUNCTION(gearman_task_data_size) {
 	zval *zobj;
 	gearman_task_obj *obj;
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_task_ce) == FAILURE) {
-		RETURN_NULL();
+		RETURN_FALSE;
 	}
 	obj = Z_GEARMAN_TASK_P(zobj);
 
