@@ -59,5 +59,9 @@ PHP_FUNCTION(gearman_worker_add_options);
 PHP_FUNCTION(gearman_worker_remove_options);
 PHP_FUNCTION(gearman_worker_timeout);
 PHP_FUNCTION(gearman_worker_set_timeout);
+PHP_FUNCTION(gearman_worker_set_id);
+PHP_FUNCTION(gearman_worker_add_server);
+PHP_FUNCTION(gearman_worker_add_servers);
+PHP_FUNCTION(gearman_worker_wait);
 
 #endif  /* __PHP_GEARMAN_WORKER_H */

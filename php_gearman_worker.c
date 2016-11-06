@@ -162,3 +162,116 @@ PHP_FUNCTION(gearman_worker_set_timeout) {
         RETURN_TRUE;
 }
 /* }}} */
+
+/* {{{ proto void gearman_worker_set_id(object worker, string id)
+   Set id for a worker structure. */
+PHP_FUNCTION(gearman_worker_set_id) {
+        zval *zobj;
+        gearman_worker_obj *obj;
+        char *id; 
+        size_t id_len;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &zobj, gearman_worker_ce,
+                                                        &id, &id_len) == FAILURE) {
+                RETURN_FALSE;
+        }    
+        obj = Z_GEARMAN_WORKER_P(zobj);
+
+        if(gearman_failed(gearman_worker_set_identifier(&(obj->worker), id, id_len))) {
+                RETURN_FALSE;
+        }    
+
+        RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool gearman_worker_add_server(object worker [, string host [, int port ]])
+   Add a job server to a worker. This goes into a list of servers than can be used to run tasks. No socket I/O happens here, it is just added to a list. */
+PHP_FUNCTION(gearman_worker_add_server) {
+        zval *zobj;
+        gearman_worker_obj *obj;
+        char *host = NULL;
+        size_t host_len = 0;
+        zend_long port = 0;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|sl", &zobj,
+                                                                gearman_worker_ce,
+                                                                &host, &host_len,
+                                                                &port
+                                                                ) == FAILURE) {
+                RETURN_FALSE;                                        
+        }            
+        obj = Z_GEARMAN_WORKER_P(zobj);
+
+        obj->ret = gearman_worker_add_server(&obj->worker, host, port);
+        if (obj->ret != GEARMAN_SUCCESS) {
+                php_error_docref(NULL, E_WARNING, "%s",
+                                                 gearman_worker_error(&obj->worker));
+                RETURN_FALSE;
+        }
+
+        if (! gearman_worker_set_server_option(&(obj->worker), "exceptions", (sizeof("exceptions") - 1))) {
+                GEARMAN_EXCEPTION("Failed to set exception option", 0);
+        }
+
+        RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool gearman_worker_add_servers(object worker [, string servers])
+   Add a list of job servers to a worker. This goes into a list of servers that can be used to run tasks. No socket I/O happens here, it is just added to a list. */
+PHP_FUNCTION(gearman_worker_add_servers) {
+        zval *zobj;
+        gearman_worker_obj *obj;
+        char *servers = NULL;
+        size_t servers_len = 0;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &zobj,
+                                                                gearman_worker_ce,
+                                                                &servers, &servers_len
+                                                                ) == FAILURE) {
+                RETURN_FALSE;
+        }
+
+        obj = Z_GEARMAN_WORKER_P(zobj);
+
+        obj->ret = gearman_worker_add_servers(&obj->worker, servers);
+        if (obj->ret != GEARMAN_SUCCESS) {
+                php_error_docref(NULL, E_WARNING, "%s",
+                                                 gearman_worker_error(&obj->worker));
+                RETURN_FALSE;
+        }
+
+        if (! gearman_worker_set_server_option(&(obj->worker), "exceptions", (sizeof("exceptions") - 1))) {
+                GEARMAN_EXCEPTION("Failed to set exception option", 0);
+        }
+
+        RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool gearman_worker_wait(object worker)
+   Wait for I/O activity on all connections in a worker. */
+PHP_FUNCTION(gearman_worker_wait) {
+        zval *zobj;
+        gearman_worker_obj *obj;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_worker_ce) == FAILURE) {
+                RETURN_FALSE;
+        }
+        obj = Z_GEARMAN_WORKER_P(zobj);
+
+        obj->ret = gearman_worker_wait(&(obj->worker));
+
+        if (! PHP_GEARMAN_CLIENT_RET_OK(obj->ret)) {
+                if (obj->ret != GEARMAN_TIMEOUT) {
+                        php_error_docref(NULL, E_WARNING, "%s",
+                                gearman_worker_error(&(obj->worker)));
+                }
+
+                RETURN_FALSE;
+        }
+
+        RETURN_TRUE;
+}
+/* }}} */
