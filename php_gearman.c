@@ -29,9 +29,6 @@
 #include <libgearman-1.0/status.h>
 
 
-// TODO - find a better place for this
-static inline zend_object *gearman_job_obj_new(zend_class_entry *ce);
-
 /* {{{ arginfo */
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_version, 0, 0, 0)
 ZEND_END_ARG_INFO()
@@ -1232,37 +1229,6 @@ PHP_FUNCTION(gearman_job_set_return) {
 	RETURN_TRUE;
 }
 /* }}} */
-
-/*
- * Methods Job object
- */
-/* {{{ proto object GearmanJob::__destruct()
-   cleans up GearmanJob object */
-PHP_METHOD(GearmanJob, __destruct)
-{
-	gearman_job_obj *intern = Z_GEARMAN_JOB_P(getThis());
-	if (!intern) {
-		return;
-	}
-
-	if (intern->flags & GEARMAN_JOB_OBJ_CREATED) {
-		gearman_job_free(intern->job);
-	}
-
-	zend_object_std_dtor(&intern->std);
-}
-
-static inline zend_object *gearman_job_obj_new(zend_class_entry *ce) {
-	gearman_job_obj *intern = ecalloc(1,
-		sizeof(gearman_job_obj) +
-		zend_object_properties_size(ce));
-
-	zend_object_std_init(&(intern->std), ce);
-	object_properties_init(&intern->std, ce);
-
-	intern->std.handlers = &gearman_job_obj_handlers;
-	return &intern->std;
-}
 
 /* Function list. */
 zend_function_entry gearman_functions[] = {

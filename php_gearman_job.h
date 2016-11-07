@@ -28,6 +28,8 @@
 zend_class_entry *gearman_job_ce;
 zend_object_handlers gearman_job_obj_handlers;
 
+zend_object *gearman_job_obj_new(zend_class_entry *ce);
+
 typedef enum {
         GEARMAN_JOB_OBJ_CREATED = (1 << 0)
 } gearman_job_obj_flags_t;
@@ -42,5 +44,7 @@ typedef struct {
 
 gearman_job_obj *gearman_job_fetch_object(zend_object *obj);
 #define Z_GEARMAN_JOB_P(zv) gearman_job_fetch_object(Z_OBJ_P((zv)))
+
+PHP_METHOD(GearmanJob, __destruct);
 
 #endif  /* __PHP_GEARMAN_JOB_H */
