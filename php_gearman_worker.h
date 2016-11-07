@@ -29,6 +29,8 @@
 zend_class_entry *gearman_worker_ce;
 zend_object_handlers gearman_worker_obj_handlers;
 
+zend_object *gearman_worker_obj_new(zend_class_entry *ce);
+
 typedef struct {
         zval zname; /* name associated with callback */
         zval zcall; /* name of callback */
@@ -51,6 +53,9 @@ typedef struct {
 gearman_worker_obj *gearman_worker_fetch_object(zend_object *obj);
 #define Z_GEARMAN_WORKER_P(zv) gearman_worker_fetch_object(Z_OBJ_P((zv)))
 
+PHP_FUNCTION(gearman_worker_create);
+PHP_METHOD(GearmanWorker, __construct);
+PHP_METHOD(GearmanWorker, __destruct);
 PHP_FUNCTION(gearman_worker_return_code);
 PHP_FUNCTION(gearman_worker_error);
 PHP_FUNCTION(gearman_worker_errno);
@@ -69,5 +74,7 @@ PHP_FUNCTION(gearman_worker_unregister);
 PHP_FUNCTION(gearman_worker_unregister_all);
 PHP_FUNCTION(gearman_worker_grab_job);
 PHP_FUNCTION(gearman_worker_add_function);
+PHP_FUNCTION(gearman_worker_work);
+PHP_FUNCTION(gearman_worker_ping);
 
 #endif  /* __PHP_GEARMAN_WORKER_H */
