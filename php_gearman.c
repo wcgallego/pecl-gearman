@@ -932,22 +932,6 @@ PHP_FUNCTION(gearman_verbose_name) {
  * Functions from job.h
  */
 
-/* {{{ proto int gearman_job_return_code()
-   get last gearman_return_t */
-PHP_FUNCTION(gearman_job_return_code)
-{
-	gearman_job_obj *obj;
-	zval *zobj;
-
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_job_ce) == FAILURE) {
-		RETURN_NULL();
-	}
-	obj = Z_GEARMAN_JOB_P(zobj);
-
-	RETURN_LONG(obj->ret);
-}
-/* }}} */
-
 /* {{{ proto bool gearman_job_send_data(object job, string data)
    Send data for a running job. */
 PHP_FUNCTION(gearman_job_send_data) {
@@ -1201,32 +1185,6 @@ PHP_FUNCTION(gearman_job_workload_size) {
 	workload_len = gearman_job_workload_size(obj->job);
 
 	RETURN_LONG((long) workload_len);
-}
-/* }}} */
-
-/* {{{ proto bool gearman_job_set_return(int gearman_return_t)
-   This function will set a return value of a job */
-PHP_FUNCTION(gearman_job_set_return) {
-	zval *zobj;
-	gearman_job_obj *obj;
-	gearman_return_t ret;
-	zend_long ret_val;
-
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol", &zobj, gearman_job_ce, &ret_val) == FAILURE) {
-		RETURN_NULL();
-	}
-	obj = Z_GEARMAN_JOB_P(zobj);
-
-	   ret = ret_val;
-	/* make sure its a valid gearman_return_t */
-	if (ret < GEARMAN_SUCCESS || ret > GEARMAN_MAX_RETURN) {
-		php_error_docref(NULL, E_WARNING,
-						 "Invalid gearman_return_t: %d", ret);
-		RETURN_FALSE;
-	}
-
-	obj->ret = ret;
-	RETURN_TRUE;
 }
 /* }}} */
 

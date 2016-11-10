@@ -46,5 +46,7 @@ gearman_job_obj *gearman_job_fetch_object(zend_object *obj);
 #define Z_GEARMAN_JOB_P(zv) gearman_job_fetch_object(Z_OBJ_P((zv)))
 
 PHP_METHOD(GearmanJob, __destruct);
+PHP_FUNCTION(gearman_job_return_code);
+PHP_FUNCTION(gearman_job_set_return);
 
 #endif  /* __PHP_GEARMAN_JOB_H */
