@@ -1,5 +1,5 @@
 --TEST--
-Test GearmanJob::sendData()
+Test GearmanJob::sendStatus
 --SKIPIF--
 <?php
 require_once('skipif.inc');
@@ -23,8 +23,8 @@ if ($pid == -1) {
     $worker->addFunction(
         $job_name,
         function($job, $data) {
-            print "GearmanJob::sendData (OO): "
-                . ($job->sendData("{'foo': 'bar'}") === true ? 'Success' : 'Failure')
+            print "GearmanJob::sendStatus (OO): "
+                . ($job->sendStatus(1,2) === true ? 'Success' : 'Failure')
                 . PHP_EOL;
             }
     );
@@ -59,5 +59,5 @@ if ($pid == -1) {
 print "Done";
 --EXPECTF--
 Start
-GearmanJob::sendData (OO): Success
+GearmanJob::sendStatus (OO): Success
 Done

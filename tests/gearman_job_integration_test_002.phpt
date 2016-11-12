@@ -1,5 +1,5 @@
 --TEST--
-Test Gearman Job methods
+Test GearmanJob::sendWarning()
 --SKIPIF--
 <?php
 require_once('skipif.inc');
