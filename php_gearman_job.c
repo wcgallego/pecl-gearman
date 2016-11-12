@@ -82,3 +82,89 @@ PHP_FUNCTION(gearman_job_set_return) {
         RETURN_TRUE;
 }
 /* }}} */
+
+/* {{{ proto bool gearman_job_send_data(object job, string data)
+   Send data for a running job. */
+PHP_FUNCTION(gearman_job_send_data) {
+        zval *zobj;
+        gearman_job_obj *obj;
+        char *data;
+        size_t data_len;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &zobj, gearman_job_ce,
+                                                                &data, &data_len) == FAILURE) {
+                RETURN_NULL();
+        }    
+        obj = Z_GEARMAN_JOB_P(zobj);
+
+        /* make sure worker initialized a job */
+        if (obj->job == NULL) {
+                RETURN_FALSE;
+        }    
+
+        obj->ret = gearman_job_send_data(obj->job, data, data_len);
+        if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
+                php_error_docref(NULL, E_WARNING,  "%s",
+                        gearman_job_error(obj->job));
+                RETURN_FALSE;
+        }    
+
+        RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool gearman_job_send_warning(object job, string warning)
+   Send warning for a running job. */
+PHP_FUNCTION(gearman_job_send_warning) {
+        zval *zobj;
+        gearman_job_obj *obj;
+        char *warning = NULL;
+        size_t  warning_len = 0;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &zobj, gearman_job_ce,
+                                                                &warning, &warning_len) == FAILURE) {
+                RETURN_FALSE;
+        }
+        obj = Z_GEARMAN_JOB_P(zobj);
+
+        /* make sure worker initialized a job */
+        if (obj->job == NULL) {
+                RETURN_FALSE;
+        }
+
+        obj->ret = gearman_job_send_warning(obj->job, (void *) warning,
+                                                                 (size_t) warning_len);
+        if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
+                php_error_docref(NULL, E_WARNING,  "%s",
+                        gearman_job_error(obj->job));
+                RETURN_FALSE;
+        }
+
+        RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool gearman_job_send_status(object job, int numerator, int denominator)
+   Send status information for a running job. */
+PHP_FUNCTION(gearman_job_send_status) {
+        zval *zobj;
+        gearman_job_obj *obj;
+        zend_long numerator, denominator;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oll", &zobj, gearman_job_ce,
+                                                                &numerator, &denominator) == FAILURE) {
+                RETURN_FALSE;
+        }
+        obj = Z_GEARMAN_JOB_P(zobj);
+
+        obj->ret = gearman_job_send_status(obj->job, (uint32_t)numerator,
+                                                                (uint32_t)denominator);
+        if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
+                php_error_docref(NULL, E_WARNING,  "%s",
+                        gearman_job_error(obj->job));
+                RETURN_FALSE;
+        }
+
+        RETURN_TRUE;
+}
+/* }}} */

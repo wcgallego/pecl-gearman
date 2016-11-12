@@ -48,5 +48,8 @@ gearman_job_obj *gearman_job_fetch_object(zend_object *obj);
 PHP_METHOD(GearmanJob, __destruct);
 PHP_FUNCTION(gearman_job_return_code);
 PHP_FUNCTION(gearman_job_set_return);
+PHP_FUNCTION(gearman_job_send_data);
+PHP_FUNCTION(gearman_job_send_warning);
+PHP_FUNCTION(gearman_job_send_status);
 
 #endif  /* __PHP_GEARMAN_JOB_H */
