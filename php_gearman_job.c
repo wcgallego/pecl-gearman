@@ -168,3 +168,173 @@ PHP_FUNCTION(gearman_job_send_status) {
         RETURN_TRUE;
 }
 /* }}} */
+/* {{{ proto bool gearman_job_send_complete(object job, string result)
+   Send result and complete status for a job. */
+PHP_FUNCTION(gearman_job_send_complete) {
+	zval *zobj;
+	gearman_job_obj *obj;
+	char *result;
+	size_t result_len;
+
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &zobj, gearman_job_ce,
+								&result, &result_len) == FAILURE) {
+		RETURN_FALSE;
+	}
+	obj = Z_GEARMAN_JOB_P(zobj);
+
+	obj->ret = gearman_job_send_complete(obj->job, result, result_len);
+	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
+		php_error_docref(NULL, E_WARNING,  "%s",
+			gearman_job_error(obj->job));
+		RETURN_FALSE;
+	}
+
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool gearman_job_send_exception(object job, string exception)
+   Send exception for a running job. */
+PHP_FUNCTION(gearman_job_send_exception) {
+	zval *zobj;
+	gearman_job_obj *obj;
+	char *exception;
+	size_t exception_len;
+
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &zobj, gearman_job_ce,
+								&exception, &exception_len) == FAILURE) {
+		RETURN_FALSE;
+	}
+	obj = Z_GEARMAN_JOB_P(zobj);
+
+	obj->ret= gearman_job_send_exception(obj->job, exception, exception_len);
+	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
+		php_error_docref(NULL, E_WARNING,  "%s",
+			gearman_job_error(obj->job));
+		RETURN_FALSE;
+	}
+
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool gearman_job_send_fail(object job)
+   Send fail status for a job. */
+PHP_FUNCTION(gearman_job_send_fail) {
+	zval *zobj;
+	gearman_job_obj *obj;
+
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_job_ce) == FAILURE) {
+		RETURN_FALSE;
+	}
+	obj = Z_GEARMAN_JOB_P(zobj);
+
+	obj->ret = gearman_job_send_fail(obj->job);
+	if (obj->ret != GEARMAN_SUCCESS && obj->ret != GEARMAN_IO_WAIT) {
+		php_error_docref(NULL, E_WARNING,  "%s",
+			gearman_job_error(obj->job));
+		RETURN_FALSE;
+	}
+
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto string gearman_job_handle(object job)
+   Return job handle. */
+PHP_FUNCTION(gearman_job_handle) {
+	zval *zobj;
+	gearman_job_obj *obj;
+
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_job_ce) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_JOB_P(zobj);
+
+	/* make sure worker initialized a job */
+	if (obj->job == NULL) {
+		RETURN_FALSE;
+	}
+
+	RETURN_STRING((char *)gearman_job_handle(obj->job))
+}
+/* }}} */
+
+/* {{{ proto string gearman_job_function_name(object job)
+   Return the function name associated with a job. */
+PHP_FUNCTION(gearman_job_function_name) {
+	zval *zobj;
+	gearman_job_obj *obj;
+
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_job_ce) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_JOB_P(zobj);
+
+	/* make sure worker initialized a job */
+	if (obj->job == NULL) {
+		RETURN_FALSE;
+	}
+
+	RETURN_STRING((char *)gearman_job_function_name(obj->job))
+}
+/* }}} */
+
+/* {{{ proto string gearman_job_unique(object job)
+   Get the unique ID associated with a job. */
+PHP_FUNCTION(gearman_job_unique) {
+	zval *zobj;
+	gearman_job_obj *obj;
+
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_job_ce) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_JOB_P(zobj);
+
+	/* make sure worker initialized a job */
+	if (obj->job == NULL) {
+		RETURN_FALSE;
+	}
+
+	RETURN_STRING((char *)gearman_job_unique(obj->job))
+}
+/* }}} */
+
+/* {{{ proto string gearman_job_workload(object job)
+   Returns the workload for a job. */
+PHP_FUNCTION(gearman_job_workload) {
+	zval *zobj;
+	gearman_job_obj *obj;
+	const uint8_t *workload;
+	size_t workload_len;
+
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_job_ce) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_JOB_P(zobj);
+
+	workload = gearman_job_workload(obj->job);
+	workload_len = gearman_job_workload_size(obj->job);
+
+	RETURN_STRINGL((char *)workload, (long) workload_len);
+}
+/* }}} */
+
+/* {{{ proto int gearman_job_workload_size(object job)
+   Returns size of the workload for a job. */
+PHP_FUNCTION(gearman_job_workload_size) {
+	zval *zobj;
+	gearman_job_obj *obj;
+	size_t workload_len;
+
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_job_ce) == FAILURE) {
+		RETURN_NULL();
+	}
+	obj = Z_GEARMAN_JOB_P(zobj);
+
+	workload_len = gearman_job_workload_size(obj->job);
+
+	RETURN_LONG((long) workload_len);
+}
+/* }}} */
+

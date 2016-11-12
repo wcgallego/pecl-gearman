@@ -51,5 +51,13 @@ PHP_FUNCTION(gearman_job_set_return);
 PHP_FUNCTION(gearman_job_send_data);
 PHP_FUNCTION(gearman_job_send_warning);
 PHP_FUNCTION(gearman_job_send_status);
+PHP_FUNCTION(gearman_job_send_complete);
+PHP_FUNCTION(gearman_job_send_exception);
+PHP_FUNCTION(gearman_job_send_fail);
+PHP_FUNCTION(gearman_job_handle);
+PHP_FUNCTION(gearman_job_function_name);
+PHP_FUNCTION(gearman_job_unique);
+PHP_FUNCTION(gearman_job_workload);
+PHP_FUNCTION(gearman_job_workload_size);
 
 #endif  /* __PHP_GEARMAN_JOB_H */
