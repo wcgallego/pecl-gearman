@@ -25,8 +25,8 @@
 #include <libgearman-1.0/interface/status.h>
 #include <libgearman-1.0/status.h>
 
-zend_class_entry *gearman_job_ce;
-zend_object_handlers gearman_job_obj_handlers;
+extern zend_class_entry *gearman_job_ce;
+extern zend_object_handlers gearman_job_obj_handlers;
 
 zend_object *gearman_job_obj_new(zend_class_entry *ce);
 
