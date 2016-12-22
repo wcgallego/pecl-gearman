@@ -1,8 +1,16 @@
-sudo: required
-dist: trusty
 language: php
-php:
-    - '7.0'
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: required
+      php: 7.0
+    - os: osx
+      sudo: required
+      language: generic
+      env:
+         - _PHP: 'php70'
 
 addons:
   apt:
@@ -10,6 +18,15 @@ addons:
     - gearman-job-server
     - libgearman-dev
     - gearman-tools
+
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap homebrew/dupes ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap homebrew/versions ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap homebrew/homebrew-php ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gearman ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew services start gearman ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install $_PHP ; fi
 
 script:
     - phpize

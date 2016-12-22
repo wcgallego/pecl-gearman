@@ -28,6 +28,16 @@
 #include <libgearman-1.0/interface/status.h>
 #include <libgearman-1.0/status.h>
 
+zend_class_entry *gearman_exception_ce;
+zend_class_entry *gearman_client_ce;
+zend_object_handlers gearman_client_obj_handlers;
+zend_class_entry *gearman_task_ce;
+zend_object_handlers gearman_task_obj_handlers;
+zend_class_entry *gearman_job_ce;
+zend_object_handlers gearman_job_obj_handlers;
+zend_class_entry *gearman_worker_ce;
+zend_object_handlers gearman_worker_obj_handlers;
+
 
 /* {{{ arginfo */
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_version, 0, 0, 0)
