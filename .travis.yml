@@ -6,11 +6,20 @@ matrix:
       dist: trusty
       sudo: required
       php: 7.0
+    - os: linux
+      dist: trusty
+      sudo: required
+      php: 7.1
     - os: osx
       sudo: required
       language: generic
       env:
          - _PHP: 'php70'
+    - os: osx
+      sudo: required
+      language: generic
+      env:
+         - _PHP: 'php71'
 
 addons:
   apt:
