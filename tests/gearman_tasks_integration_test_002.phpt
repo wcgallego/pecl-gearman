@@ -3,7 +3,9 @@ Test Gearman worker methods
 --SKIPIF--
 <?php
 require_once('skipif.inc');
+require_once('skipifversion.inc');
 require_once('skipifconnect.inc');
+
 ?>
 --FILE--
 <?php
