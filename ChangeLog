@@ -1,3 +1,9 @@
+Version 2.0.3
+-------------
+- Including changes for PHP 7.x
+- smaller bug fixes
+- splitting up into several smaller files
+
 Version 0.6.0
 -------------
 - Fixed build issue with 5.1.x
