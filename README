@@ -16,7 +16,7 @@ Requirements
 The Gearman PHP Extension requires the Gearman C server and library package
 to be installed. You can download the latest from:
 
-https://launchpad.net/gearmand/+download
+https://github.com/gearman/gearmand/releases
 
 See the README file in that package for installation instructions. Once
 it is installed you can compile the Gearman PHP Extension. You'll need
