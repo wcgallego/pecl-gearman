@@ -491,7 +491,7 @@ static void *_php_worker_function_callback(gearman_job_st *job,
                 param_count = 1;
                 ZVAL_NULL(&argv[1]);
         } else {
-                ZVAL_COPY_VALUE(&argv[1], &worker_cb->zdata);
+                ZVAL_COPY(&argv[1], &worker_cb->zdata);
                 param_count = 2;
         }
 
