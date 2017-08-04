@@ -437,7 +437,7 @@ static void gearman_client_do_background_work_handler(gearman_return_t (*do_back
         gearman_client_obj *obj;
         zval *zobj;
 
-        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oss|s", &zobj, gearman_client_ce,
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oss|s!", &zobj, gearman_client_ce,
                                                         &function_name, &function_name_len,
                                                         &workload, &workload_len,
                                                         &unique, &unique_len) == FAILURE) {
