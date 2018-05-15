@@ -349,24 +349,28 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_set_timeout, 0, 0, 1)
 	ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_add_server, 0, 0, 3)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_add_server, 0, 0, 4)
 	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, host)
 	ZEND_ARG_INFO(0, port)
+	ZEND_ARG_INFO(0, enableExceptionHandler)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_add_server, 0, 0, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_add_server, 0, 0, 3)
 	ZEND_ARG_INFO(0, host)
 	ZEND_ARG_INFO(0, port)
+	ZEND_ARG_INFO(0, enableExceptionHandler)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_add_servers, 0, 0, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_add_servers, 0, 0, 3)
 	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, servers)
+	ZEND_ARG_INFO(0, setupExceptionHandler)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_add_servers, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_add_servers, 0, 0, 2)
 	ZEND_ARG_INFO(0, servers)
+	ZEND_ARG_INFO(0, setupExceptionHandler)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_wait, 0, 0, 1)
@@ -689,6 +693,12 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_set_context, 0, 0, 1)
 	ZEND_ARG_INFO(0, context)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_enable_exception_handler, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_enable_exception_handler, 0, 0,0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_run_tasks, 0, 0, 1)
@@ -1093,6 +1103,10 @@ static zend_function_entry gearman_client_methods[]= {
 	PHP_ME_MAPPING(setFailCallback, gearman_client_set_fail_callback, arginfo_oo_gearman_client_set_fail_callback, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(clearCallbacks, gearman_client_clear_callbacks, arginfo_oo_gearman_client_clear_callbacks, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(runTasks, gearman_client_run_tasks, arginfo_oo_gearman_client_run_tasks, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(enableExceptionHandler,
+			gearman_client_enable_exception_handler,
+			arginfo_oo_gearman_client_enable_exception_handler,
+			ZEND_ACC_PUBLIC)
 	ZEND_FE_END
 };
 

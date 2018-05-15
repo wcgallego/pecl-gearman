@@ -255,17 +255,24 @@ PHP_FUNCTION(gearman_client_set_timeout) {
 }
 /* }}} */
 
-/* {{{ proto bool gearman_client_add_server(object client [, string host [, int port]])
+/* {{{ proto bool gearman_client_add_server(object client [, string host [, int port ]])
    Add a job server to a client. This goes into a list of servers than can be used to run tasks. No socket I/O happens here, it is just added to a list. */
 PHP_FUNCTION(gearman_client_add_server) {
         char *host = NULL;
         size_t host_len = 0;
         zend_long port = 0;
+        zend_bool setupExceptionHandler = 1;
 
         gearman_client_obj *obj;
         zval *zobj;
 
-        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|sl", &zobj, gearman_client_ce, &host, &host_len, &port) == FAILURE) {
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|slb",
+					&zobj,
+					gearman_client_ce,
+					&host,
+					&host_len,
+					&port,
+					&setupExceptionHandler) == FAILURE) {
                 RETURN_FALSE;
         }            
         obj = Z_GEARMAN_CLIENT_P(zobj);
@@ -275,26 +282,32 @@ PHP_FUNCTION(gearman_client_add_server) {
                 php_error_docref(NULL, E_WARNING, "%s",
                                                  gearman_client_error(&(obj->client)));
                 RETURN_FALSE;                         
-        }            
+        }
 
-        if (!gearman_client_set_server_option(&(obj->client), "exceptions", (sizeof("exceptions") - 1))) {
+        if (setupExceptionHandler && !gearman_client_set_server_option(&(obj->client), "exceptions", (sizeof("exceptions") - 1))) {
                 GEARMAN_EXCEPTION("Failed to set exception option", 0);
-        }            
+        }
 
         RETURN_TRUE;
 }
 /* }}} */
 
-/* {{{ proto bool gearman_client_add_servers(object client [, string servers])
+/* {{{ proto bool gearman_client_add_servers(object client [, string servers [, bool setupExceptionHandler = true]])
    Add a list of job servers to a client. This goes into a list of servers that can be used to run tasks. No socket I/O happens here, it is just added to a list. */
 PHP_FUNCTION(gearman_client_add_servers) {
         char *servers = NULL;
         size_t servers_len = 0;
+        zend_bool setupExceptionHandler = 1;
 
         gearman_client_obj *obj;
         zval *zobj;
 
-        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|s", &zobj, gearman_client_ce, &servers, &servers_len) == FAILURE) {
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|sb",
+							&zobj,
+							gearman_client_ce,
+							&servers,
+							&servers_len,
+							&setupExceptionHandler) == FAILURE) {
                 RETURN_FALSE;
         }
         obj = Z_GEARMAN_CLIENT_P(zobj);
@@ -306,7 +319,7 @@ PHP_FUNCTION(gearman_client_add_servers) {
                 RETURN_FALSE;
         }
 
-        if (!gearman_client_set_server_option(&(obj->client), "exceptions", (sizeof("exceptions") - 1))) {
+        if (setupExceptionHandler && !gearman_client_set_server_option(&(obj->client), "exceptions", (sizeof("exceptions") - 1))) {
                 GEARMAN_EXCEPTION("Failed to set exception option", 0);
         }
 
@@ -1085,6 +1098,10 @@ PHP_FUNCTION(gearman_client_set_exception_callback) {
 	}
 	obj = Z_GEARMAN_CLIENT_P(zobj);
 
+        if (!gearman_client_set_server_option(&(obj->client), "exceptions", (sizeof("exceptions") - 1))) {
+                GEARMAN_EXCEPTION("Failed to set exception option", 0);
+        }
+
 	/* check that the function is callable */
 	if (! zend_is_callable(zexception_fn, 0, &callable)) {
 		php_error_docref(NULL, E_WARNING, "function %s is not callable", callable->val);
@@ -1221,6 +1238,26 @@ PHP_FUNCTION(gearman_client_set_context) {
         efree(old_context);
 
         gearman_client_set_context(&(obj->client), (void*) estrndup(data, data_len));
+        RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool GearmanClient::enableExceptionHandler()
+   Enable exception handling to be used by exception callback function
+   GearmanClient::setExceptionCallback */
+PHP_FUNCTION(gearman_client_enable_exception_handler) {
+        gearman_client_obj *obj;
+        zval *zobj;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &zobj, gearman_client_ce) == FAILURE) {
+                RETURN_FALSE;
+        }
+        obj = Z_GEARMAN_CLIENT_P(zobj);
+
+        if (!gearman_client_set_server_option(&(obj->client), "exceptions", (sizeof("exceptions") - 1))) {
+                GEARMAN_EXCEPTION("Failed to set exception option", 0);
+        }
+
         RETURN_TRUE;
 }
 /* }}} */
