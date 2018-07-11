@@ -255,7 +255,8 @@ PHP_FUNCTION(gearman_client_set_timeout) {
 }
 /* }}} */
 
-/* {{{ proto bool gearman_client_add_server(object client [, string host [, int port ]])
+/* {{{ proto bool gearman_client_add_server(object client [, string host [, int
+ * port [, bool setupExceptionHandler ]]])
    Add a job server to a client. This goes into a list of servers than can be used to run tasks. No socket I/O happens here, it is just added to a list. */
 PHP_FUNCTION(gearman_client_add_server) {
         char *host = NULL;
@@ -292,7 +293,7 @@ PHP_FUNCTION(gearman_client_add_server) {
 }
 /* }}} */
 
-/* {{{ proto bool gearman_client_add_servers(object client [, string servers [, bool setupExceptionHandler = true]])
+/* {{{ proto bool gearman_client_add_servers(object client [, string servers [, bool setupExceptionHandler ]])
    Add a list of job servers to a client. This goes into a list of servers that can be used to run tasks. No socket I/O happens here, it is just added to a list. */
 PHP_FUNCTION(gearman_client_add_servers) {
         char *servers = NULL;
