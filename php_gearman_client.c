@@ -1156,11 +1156,6 @@ PHP_FUNCTION(gearman_client_set_fail_callback) {
 		zval_dtor(&obj->zfail_fn);
 	}
 
-	/* Defining callback again? Clean up old one first */
-	if (!Z_ISUNDEF(obj->zfail_fn)) {
-		zval_dtor(&obj->zfail_fn);
-	}
-
 	/* store the cb in client object */
 	ZVAL_COPY(&obj->zfail_fn, zfail_fn);
 
