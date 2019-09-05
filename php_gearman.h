@@ -24,7 +24,7 @@
 #include <libgearman-1.0/status.h>
 
 /* module version */
-#define PHP_GEARMAN_VERSION "2.0.5"
+#define PHP_GEARMAN_VERSION "2.0.6"
 
 extern zend_module_entry gearman_module_entry;
 #define phpext_gearman_ptr &gearman_module_entry

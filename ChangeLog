@@ -1,3 +1,7 @@
+Version 2.0.6
+-------------
+- fixing issue with double calling of zval_dtor in set fail callback
+
 Version 2.0.5
 -------------
 - fixing incorrect number of required parameters for GearmanClient::addServer
