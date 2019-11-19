@@ -349,6 +349,21 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_set_timeout, 0, 0, 1)
 	ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_set_ssl, 0, 0, 2)
+	ZEND_ARG_INFO(0, client_object)
+	ZEND_ARG_INFO(0, ssl)
+	ZEND_ARG_INFO(0, ca_file)
+	ZEND_ARG_INFO(0, certificate)
+	ZEND_ARG_INFO(0, key_file)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_client_set_ssl, 0, 0, 1)
+	ZEND_ARG_INFO(0, ssl)
+	ZEND_ARG_INFO(0, ca_file)
+	ZEND_ARG_INFO(0, certificate)
+	ZEND_ARG_INFO(0, key_file)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_client_add_server, 0, 0, 1)
 	ZEND_ARG_INFO(0, client_object)
 	ZEND_ARG_INFO(0, host)
@@ -792,6 +807,21 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_set_timeout, 0, 0, 1)
 	ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_set_ssl, 0, 0, 2)
+	ZEND_ARG_INFO(0, worker_object)
+	ZEND_ARG_INFO(0, ssl)
+	ZEND_ARG_INFO(0, ca_file)
+	ZEND_ARG_INFO(0, certificate)
+	ZEND_ARG_INFO(0, key_file)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_oo_gearman_worker_set_ssl, 0, 0, 1)
+	ZEND_ARG_INFO(0, ssl)
+	ZEND_ARG_INFO(0, ca_file)
+	ZEND_ARG_INFO(0, certificate)
+	ZEND_ARG_INFO(0, key_file)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_gearman_worker_set_id, 0, 0, 2)
 	ZEND_ARG_INFO(0, worker_object)
 	ZEND_ARG_INFO(0, id)
@@ -964,6 +994,7 @@ zend_function_entry gearman_functions[] = {
 	PHP_FE(gearman_client_remove_options, arginfo_gearman_client_remove_options)
 	PHP_FE(gearman_client_timeout, arginfo_gearman_client_timeout)
 	PHP_FE(gearman_client_set_timeout, arginfo_gearman_client_set_timeout)
+	PHP_FE(gearman_client_set_ssl, arginfo_gearman_client_set_ssl)
 	PHP_FE(gearman_client_context, arginfo_gearman_client_context)
 	PHP_FE(gearman_client_set_context, arginfo_gearman_client_set_context)
 	PHP_FE(gearman_client_add_server, arginfo_gearman_client_add_server)
@@ -1024,6 +1055,7 @@ zend_function_entry gearman_functions[] = {
 	PHP_FE(gearman_worker_remove_options, arginfo_gearman_worker_remove_options)
 	PHP_FE(gearman_worker_timeout, arginfo_gearman_worker_timeout)
 	PHP_FE(gearman_worker_set_timeout, arginfo_gearman_worker_set_timeout)
+	PHP_FE(gearman_worker_set_ssl, arginfo_gearman_worker_set_ssl)
 	PHP_FE(gearman_worker_set_id, arginfo_gearman_worker_set_id)
 	PHP_FE(gearman_worker_add_server, arginfo_gearman_worker_add_server)
 	PHP_FE(gearman_worker_add_servers, arginfo_gearman_worker_add_servers)
@@ -1070,6 +1102,7 @@ static zend_function_entry gearman_client_methods[]= {
 	PHP_ME_MAPPING(removeOptions, gearman_client_remove_options, arginfo_oo_gearman_client_remove_options, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(timeout, gearman_client_timeout, arginfo_oo_gearman_client_timeout, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(setTimeout, gearman_client_set_timeout, arginfo_oo_gearman_client_set_timeout, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(setSSL, gearman_client_set_ssl, arginfo_oo_gearman_client_set_ssl, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(context, gearman_client_context, arginfo_oo_gearman_client_context, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(setContext, gearman_client_set_context, arginfo_oo_gearman_client_set_context, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(addServer, gearman_client_add_server, arginfo_oo_gearman_client_add_server, ZEND_ACC_PUBLIC)
@@ -1140,6 +1173,7 @@ zend_function_entry gearman_worker_methods[]= {
 	PHP_ME_MAPPING(removeOptions, gearman_worker_remove_options, arginfo_oo_gearman_worker_remove_options, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(timeout, gearman_worker_timeout, arginfo_oo_gearman_worker_timeout, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(setTimeout, gearman_worker_set_timeout, arginfo_oo_gearman_worker_set_timeout, ZEND_ACC_PUBLIC)
+	PHP_ME_MAPPING(setSSL, gearman_worker_set_ssl, arginfo_oo_gearman_worker_set_ssl, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(setId, gearman_worker_set_id, arginfo_oo_gearman_worker_set_id, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(addServer, gearman_worker_add_server, arginfo_oo_gearman_worker_add_server, ZEND_ACC_PUBLIC)
 	PHP_ME_MAPPING(addServers, gearman_worker_add_servers, arginfo_oo_gearman_worker_add_servers, ZEND_ACC_PUBLIC)
@@ -1632,6 +1666,9 @@ PHP_MINIT_FUNCTION(gearman) {
 	REGISTER_LONG_CONSTANT("GEARMAN_CLIENT_FREE_TASKS",
 		GEARMAN_CLIENT_FREE_TASKS,
 		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_CLIENT_SSL",
+		GEARMAN_CLIENT_SSL,
+		CONST_CS | CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("GEARMAN_CLIENT_STATE_IDLE",
 		GEARMAN_CLIENT_STATE_IDLE,
 		CONST_CS | CONST_PERSISTENT);
@@ -1670,6 +1707,9 @@ PHP_MINIT_FUNCTION(gearman) {
 		CONST_CS | CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_TIMEOUT_RETURN",
 		GEARMAN_WORKER_TIMEOUT_RETURN,
+		CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_SSL",
+		GEARMAN_WORKER_SSL,
 		CONST_CS | CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("GEARMAN_WORKER_STATE_START",
 		GEARMAN_WORKER_STATE_START,

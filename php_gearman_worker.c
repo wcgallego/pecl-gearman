@@ -246,6 +246,49 @@ PHP_FUNCTION(gearman_worker_set_timeout) {
 }
 /* }}} */
 
+/* {{{ proto bool gearman_worker_set_ssl(object worker, bool ssl [, string ca_file [, string certificate [, string key_file ]]])
+   Set SSL for a worker structure. */
+PHP_FUNCTION(gearman_worker_set_ssl) {
+	zend_bool ssl = 0;
+	char *ca_file = NULL;
+	char *certificate = NULL;
+	char *key_file = NULL;
+	size_t ca_file_len = 0;
+	size_t certificate_len = 0;
+	size_t key_file_len = 0;
+
+        gearman_worker_obj *obj;
+        zval *zobj;
+
+        if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|bsss",
+					 &zobj, gearman_client_ce,
+					 &ssl, &ca_file, &ca_file_len,
+					 &certificate, &certificate_len,
+					 &key_file, &key_file_len) == FAILURE) {
+                RETURN_FALSE;
+        }
+        obj = Z_GEARMAN_WORKER_P(zobj);
+
+	if (ca_file == NULL || ca_file_len == (size_t) 0) {
+		cfg_get_string("gearman.ssl_ca_file", &ca_file);
+	}
+	if (certificate == NULL || certificate_len == (size_t) 0) {
+		cfg_get_string("gearman.ssl_certificate", &certificate);
+	}
+	if (key_file == NULL || key_file_len == (size_t) 0) {
+		cfg_get_string("gearman.ssl_key_file", &key_file);
+	}
+
+	gearman_worker_set_ssl(&(obj->worker), ssl, ca_file, certificate, key_file);
+        if (obj->ret != GEARMAN_SUCCESS) {
+                php_error_docref(NULL, E_WARNING, "%s",
+                                                 gearman_worker_error(&obj->worker));
+                RETURN_FALSE;
+        }
+	RETURN_TRUE;
+}
+/* }}} */
+
 /* {{{ proto void gearman_worker_set_id(object worker, string id)
    Set id for a worker structure. */
 PHP_FUNCTION(gearman_worker_set_id) {

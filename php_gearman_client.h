@@ -118,5 +118,6 @@ PHP_FUNCTION(gearman_client_clear_callbacks);
 PHP_FUNCTION(gearman_client_context);
 PHP_FUNCTION(gearman_client_set_context);
 PHP_FUNCTION(gearman_client_enable_exception_handler);
+PHP_FUNCTION(gearman_client_set_ssl);
 
 #endif  /* __PHP_GEARMAN_CLIENT_H */
