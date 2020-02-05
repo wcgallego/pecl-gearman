@@ -1,3 +1,6 @@
+Note: This is no longer under active development. If you'd like to pick up development as caretaker for the pecl-gearman project, please do so! I'd be happy to offer a redirect to anyone looking to be a better custodian than I have the last few years :)
+
+
 Build Status: https://travis-ci.org/wcgallego/pecl-gearman
 
 The Gearman PHP Extension provides a wrapper to libgearman. This
