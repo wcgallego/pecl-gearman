@@ -1,4 +1,4 @@
-Note: This is no longer under active development. If you'd like to pick up development as caretaker for the pecl-gearman project, please do so! I'd be happy to offer a redirect to anyone looking to be a better custodian than I have the last few years :)
+Note: This repo is no longer under active development beyond v2.0.6 (for PHP 7.3.x). If you're looking for a pecl-gearman repo with future updates (for PHP 7.4.x and beyond), you can find it at the official pecl-gearman repo here: [https://github.com/php/pecl-networking-gearman](https://github.com/php/pecl-networking-gearman)
 
 
 Build Status: https://travis-ci.org/wcgallego/pecl-gearman
