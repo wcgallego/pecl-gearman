@@ -77,5 +77,6 @@ PHP_FUNCTION(gearman_worker_grab_job);
 PHP_FUNCTION(gearman_worker_add_function);
 PHP_FUNCTION(gearman_worker_work);
 PHP_FUNCTION(gearman_worker_ping);
+PHP_FUNCTION(gearman_worker_set_ssl);
 
 #endif  /* __PHP_GEARMAN_WORKER_H */
